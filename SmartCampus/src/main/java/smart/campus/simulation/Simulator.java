@@ -1,4 +1,4 @@
-package main.java.smart.campus.simulation;
+package smart.campus.simulation;
 
 public class Simulator {
 
