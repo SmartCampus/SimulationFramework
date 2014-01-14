@@ -1,4 +1,4 @@
-package smart.campus.simulation;
+package smart.campus.simulation.simulator;
 
 import akka.actor.UntypedActor;
 

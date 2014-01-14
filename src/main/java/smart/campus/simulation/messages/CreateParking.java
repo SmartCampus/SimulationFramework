@@ -1,4 +1,4 @@
-package smart.campus.simulation;
+package smart.campus.simulation.messages;
 
 public class CreateParking {
 	private final String name;

@@ -1,5 +1,7 @@
-package smart.campus.simulation;
+package smart.campus.simulation.simulator;
 
+import smart.campus.simulation.messages.CreateParking;
+import smart.campus.simulation.messages.InitParking;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;

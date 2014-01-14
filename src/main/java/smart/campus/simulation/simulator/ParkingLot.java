@@ -1,4 +1,4 @@
-package smart.campus.simulation;
+package smart.campus.simulation.simulator;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
