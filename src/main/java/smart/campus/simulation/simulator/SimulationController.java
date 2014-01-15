@@ -1,9 +1,13 @@
 package smart.campus.simulation.simulator;
 
+import java.util.concurrent.TimeUnit;
+
+import scala.concurrent.duration.Duration;
 import smart.campus.simulation.messages.CreateParking;
 import smart.campus.simulation.messages.InitParking;
 import smart.campus.simulation.messages.StartSimulation;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 
@@ -38,12 +42,20 @@ public class SimulationController extends UntypedActor{
 			
 			// TODO A mettre dans un systeme de log
 			System.out.println("Je lance la simulation");
+			
+			getContext().system().scheduler().scheduleOnce(Duration.create(tmp.getDuration(), TimeUnit.SECONDS),
+                    getSelf(), PoisonPill.getInstance(), getContext().dispatcher(), null);
 		}
 		else{
 			
 			// TODO A mettre dans un systeme de log
 			System.out.println("J'ai recu un message que je ne comprends pas");
 		}
+	}
+	
+	@Override
+	public void postStop() throws Exception {
+		System.out.println("Je me suicide");
 	}
 
 }

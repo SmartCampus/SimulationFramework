@@ -18,7 +18,6 @@ public class ParkingSensor extends UntypedActor {
     private float value ;
     private Cancellable tick ;
 
-
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof StartParkingSimulation){
