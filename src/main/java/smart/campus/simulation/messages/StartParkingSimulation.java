@@ -4,9 +4,9 @@ public class StartParkingSimulation {
 	private final int begin;
 	private final int duration;
 	private final int interval;
-	private final int value;
+	private final float value;
 	
-	public StartParkingSimulation(int b, int d, int i, int v) {
+	public StartParkingSimulation(int b, int d, int i, float v) {
 		this.begin = b;
 		this.duration = d;
 		this.interval = i;
@@ -25,7 +25,7 @@ public class StartParkingSimulation {
 		return interval;
 	}
 
-	public int getValue() {
+	public float getValue() {
 		return value;
 	}
 }

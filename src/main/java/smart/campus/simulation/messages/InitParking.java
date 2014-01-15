@@ -13,7 +13,7 @@ public class InitParking {
 		return name;
 	}
 
-	public float getNbSensors() {
+	public float getInitVal() {
 		return initVal;
 	}
 
