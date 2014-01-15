@@ -10,11 +10,15 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 
 public class SimulationController extends UntypedActor{
 
+	private LoggingAdapter log;
 	
 	public SimulationController() {
+		this.log = Logging.getLogger(getContext().system(), this);
 	}
 	
 	@Override
@@ -24,7 +28,7 @@ public class SimulationController extends UntypedActor{
 			this.getContext().actorOf(Props.create(ParkingLot.class, tmp.getNbSensors()), tmp.getName());
 			
 			// TODO A mettre dans un systeme de log
-			System.out.println("Je cree un Parking");
+			this.log.debug("Je cree un Parking");
 		}
 		else if (arg0 instanceof InitParking){
 			InitParking tmp = (InitParking) arg0;
@@ -32,7 +36,7 @@ public class SimulationController extends UntypedActor{
 			actorTmp.tell(tmp, this.getSelf());
 			
 			// TODO A mettre dans un systeme de log
-			System.out.println("J'initialise un parking");
+			this.log.debug("J'initialise un parking");
 		}
 		else if (arg0 instanceof StartSimulation){
 			StartSimulation tmp = (StartSimulation) arg0;
@@ -41,7 +45,7 @@ public class SimulationController extends UntypedActor{
 			}
 			
 			// TODO A mettre dans un systeme de log
-			System.out.println("Je lance la simulation");
+			this.log.debug("Je lance la simulation");
 			
 			getContext().system().scheduler().scheduleOnce(Duration.create(tmp.getDuration(), TimeUnit.SECONDS),
                     getSelf(), PoisonPill.getInstance(), getContext().dispatcher(), null);
@@ -49,13 +53,13 @@ public class SimulationController extends UntypedActor{
 		else{
 			
 			// TODO A mettre dans un systeme de log
-			System.out.println("J'ai recu un message que je ne comprends pas");
+			this.log.debug("J'ai recu un message que je ne comprends pas");
 		}
 	}
 	
 	@Override
 	public void postStop() throws Exception {
-		System.out.println("Je me suicide");
+		this.log.debug("Je me suicide");
 	}
 
 }

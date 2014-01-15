@@ -2,6 +2,8 @@ package smart.campus.simulation.simulator;
 
 import akka.actor.Cancellable;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import scala.concurrent.duration.Duration;
 import smart.campus.simulation.messages.SendRequest;
 import smart.campus.simulation.messages.StartParkingSimulation;
@@ -17,7 +19,12 @@ public class ParkingSensor extends UntypedActor {
     private int interval;
     private float value ;
     private Cancellable tick ;
-
+    private LoggingAdapter log;
+    
+    public ParkingSensor() {
+    	this.log = Logging.getLogger(getContext().system(), this);	
+    }
+    
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof StartParkingSimulation){
@@ -32,7 +39,7 @@ public class ParkingSensor extends UntypedActor {
                     getSelf(), new SendRequest(), getContext().dispatcher(), null);
         }
         if(o instanceof SendRequest){
-            System.out.println("["+getSelf().path().name()+","+time+","+value+"]");
+        	this.log.debug("["+time+","+value+"]");
             time += interval;
         }
     }

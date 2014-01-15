@@ -1,5 +1,7 @@
 package smart.campus.simulation.simulator;
 
+import com.typesafe.config.ConfigFactory;
+
 import smart.campus.simulation.messages.CreateParking;
 import smart.campus.simulation.messages.InitParking;
 import smart.campus.simulation.messages.StartSimulation;
@@ -11,7 +13,7 @@ public class Simulator {
 	private ActorRef controller;
 	
 	public Simulator() {
-		ActorSystem system = ActorSystem.create("Simulation");
+		ActorSystem system = ActorSystem.create("Simulation", ConfigFactory.load());
 		controller = system.actorOf(Props.create(SimulationController.class), "SimulationControlor");
 	}
 	
@@ -26,7 +28,7 @@ public class Simulator {
 	}
 	
 	public Simulator simulate(){
-		controller.tell(new StartSimulation(10, 10, 1), ActorRef.noSender());
+		controller.tell(new StartSimulation(10, 3, 1), ActorRef.noSender());
 		return this;
 	}
 	
