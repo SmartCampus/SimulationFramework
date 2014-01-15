@@ -6,6 +6,9 @@ import scala.concurrent.duration.Duration;
 import smart.campus.simulation.messages.SendRequest;
 import smart.campus.simulation.messages.StartParkingSimulation;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,6 +21,26 @@ public class ParkingSensor extends UntypedActor {
     private float value ;
     private Cancellable tick ;
 
+    /**
+     * @param time
+     * @return percentage of occupied parking places in regards of the hour of the day
+     */
+    private double calculate(long time) {
+		Calendar c = new GregorianCalendar();
+		c.setTimeInMillis(time);
+		double t = c.get(Calendar.HOUR_OF_DAY) + c.get(Calendar.MINUTE)/60;
+		if(t<6.5 || t> 18.5) return 0;
+		double res=0.01208028907 * Math.pow(t, 6) - 0.8830270156 * Math.pow(t, 5)
+				+ 26.18040012 * Math.pow(t, 4) - 401.9522656 * Math.pow(t, 3)
+				+ 3359.404392 * Math.pow(t, 2) - 14430.25924 * t + 24839.21865;
+		return res>0?res:0;
+	}
+    
+    private boolean isOccupied(double res) {
+    	Random rand = new Random();
+		return rand.nextInt(100) < res;
+	}
+    
     @Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof StartParkingSimulation){
@@ -32,7 +55,8 @@ public class ParkingSensor extends UntypedActor {
                     getSelf(), new SendRequest(), getContext().dispatcher(), null);
         }
         if(o instanceof SendRequest){
-            System.out.println("["+getSelf().path().name()+","+time+","+value+"]");
+        	double res = calculate(time*3600000);
+            System.out.println("["+getSelf().path().name()+","+time+","+ isOccupied(res) +"]");
             time += interval;
         }
     }

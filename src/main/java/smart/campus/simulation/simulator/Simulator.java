@@ -31,7 +31,7 @@ public class Simulator {
 	}
 	
 	public static void main(String[] args) {
-		new Simulator().addParkingLot("Parking1", 5).initParkingLot("Parking1", 0.3f).simulate();
+		new Simulator().addParkingLot("Parking1", 5).initParkingLot("Parking1", 0).simulate();
 	}
 	
 }
