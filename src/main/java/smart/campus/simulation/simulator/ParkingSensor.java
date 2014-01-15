@@ -36,4 +36,9 @@ public class ParkingSensor extends UntypedActor {
             time += interval;
         }
     }
+
+    @Override
+    public void postStop(){
+        tick.cancel();
+    }
 }
