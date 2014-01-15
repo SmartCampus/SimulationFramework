@@ -1,11 +1,11 @@
-package smart.campus.simulation.simulator;
+package org.smartcampus.simulation.framework.simulator;
 
 import java.util.concurrent.TimeUnit;
 
 import scala.concurrent.duration.Duration;
-import smart.campus.simulation.messages.CreateParking;
-import smart.campus.simulation.messages.InitParking;
-import smart.campus.simulation.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.CreateParking;
+import org.smartcampus.simulation.framework.messages.InitParking;
+import org.smartcampus.simulation.framework.messages.StartSimulation;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;

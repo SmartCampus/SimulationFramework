@@ -1,4 +1,4 @@
-package smart.campus.simulation.messages;
+package org.smartcampus.simulation.framework.messages;
 
 public class StartParkingSimulation {
 	private final int begin;

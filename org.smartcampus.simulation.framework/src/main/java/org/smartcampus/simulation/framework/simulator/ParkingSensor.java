@@ -1,14 +1,14 @@
-package smart.campus.simulation.simulator;
+package org.smartcampus.simulation.framework.simulator;
 
 import akka.actor.Cancellable;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import scala.concurrent.duration.Duration;
-import smart.campus.simulation.messages.SendRequest;
-import smart.campus.simulation.messages.StartParkingSimulation;
+import org.smartcampus.simulation.framework.messages.SendRequest;
+import org.smartcampus.simulation.framework.messages.StartParkingSimulation;
 
-import java.util.Calendar;
+import java.lang.Exception;import java.lang.Math;import java.lang.Object;import java.lang.Override;import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

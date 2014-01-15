@@ -1,12 +1,12 @@
-package smart.campus.simulation.simulator;
+package org.smartcampus.simulation.framework.simulator;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.routing.*;
-import smart.campus.simulation.messages.InitParking;
-import smart.campus.simulation.messages.StartParkingSimulation;
-import smart.campus.simulation.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.InitParking;
+import org.smartcampus.simulation.framework.messages.StartParkingSimulation;
+import org.smartcampus.simulation.framework.messages.StartSimulation;
 
 import java.util.ArrayList;
 import java.util.List;
