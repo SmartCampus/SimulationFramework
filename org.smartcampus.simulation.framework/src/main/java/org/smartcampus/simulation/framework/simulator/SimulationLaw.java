@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.routing.*;
+
 import org.smartcampus.simulation.framework.messages.InitParking;
 import org.smartcampus.simulation.framework.messages.StartParkingSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -14,12 +15,12 @@ import java.util.List;
 /**
  * Created by foerster on 14/01/14.
  */
-public class ParkingLot extends UntypedActor {
+public class SimulationLaw extends UntypedActor {
 
     private Router router;
     private float value;
 
-    public ParkingLot(int numberOfSensors){
+    public SimulationLaw(int numberOfSensors){
         List<Routee> routees = new ArrayList<Routee>();
         for(int i = 0; i < numberOfSensors ; i++){
             ActorRef r = getContext().actorOf(Props.create(ParkingSensor.class),getSelf().path().name()+"-"+i);

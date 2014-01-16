@@ -3,9 +3,12 @@ package org.smartcampus.simulation.framework.simulator;
 import java.util.concurrent.TimeUnit;
 
 import scala.concurrent.duration.Duration;
+
 import org.smartcampus.simulation.framework.messages.CreateParking;
 import org.smartcampus.simulation.framework.messages.InitParking;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
+import org.smartcampus.simulation.framework.simulator.SimulationLaw;
+
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
@@ -25,7 +28,7 @@ public class SimulationController extends UntypedActor{
 	public void onReceive(Object arg0) throws Exception {
 		if (arg0 instanceof CreateParking){
 			CreateParking tmp = (CreateParking) arg0;
-			this.getContext().actorOf(Props.create(ParkingLot.class, tmp.getNbSensors()), tmp.getName());
+			this.getContext().actorOf(Props.create(SimulationLaw.class, tmp.getNbSensors()), tmp.getName());
 			
 			// TODO A mettre dans un systeme de log
 			this.log.debug("Je cree un Parking");
