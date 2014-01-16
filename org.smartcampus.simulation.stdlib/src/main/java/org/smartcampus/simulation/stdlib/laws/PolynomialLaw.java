@@ -7,12 +7,13 @@ import org.smartcampus.simulation.framework.simulator.Law;
 
 
 
+
 /**
  * @author Jerome Rancati 
  * @creationDate  15 January 2014
  *
  */
-public class PolynomialLaw extends Law {
+public class PolynomialLaw extends Law<Double, Double> {
     List<Double> coeficients;
     
 
@@ -29,10 +30,10 @@ public class PolynomialLaw extends Law {
     }
     
     @Override
-    public double evalute(int x){
-        double res = 0;
-        for(int i=0;i<getCoeficients().size(); i++){
-            res+=getCoeficients().get(i)*Math.pow(x, i);
+    public Double evaluate(Double x){
+    	double res=0;
+        for(int i=0;i<this.coeficients.size(); i++){
+            res+=this.coeficients.get(i)*Math.pow(x, i);
         }
         return res;
     }
@@ -41,7 +42,7 @@ public class PolynomialLaw extends Law {
      * Getter for the original ordonnee
      * @return the original ordonnee
      */
-    private Double getOriginalOrdonee(){
+    protected Double getOriginalOrdonee(){
         return this.coeficients.get(0);
     }
 
@@ -60,3 +61,18 @@ public class PolynomialLaw extends Law {
     }
     
 }
+
+/*
+    private double calculate(long time) {
+		Calendar c = new GregorianCalendar();
+		c.setTimeInMillis(time);
+		double t = c.get(Calendar.HOUR_OF_DAY) + c.get(Calendar.MINUTE)/60;
+		if(t<6.5 || t> 18.5) return 0;
+		double res=0.01208028907 * Math.pow(t, 6) - 0.8830270156 * Math.pow(t, 5)
+				+ 26.18040012 * Math.pow(t, 4) - 401.9522656 * Math.pow(t, 3)
+				+ 3359.404392 * Math.pow(t, 2) - 14430.25924 * t + 24839.21865;
+		return res>0?res:0;
+	}
+ */
+
+
