@@ -1,16 +1,18 @@
 package org.smartcampus.simulation.framework.messages;
 
-public class StartParkingSimulation {
+import org.smartcampus.simulation.framework.simulator.Law;
+
+public class StartSensorSimulation {
 	private final int begin;
 	private final int duration;
 	private final int interval;
-	private final float value;
-	
-	public StartParkingSimulation(int b, int d, int i, float v) {
+	private final Law<?, ?> law;
+
+	public StartSensorSimulation(int b, int d, int i, Law<?, ?> l) {
 		this.begin = b;
 		this.duration = d;
 		this.interval = i;
-		this.value = v;
+		this.law = l;
 	}
 
 	public int getBegin() {
@@ -25,7 +27,7 @@ public class StartParkingSimulation {
 		return interval;
 	}
 
-	public float getValue() {
-		return value;
+	public Law<?, ?> getLaw() {
+		return law;
 	}
 }

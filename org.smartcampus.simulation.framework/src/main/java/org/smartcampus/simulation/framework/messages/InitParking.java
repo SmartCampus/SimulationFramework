@@ -1,10 +1,12 @@
 package org.smartcampus.simulation.framework.messages;
 
+import org.smartcampus.simulation.framework.simulator.Law;
+
 public class InitParking {
 	private final String name;
-	private final float initVal;
-	
-	public InitParking(String n, float initVal2) {
+	private final Law<?, ?> initVal;
+
+	public InitParking(String n, Law<?, ?> initVal2) {
 		this.name = n;
 		this.initVal = initVal2;
 	}
@@ -13,7 +15,7 @@ public class InitParking {
 		return name;
 	}
 
-	public float getInitVal() {
+	public Law<?, ?> getInitVal() {
 		return initVal;
 	}
 

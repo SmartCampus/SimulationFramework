@@ -1,19 +1,22 @@
 package org.smartcampus.simulation.framework.messages;
 
+import org.smartcampus.simulation.framework.simulator.SimulationLaw;
+
 public class CreateParking {
 	private final String name;
-	private final int nbSensors;
-	
-	public CreateParking(String n, int nbS) {
+	private final Class<? extends SimulationLaw> simulationLawClass;
+
+	public CreateParking(String n, Class<? extends SimulationLaw> c) {
 		this.name = n;
-		this.nbSensors = nbS;
+		this.simulationLawClass = c;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public int getNbSensors() {
-		return nbSensors;
+	public Class<? extends SimulationLaw> getSimulationLawClass() {
+		return simulationLawClass;
 	}
+
 }
