@@ -8,7 +8,7 @@ import akka.routing.*;
 import org.smartcampus.simulation.framework.messages.InitParking;
 import org.smartcampus.simulation.framework.messages.StartParkingSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
-import org.smartcampus.simulation.framework.simulator.ParkingSensor;
+import org.smartcampus.simulation.framework.simulator.Sensor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class ParkingSimulationLaw extends UntypedActor {
     public ParkingSimulationLaw(int numberOfSensors){
         List<Routee> routees = new ArrayList<Routee>();
         for(int i = 0; i < numberOfSensors ; i++){
-            ActorRef r = getContext().actorOf(Props.create(ParkingSensor.class),getSelf().path().name()+"-"+i);
+            ActorRef r = getContext().actorOf(Props.create(Sensor.class),getSelf().path().name()+"-"+i);
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
