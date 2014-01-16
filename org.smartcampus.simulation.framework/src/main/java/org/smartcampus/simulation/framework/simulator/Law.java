@@ -3,22 +3,18 @@
  */
 package org.smartcampus.simulation.framework.simulator;
 
-import org.smartcampus.simulation.stdlib.laws.exception.BadAbscissaException;
-
 
 /**
  * @author Jerome Rancati 
  * @creationDate  15 January 2014
  *
  */
-public abstract class Law {
+public abstract class Law<T, S> {
     
     /**
-     * Return the percentage of chance to be between the abscissa axe and the curb 
-     * @param i the abscissa the point
-     * @return the percentage
-     * @throws BadAbscissaException 
+     * evaluate the law at the value x
+     * @param x the value where the law has to be evaluate
+     * @return the evaluation of the law at the value x
      */
-    public abstract double percentage(int i) throws BadAbscissaException;
-    
+    protected abstract S evaluate(T x);
 }
