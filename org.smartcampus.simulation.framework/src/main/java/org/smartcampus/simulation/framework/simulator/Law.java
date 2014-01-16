@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.smartcampus.simulation.stdlib.laws;
+package org.smartcampus.simulation.framework.simulator;
 
 import org.smartcampus.simulation.stdlib.laws.exception.BadAbscissaException;
 
