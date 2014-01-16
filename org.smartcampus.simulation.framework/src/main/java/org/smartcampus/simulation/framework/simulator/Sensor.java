@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by foerster on 14/01/14.
  */
-public class ParkingSensor extends UntypedActor {
+public abstract class Sensor extends UntypedActor {
 
     private int time ;
     private int interval;
@@ -24,7 +24,7 @@ public class ParkingSensor extends UntypedActor {
     private Cancellable tick ;
     private LoggingAdapter log;
     
-    public ParkingSensor() {
+    public Sensor() {
     	this.log = Logging.getLogger(getContext().system(), this);	
     }
 

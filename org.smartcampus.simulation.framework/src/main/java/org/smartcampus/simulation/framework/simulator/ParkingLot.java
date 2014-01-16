@@ -22,7 +22,7 @@ public class ParkingLot extends UntypedActor {
     public ParkingLot(int numberOfSensors){
         List<Routee> routees = new ArrayList<Routee>();
         for(int i = 0; i < numberOfSensors ; i++){
-            ActorRef r = getContext().actorOf(Props.create(ParkingSensor.class),getSelf().path().name()+"-"+i);
+            ActorRef r = getContext().actorOf(Props.create(Sensor.class),getSelf().path().name()+"-"+i);
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
