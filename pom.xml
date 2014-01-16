@@ -2,17 +2,22 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.smartcampus.simulation.stdlib</groupId>
-  <artifactId>smartcampus.simulation.stdlib</artifactId>
+  <groupId>org.smartcampus.simulation</groupId>
+  <artifactId>smartcampus.simulation</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
-  <name>smartcampus.simulation.stdlib</name>
+  <name>smartcampus.simulation</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <modules>
+    <module>org.smartcampus.simulation.framework</module>
+    <module>org.smartcampus.simulation.stdlib</module>
+  </modules>
 
   <dependencies>
     <dependency>
@@ -28,3 +33,4 @@
     </dependency>
   </dependencies>
 </project>
+
