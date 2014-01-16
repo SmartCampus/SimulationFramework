@@ -1,9 +1,7 @@
 /**
  * 
  */
-package org.smartcampus.simulation.stdlib.laws;
-
-import org.smartcampus.simulation.stdlib.laws.exception.BadAbscissaException;
+package org.smartcampus.simulation.framework.simulator;
 
 
 /**
@@ -19,6 +17,6 @@ public abstract class Law {
      * @return the percentage
      * @throws BadAbscissaException 
      */
-    public abstract double percentage(int i) throws BadAbscissaException;
+    public abstract double percentage(int i);
     
 }

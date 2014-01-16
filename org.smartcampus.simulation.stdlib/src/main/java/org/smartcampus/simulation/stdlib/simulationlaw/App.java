@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.stdlib;
+package org.smartcampus.simulation.stdlib.simulationlaw;
 
 /**
  * Hello world!

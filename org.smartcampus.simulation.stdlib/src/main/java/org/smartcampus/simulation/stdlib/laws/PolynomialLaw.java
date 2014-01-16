@@ -3,7 +3,7 @@ package org.smartcampus.simulation.stdlib.laws;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.smartcampus.simulation.stdlib.laws.exception.BadAbscissaException;
+import org.smartcampus.simulation.framework.simulator.Law;
 
 
 
@@ -55,16 +55,12 @@ public class PolynomialLaw extends Law {
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see smart.campus.simulation.law.Law#percentage(int)
-     */
     @Override
-    public double percentage(int abscisse) throws BadAbscissaException {
+    public double percentage(int abscisse) {
         if (inTheInterval(abscisse)) {
             return evaluate(abscisse)*100/this.majoration;
         } else {
-            throw new BadAbscissaException();
+        	return -1;
         }
         
     }
