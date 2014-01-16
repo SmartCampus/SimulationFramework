@@ -14,9 +14,6 @@ import org.smartcampus.simulation.framework.simulator.Law;
  */
 public class PolynomialLaw extends Law {
     List<Double> coeficients;
-    int intervalMin=0;
-    int intervalMax=24;
-    int majoration=100;
     
 
     /**
@@ -27,43 +24,20 @@ public class PolynomialLaw extends Law {
      * @param majoration the maximum point  Northing (ordonnee) of the function
      * @param doubles
      */
-    public PolynomialLaw(int min, int max, int majoration, Double ...doubles) {
-        this.intervalMax=max;
-        this.intervalMin=min;
-        this.majoration=majoration;
+    public PolynomialLaw(Double ...doubles) {
         this.coeficients = new LinkedList<Double>();
         for(Double e:doubles){
             this.coeficients.add(e);
         }
     }
     
-    /**
-     * evaluate the polynomial at the value x
-     * @param x the abscissa of the polynomial function 
-     * @return the evaluation of the polynomial function at the abscissa x
-     */
-    private double evaluate(int x){
+    @Override
+    public double evalute(int x){
         double res = this.coeficients.get(0);
         for(int i=1;i<this.coeficients.size(); i++){
             res+=this.coeficients.get(i)*Math.pow(x, i-1);
         }
         return res;
     }
-    
-    private boolean inTheInterval(int abscisse){
-        if(abscisse>=this.intervalMin && abscisse<=this.intervalMax) return true;
-        return false;
-    }
-    
-    @Override
-    public double percentage(int abscisse) {
-        if (inTheInterval(abscisse)) {
-            return evaluate(abscisse)*100/this.majoration;
-        } else {
-        	return -1;
-        }
-        
-    }
-
 
 }
