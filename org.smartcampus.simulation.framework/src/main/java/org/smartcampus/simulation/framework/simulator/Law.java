@@ -12,11 +12,9 @@ package org.smartcampus.simulation.framework.simulator;
 public abstract class Law {
     
     /**
-     * Return the percentage of chance to be between the abscissa axe and the curb 
-     * @param i the abscissa the point
-     * @return the percentage
-     * @throws BadAbscissaException 
+     * evaluate the law at the value x
+     * @param x the value where the law has to be evaluate
+     * @return the evaluation of the law at the value x
      */
-    public abstract double percentage(int i);
-    
+    public abstract double evalute(int x);
 }
