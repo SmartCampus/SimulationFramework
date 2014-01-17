@@ -16,5 +16,5 @@ public abstract class Law<T, S> {
      * @param x the value where the law has to be evaluate
      * @return the evaluation of the law at the value x
      */
-    protected abstract S evaluate(T x);
+    protected abstract S evaluate(T ...x);
 }

@@ -71,7 +71,7 @@ public abstract class SimulationLaw<S, T> extends UntypedActor {
 		}
 	}
 
-	protected abstract S computeValue();
+	protected abstract S[] computeValue();
 	
 
     @Override

@@ -30,10 +30,10 @@ public class PolynomialLaw extends Law<Double, Double> {
     }
     
     @Override
-    public Double evaluate(Double x){
+    public Double evaluate(Double ...x){
     	double res=0;
         for(int i=0;i<this.coeficients.size(); i++){
-            res+=this.coeficients.get(i)*Math.pow(x, i);
+            res+=this.coeficients.get(i)*Math.pow(x[0], i);
         }
         return res;
     }

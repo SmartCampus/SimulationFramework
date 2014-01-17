@@ -11,11 +11,14 @@ import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 public class ParkingSimulationLaw extends SimulationLaw<Double, Double> {
 	
 	@Override
-	protected Double computeValue() {
+	protected Double[] computeValue() {
 		Calendar c = new GregorianCalendar();
 		c.setTimeInMillis(time*3600000);
-		double t = c.get(Calendar.HOUR_OF_DAY) + c.get(Calendar.MINUTE)/60;
-		if(t<6.5 || t> 18.5) return 0.;	
+		Double[] t= {(double) (c.get(Calendar.HOUR_OF_DAY) + c.get(Calendar.MINUTE)/60)} ;
+		if(t[0]<6.5 || t[0]> 18.5) {
+			Double[] tmp = {0.};
+			return tmp;	
+		}
 		return t;
 	}
 }
