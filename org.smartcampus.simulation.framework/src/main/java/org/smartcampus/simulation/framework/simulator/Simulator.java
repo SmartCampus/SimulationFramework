@@ -21,7 +21,7 @@ public class Simulator {
 	}
 
 	public Simulator addParkingLot(String name,
-			final Class<? extends SimulationLaw<?, ?>> simulationLawClass) {
+			final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass) {
 		controller.tell(new CreateSimulationLaw(name, simulationLawClass), ActorRef.noSender());
 		return this;
 	}

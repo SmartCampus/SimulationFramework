@@ -3,6 +3,8 @@ package org.smartcampus.simulation.framework.simulator;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+
+import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import java.lang.Exception;
 import java.lang.Object;
@@ -24,12 +26,14 @@ public abstract class Sensor<S, R> extends UntypedActor {
 	@Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof UpdateSensorSimulation){
-            UpdateSensorSimulation message = (UpdateSensorSimulation) o;
+            UpdateSensorSimulation<S> message = (UpdateSensorSimulation<S>) o;
             this.time = message.getBegin();
-            this.value= (S) message.getValue();
+            this.value = message.getValue();
             
         	R res = this.transformResponse(this.value);
         	this.log.debug("["+time+","+(res)+"]");
+        	
+        	this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
         }
     }
     
