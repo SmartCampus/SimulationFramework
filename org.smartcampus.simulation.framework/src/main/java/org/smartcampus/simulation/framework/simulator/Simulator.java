@@ -21,13 +21,13 @@ public class Simulator {
 	}
 
 	public Simulator addParkingLot(String name,
-			final Class<? extends SimulationLaw> simulationLawClass) {
+			final Class<? extends SimulationLaw<?, ?>> simulationLawClass) {
 		controller.tell(new CreateParking(name, simulationLawClass), ActorRef.noSender());
 		return this;
 	}
 
 	public Simulator addSensors(String name,
-			final Class<? extends Sensor<?, ?, ?>> sensorClass, final int nbsensors) {
+			final Class<? extends Sensor<?, ?>> sensorClass, final int nbsensors) {
 		controller.tell(new AddSensor(name, nbsensors, sensorClass), ActorRef.noSender());
 		return this;
 	}
@@ -38,7 +38,7 @@ public class Simulator {
 	}
 
 	public Simulator simulate() {
-		controller.tell(new StartSimulation(10, 10, 1), ActorRef.noSender());
+		controller.tell(new StartSimulation(10, 3, 1), ActorRef.noSender());
 		return this;
 	}
 }

@@ -1,60 +1,38 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import akka.actor.Cancellable;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import scala.concurrent.duration.Duration;
-import org.smartcampus.simulation.framework.messages.SendRequest;
-import org.smartcampus.simulation.framework.messages.StartSensorSimulation;
-
+import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import java.lang.Exception;
 import java.lang.Object;
 import java.lang.Override;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by foerster on 14/01/14.
  */
-public abstract class Sensor<T, S, R> extends UntypedActor {
+public abstract class Sensor<S, R> extends UntypedActor {
 
-    protected int time ;
-    private int interval;
-    private Cancellable tick ;
+    private int time ;
     protected LoggingAdapter log;
-    private Law<T, S> law;
+    private S value;
     
     public Sensor() {
     	this.log = Logging.getLogger(getContext().system(), this);	
     }
       
-    @SuppressWarnings("unchecked")
 	@Override
     public void onReceive(Object o) throws Exception {
-        if(o instanceof StartSensorSimulation){
-            StartSensorSimulation message = (StartSensorSimulation) o;
+        if(o instanceof UpdateSensorSimulation){
+            UpdateSensorSimulation message = (UpdateSensorSimulation) o;
             this.time = message.getBegin();
-            this.interval = message.getInterval();
-            this.law = (Law<T, S>) message.getLaw();
+            this.value= (S) message.getValue();
             
-            tick  = getContext().system().scheduler().schedule(
-                    Duration.Zero(),
-                    Duration.create(interval, TimeUnit.SECONDS),
-                    getSelf(), new SendRequest(), getContext().dispatcher(), null);
-        }
-        else if(o instanceof SendRequest){
-        	S res = law.evaluate(computeValue());
-        	this.log.debug("["+time+","+transformResponse(res)+"]");
-            time += interval;
+        	R res = this.transformResponse(this.value);
+        	this.log.debug("["+time+","+(res)+"]");
         }
     }
     
-    public abstract T computeValue();
-
     protected abstract R transformResponse(S res);
 
-    @Override
-    public void postStop(){
-        tick.cancel();
-    }
 }
