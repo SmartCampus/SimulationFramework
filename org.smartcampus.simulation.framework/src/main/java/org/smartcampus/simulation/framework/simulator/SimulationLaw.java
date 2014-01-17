@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.InitParking;
+import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
@@ -26,10 +26,10 @@ import akka.routing.Router;
 public abstract class SimulationLaw<S, T> extends UntypedActor {
 
 	private Router router;
-	protected Law<S, T> value;
+	protected Law<S, T> law;
 	protected int time;
     private int interval;
-    private Cancellable tick ;
+    private Cancellable tick;
     
 	private void createSensor(int numberOfSensors, Class<? extends Sensor<T,?>> sensorClass){
 		List<Routee> routees = new ArrayList<Routee>();
@@ -44,8 +44,8 @@ public abstract class SimulationLaw<S, T> extends UntypedActor {
 	
 	@Override
 	public void onReceive(Object o) throws Exception {
-		if (o instanceof InitParking) {
-			value = (Law<S, T>) ((InitParking) o).getInitVal();
+		if (o instanceof InitSimulationLaw) {
+			law = (Law<S, T>) ((InitSimulationLaw) o).getLaw();
 		}
 		else if (o instanceof StartSimulation) {
 			StartSimulation message = (StartSimulation) o;
@@ -58,7 +58,7 @@ public abstract class SimulationLaw<S, T> extends UntypedActor {
                     getSelf(), new UpdateSimulation(), getContext().dispatcher(), null);
 		}
 		else if (o instanceof UpdateSimulation){
-			T res = this.value.evaluate(this.computeValue());
+			T res = this.law.evaluate(this.computeValue());
 			
 			router.route(
 					new UpdateSensorSimulation(time, res),

@@ -3,8 +3,8 @@ package org.smartcampus.simulation.framework.simulator;
 import com.typesafe.config.ConfigFactory;
 
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.CreateParking;
-import org.smartcampus.simulation.framework.messages.InitParking;
+import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -22,7 +22,7 @@ public class Simulator {
 
 	public Simulator addParkingLot(String name,
 			final Class<? extends SimulationLaw<?, ?>> simulationLawClass) {
-		controller.tell(new CreateParking(name, simulationLawClass), ActorRef.noSender());
+		controller.tell(new CreateSimulationLaw(name, simulationLawClass), ActorRef.noSender());
 		return this;
 	}
 
@@ -33,7 +33,7 @@ public class Simulator {
 	}
 
 	public Simulator initParkingLot(String name, final Law<?, ?> initVal) {
-		controller.tell(new InitParking(name, initVal), ActorRef.noSender());
+		controller.tell(new InitSimulationLaw(name, initVal), ActorRef.noSender());
 		return this;
 	}
 

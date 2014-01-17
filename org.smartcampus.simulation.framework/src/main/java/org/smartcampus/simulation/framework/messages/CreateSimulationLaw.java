@@ -2,11 +2,12 @@ package org.smartcampus.simulation.framework.messages;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
-public class CreateParking {
+public class CreateSimulationLaw {
+	
 	private final String name;
 	private final Class<? extends SimulationLaw<?, ?>> simulationLawClass;
 
-	public CreateParking(String n, Class<? extends SimulationLaw<?, ?>> c) {
+	public CreateSimulationLaw(String n, Class<? extends SimulationLaw<?, ?>> c) {
 		this.name = n;
 		this.simulationLawClass = c;
 	}
