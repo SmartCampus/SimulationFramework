@@ -56,6 +56,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 		this.router = new Router(new BroadcastRoutingLogic(), routees);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public final void onReceive(Object o) throws Exception {
 		if (o instanceof StartSimulation) {
@@ -72,10 +73,20 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 		}
 		else if (o instanceof AddSensor) {
 			AddSensor message = (AddSensor) o;
-			this.createSensor(message.getNbSensors(), (SensorTransformation<S, R>)message.getSensorTransformation());
+			if(message.getSensorTransformation() instanceof SensorTransformation<?, ?>){
+				SensorTransformation<S, R> t = (SensorTransformation<S, R>)message.getSensorTransformation();
+				this.createSensor(message.getNbSensors(), t);
+			}else{
+				// TODO error
+			}
 		}
 		else if (o instanceof InitSimulationLaw) {
-			law = (Law<S, T>) ((InitSimulationLaw) o).getLaw();
+			InitSimulationLaw message = (InitSimulationLaw) o;
+			if(message.getLaw() instanceof Law<?, ?>){
+				law = (Law<S, T>) message.getLaw();
+			}else{
+				// TODO error
+			}
 		}
 		else if (o instanceof UpdateSimulation){			
 			router.route(
@@ -83,7 +94,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 					getSelf());
 			time++;
 		}
-		else if(o instanceof ReturnMessage){
+		else if(o instanceof ReturnMessage<?>){
 			ReturnMessage<R> message = (ReturnMessage<R>) o;
 			this.values.add(message.getResult());
 			

@@ -15,29 +15,32 @@ import java.lang.Override;
  */
 public final class Sensor<S, R> extends UntypedActor {
 
-    private int time ;
-    protected LoggingAdapter log;
-    private S value;
-    SensorTransformation<S, R> transformation;
-    
-    public Sensor(SensorTransformation<S, R> t) {
-    	this.log = Logging.getLogger(getContext().system(), this);
-        this.transformation = t;
-    }
-      
+	private int time;
+	private S value;
+	protected LoggingAdapter log;
+	protected R lastValue;
+	private SensorTransformation<S, R> transformation;
+
+	public Sensor(SensorTransformation<S, R> t) {
+		this.log = Logging.getLogger(getContext().system(), this);
+		this.transformation = t;
+		this.lastValue = null;
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
-    public void onReceive(Object o) throws Exception {
-        if(o instanceof UpdateSensorSimulation){
-            UpdateSensorSimulation<S> message = (UpdateSensorSimulation<S>) o;
-            this.time = message.getBegin();
-            this.value = message.getValue();
-            
-        	R res = this.transformation.transform(this.value);
-        	this.log.debug("["+time+","+(res)+"]");
-        	
-        	this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
-        }
-    }
-    
+	public void onReceive(Object o) throws Exception {
+		if (o instanceof UpdateSensorSimulation) {
+			UpdateSensorSimulation<S> message = (UpdateSensorSimulation<S>) o;
+			this.time = message.getBegin();
+			this.value = message.getValue();
+			R res = this.transformation.transform(this.value);
+			// saves the value in case it is needed for next calculation
+			lastValue = res;
+			this.log.debug("[" + time + "," + (res) + "]");
+
+			this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
+		}
+	}
 
 }
