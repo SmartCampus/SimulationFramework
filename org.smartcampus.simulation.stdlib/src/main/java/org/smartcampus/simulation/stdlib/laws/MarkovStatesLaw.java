@@ -14,6 +14,13 @@ public class MarkovStatesLaw extends Law<Integer, Double> {
 	private List<Double> previousState;
 	private List<Double> nextState;
 
+	/**
+	 * Creation of the tri-diagonal matrix of Markov (only the three vectors representing the diagonals)
+	 * @param prev the inferior diagonal of the Markov matrix
+	 * @param same the superior diagonal of the Markov matrix
+	 * @param next the real diagonal of the Markov matrix
+	 * @throws BadAttributeValueExpException
+	 */
 	public MarkovStatesLaw(List<Double> prev, List<Double> same,
 			List<Double> next) throws BadAttributeValueExpException {
 		this.size = same.size();
