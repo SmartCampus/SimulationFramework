@@ -1,15 +1,15 @@
 package org.smartcampus.simulation.framework.messages;
 
-import org.smartcampus.simulation.framework.simulator.Sensor;
+import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 
 public class AddSensor {
 	private final String name;
 	private final int nbSensors;
-	private final Class<? extends Sensor<?, ?>> sensorClass;
+	private final SensorTransformation<?, ?> transformation;
 
-	public AddSensor(String n, int nbS, Class<? extends Sensor<?, ?>> s) {
+	public AddSensor(String n, int nbS, SensorTransformation<?, ?> t) {
 		this.name = n;
-		this.sensorClass = s;
+		this.transformation = t;
 		this.nbSensors = nbS;
 	}
 
@@ -21,7 +21,7 @@ public class AddSensor {
 		return nbSensors;
 	}
 	
-	public Class<? extends Sensor<?, ?>> getSensorClass() {
-		return sensorClass;
+	public SensorTransformation<?, ?> getSensorTransformation() {
+		return transformation;
 	}
 }

@@ -1,11 +1,11 @@
 package org.smartcampus.simulation.framework.messages;
 
 
-public class UpdateSensorSimulation {
+public class UpdateSensorSimulation<T> {
 	private final int begin;
-	private final Object value;
+	private final T value;
 
-	public UpdateSensorSimulation(int b, Object v) {
+	public UpdateSensorSimulation(int b, T v) {
 		this.begin = b;
 		this.value = v;
 	}
@@ -14,7 +14,7 @@ public class UpdateSensorSimulation {
 		return begin;
 	}
 
-	public Object getValue() {
+	public T getValue() {
 		return value;
 	}
 }

@@ -8,13 +8,18 @@ import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 /**
  * Created by foerster on 14/01/14.
  */
-public class ParkingSimulationLaw extends SimulationLaw<Double, Double> {
+public class ParkingSimulationLaw extends SimulationLaw<Double, Double, Boolean> {
 	
 	@Override
 	protected Double[] computeValue() {
 		Calendar c = new GregorianCalendar();
 		c.setTimeInMillis(time*3600000);
 		Double[] t= {(double) (c.get(Calendar.HOUR_OF_DAY) + c.get(Calendar.MINUTE)/60)} ;
+		
+		if(!this.values.isEmpty()){
+			this.log.debug("La liste est pleine");
+		}
+		
 		if(t[0]<6.5 || t[0]> 18.5) {
 			Double[] tmp = {0.};
 			return tmp;	

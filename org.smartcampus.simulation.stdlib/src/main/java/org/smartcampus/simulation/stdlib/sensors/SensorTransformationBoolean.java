@@ -5,20 +5,17 @@ import java.util.Random;
 import javax.management.BadAttributeValueExpException;
 
 import org.smartcampus.simulation.framework.simulator.Law;
-import org.smartcampus.simulation.framework.simulator.Sensor;
+import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 import org.smartcampus.simulation.framework.simulator.Simulator;
 import org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw;
 import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
 import org.smartcampus.simulation.stdlib.simulationlaw.ParkingMarkovSimulationLaw;
 import org.smartcampus.simulation.stdlib.simulationlaw.ParkingSimulationLaw;
 
-/**
- * Created by foerster on 14/01/14.
- */
-public class SensorParkingBoolean extends Sensor<Double, Boolean> {
-
+public class SensorTransformationBoolean implements SensorTransformation<Double, Boolean>{
+	
 	@Override
-	protected Boolean transformResponse(Double res) {
+	public Boolean transform(Double res) {
 		if (res < 0)
 			return false;
 		Random r = new Random();
@@ -32,17 +29,19 @@ public class SensorParkingBoolean extends Sensor<Double, Boolean> {
 				0.01208028907);
 		Law<Integer, Double> markov=null;
 		try {
-			markov = new MarkovStatesLaw(15, 0.01, 0.001);
+			markov = new MarkovStatesLaw(15, 0.1, 0.01);
 		} catch (BadAttributeValueExpException e) {
 			e.printStackTrace();
 		}
-		s.addParkingLot("Parking1", ParkingSimulationLaw.class)
-				.addSensors("Parking1", SensorParkingBoolean.class, 5)
-				.initSimulationLaw("Parking1", polynome);
-		s.addParkingLot("Parking2", ParkingMarkovSimulationLaw.class)
-				.addSensors("Parking2", SensorParkingBoolean.class, 15)
-				.initSimulationLaw("Parking2", markov);
-		s.simulate();
+		s.create("Parking1", ParkingSimulationLaw.class)
+				.addSensors("Parking1", new SensorTransformationBoolean(), 5)
+				.initSimulation("Parking1", polynome);
+		s.create("Parking2", ParkingMarkovSimulationLaw.class)
+				.addSensors("Parking2", new SensorTransformationBoolean(), 15)
+				.initSimulation("Parking2", markov);
+		s.simulate(10, 10, 1);
+		
 	}
+
 
 }
