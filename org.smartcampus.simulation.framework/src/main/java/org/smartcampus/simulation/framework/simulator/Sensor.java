@@ -13,14 +13,16 @@ import java.lang.Override;
 /**
  * Created by foerster on 14/01/14.
  */
-public abstract class Sensor<S, R> extends UntypedActor {
+public final class Sensor<S, R> extends UntypedActor {
 
     private int time ;
     protected LoggingAdapter log;
     private S value;
+    SensorTransformation<S, R> transformation;
     
-    public Sensor() {
-    	this.log = Logging.getLogger(getContext().system(), this);	
+    public Sensor(SensorTransformation<S, R> t) {
+    	this.log = Logging.getLogger(getContext().system(), this);
+        this.transformation = t;
     }
       
 	@Override
@@ -30,13 +32,12 @@ public abstract class Sensor<S, R> extends UntypedActor {
             this.time = message.getBegin();
             this.value = message.getValue();
             
-        	R res = this.transformResponse(this.value);
+        	R res = this.transformation.transform(this.value);
         	this.log.debug("["+time+","+(res)+"]");
         	
         	this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
         }
     }
     
-    protected abstract R transformResponse(S res);
 
 }

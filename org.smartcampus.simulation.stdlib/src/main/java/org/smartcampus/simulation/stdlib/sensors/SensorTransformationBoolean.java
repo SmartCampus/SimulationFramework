@@ -3,18 +3,15 @@ package org.smartcampus.simulation.stdlib.sensors;
 import java.util.Random;
 
 import org.smartcampus.simulation.framework.simulator.Law;
-import org.smartcampus.simulation.framework.simulator.Sensor;
+import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 import org.smartcampus.simulation.framework.simulator.Simulator;
 import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
 import org.smartcampus.simulation.stdlib.simulationlaw.ParkingSimulationLaw;
 
-/**
- * Created by foerster on 14/01/14.
- */
-public class SensorParkingBoolean extends Sensor<Double, Boolean> {
-
+public class SensorTransformationBoolean implements SensorTransformation<Double, Boolean>{
+	
 	@Override
-	protected Boolean transformResponse(Double res) {
+	public Boolean transform(Double res) {
 		if (res < 0)
 			return false;
 		Random r = new Random();
@@ -26,10 +23,12 @@ public class SensorParkingBoolean extends Sensor<Double, Boolean> {
 		Law<Double,Double> polynome = new PolynomialLaw(24839.21865, -14430.25924,
 				3359.404392, -401.9522656, 26.18040012, -0.8830270156,
 				0.01208028907);
-		s.addParkingLot("Parking1", ParkingSimulationLaw.class)
-				.addSensors("Parking1", SensorParkingBoolean.class, 5)
-				.initParkingLot("Parking1", polynome);
-		s.simulate();
+		s.create("Parking1", ParkingSimulationLaw.class)
+				.addSensors("Parking1", new SensorTransformationBoolean(), 5)
+				.initSimulation("Parking1", polynome);
+		s.simulate(10, 3, 1);
+		
 	}
+
 
 }

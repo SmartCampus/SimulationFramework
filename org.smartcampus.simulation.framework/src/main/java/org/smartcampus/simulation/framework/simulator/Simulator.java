@@ -20,25 +20,25 @@ public class Simulator {
 				"SimulationControlor");
 	}
 
-	public Simulator addParkingLot(String name,
+	public Simulator create(String name,
 			final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass) {
 		controller.tell(new CreateSimulationLaw(name, simulationLawClass), ActorRef.noSender());
 		return this;
 	}
 
 	public Simulator addSensors(String name,
-			final Class<? extends Sensor<?, ?>> sensorClass, final int nbsensors) {
-		controller.tell(new AddSensor(name, nbsensors, sensorClass), ActorRef.noSender());
+			final  SensorTransformation<?, ?> transformation, final int nbsensors) {
+		controller.tell(new AddSensor(name, nbsensors, transformation), ActorRef.noSender());
 		return this;
 	}
 
-	public Simulator initParkingLot(String name, final Law<?, ?> initVal) {
+	public Simulator initSimulation(String name, final Law<?, ?> initVal) {
 		controller.tell(new InitSimulationLaw(name, initVal), ActorRef.noSender());
 		return this;
 	}
 
-	public Simulator simulate() {
-		controller.tell(new StartSimulation(10, 3, 1), ActorRef.noSender());
+	public Simulator simulate(int begin, int duration, int interval) {
+		controller.tell(new StartSimulation(begin, duration, interval), ActorRef.noSender());
 		return this;
 	}
 }

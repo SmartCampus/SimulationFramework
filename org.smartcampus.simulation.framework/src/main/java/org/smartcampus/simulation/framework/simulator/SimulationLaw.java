@@ -37,17 +37,18 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     private Cancellable tick;
     protected List<R> values;
     
-    protected LoggingAdapter log;
-
+    protected LoggingAdapter log;    
+    
     public SimulationLaw() {
     	this.values = new LinkedList<R>();
     	this.log = Logging.getLogger(getContext().system(), this);	
 	}
     
-	private void createSensor(int numberOfSensors, Class<? extends Sensor<T,R>> sensorClass){
+	private void createSensor(int numberOfSensors, SensorTransformation<S, R> t){
+				
 		List<Routee> routees = new ArrayList<Routee>();
 		for (int i = 0; i < numberOfSensors; i++) {
-			ActorRef r = getContext().actorOf(Props.create(sensorClass),
+			ActorRef r = getContext().actorOf(Props.create(Sensor.class, t),
 					getSelf().path().name() + "-" + i);
 			getContext().watch(r);
 			routees.add(new ActorRefRoutee(r));
@@ -56,7 +57,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 	}
 	
 	@Override
-	public void onReceive(Object o) throws Exception {
+	public final void onReceive(Object o) throws Exception {
 		if (o instanceof StartSimulation) {
 			StartSimulation message = (StartSimulation) o;
 			this.time = message.getBegin();
@@ -71,7 +72,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 		}
 		else if (o instanceof AddSensor) {
 			AddSensor message = (AddSensor) o;
-			this.createSensor(message.getNbSensors(), (Class<? extends Sensor<T,R>>)message.getSensorClass());
+			this.createSensor(message.getNbSensors(), (SensorTransformation<S, R>)message.getSensorTransformation());
 		}
 		else if (o instanceof InitSimulationLaw) {
 			law = (Law<S, T>) ((InitSimulationLaw) o).getLaw();
@@ -95,10 +96,9 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 	}
 
 	protected abstract S[] computeValue();
-	
 
     @Override
-    public void postStop(){
+    public final void postStop(){
         tick.cancel();
     }
 }
