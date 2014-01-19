@@ -5,12 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
-import org.smartcampus.simulation.framework.messages.ReturnMessage;
-import org.smartcampus.simulation.framework.messages.StartSimulation;
-import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
-import org.smartcampus.simulation.framework.messages.UpdateSimulation;
+import org.smartcampus.simulation.framework.messages.*;
 
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
@@ -100,12 +95,28 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 			if (this.values.size() == this.router.routees().size()) {
 				valueToSend = this.law.evaluate(this.computeValue());
 				this.values.clear();
+                getSelf().tell(new Complete(),getSelf());
 			}
-		}
+		} else if ( o instanceof Complete){
+            onComplete();
+        }
 
 	}
 
 	protected abstract S[] computeValue();
+
+    /**
+     * Describe in this method all you want to do when you receive all the result from the sensors
+     * E.g : send a new value ( with sendNewValue() ) or calculate the average or whatever
+     */
+    protected abstract void onComplete();
+
+    /**
+     * Send a new value to all the sensor that was calculate when all the result were receive
+     */
+    private void sendNewValue(){
+        getSelf().tell(new UpdateSimulation(),getSelf());
+    }
 
 	@Override
 	public final void postStop() {
