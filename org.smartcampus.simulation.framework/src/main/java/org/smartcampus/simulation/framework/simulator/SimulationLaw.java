@@ -33,19 +33,19 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 	protected Law<S, T> law;
 	private T valueToSend;
 	protected int time;
-    private int interval;
-    private Cancellable tick;
-    protected List<R> values;
-    
-    protected LoggingAdapter log;    
-    
-    public SimulationLaw() {
-    	this.values = new LinkedList<R>();
-    	this.log = Logging.getLogger(getContext().system(), this);	
+	private int interval;
+	private Cancellable tick;
+	protected List<R> values;
+
+	protected LoggingAdapter log;
+
+	public SimulationLaw() {
+		this.values = new LinkedList<R>();
+		this.log = Logging.getLogger(getContext().system(), this);
 	}
-    
-	private void createSensor(int numberOfSensors, SensorTransformation<S, R> t){
-				
+
+	private void createSensor(int numberOfSensors, SensorTransformation<S, R> t) {
+
 		List<Routee> routees = new ArrayList<Routee>();
 		for (int i = 0; i < numberOfSensors; i++) {
 			ActorRef r = getContext().actorOf(Props.create(Sensor.class, t),
@@ -55,7 +55,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 		}
 		this.router = new Router(new BroadcastRoutingLogic(), routees);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void onReceive(Object o) throws Exception {
@@ -63,52 +63,52 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 			StartSimulation message = (StartSimulation) o;
 			this.time = message.getBegin();
 			this.interval = message.getInterval();
-			
+
 			valueToSend = this.law.evaluate(this.computeValue());
-			
-			tick  = getContext().system().scheduler().schedule(
-                    Duration.Zero(),
-                    Duration.create(interval, TimeUnit.SECONDS),
-                    getSelf(), new UpdateSimulation(), getContext().dispatcher(), null);
-		}
-		else if (o instanceof AddSensor) {
+
+			tick = getContext()
+					.system()
+					.scheduler()
+					.schedule(Duration.Zero(),
+							Duration.create(interval, TimeUnit.SECONDS),
+							getSelf(), new UpdateSimulation(),
+							getContext().dispatcher(), null);
+		} else if (o instanceof AddSensor) {
 			AddSensor message = (AddSensor) o;
-			if(message.getSensorTransformation() instanceof SensorTransformation<?, ?>){
-				SensorTransformation<S, R> t = (SensorTransformation<S, R>)message.getSensorTransformation();
+			if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
+				SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
+						.getSensorTransformation();
 				this.createSensor(message.getNbSensors(), t);
-			}else{
+			} else {
 				// TODO error
 			}
-		}
-		else if (o instanceof InitSimulationLaw) {
+		} else if (o instanceof InitSimulationLaw) {
 			InitSimulationLaw message = (InitSimulationLaw) o;
-			if(message.getLaw() instanceof Law<?, ?>){
+			if (message.getLaw() instanceof Law<?, ?>) {
 				law = (Law<S, T>) message.getLaw();
-			}else{
+			} else {
 				// TODO error
 			}
-		}
-		else if (o instanceof UpdateSimulation){			
-			router.route(
-					new UpdateSensorSimulation<T>(time, valueToSend),
+		} else if (o instanceof UpdateSimulation) {
+			router.route(new UpdateSensorSimulation<T>(time, valueToSend),
 					getSelf());
 			time++;
-		}
-		else if(o instanceof ReturnMessage<?>){
+		} else if (o instanceof ReturnMessage<?>) {
 			ReturnMessage<R> message = (ReturnMessage<R>) o;
 			this.values.add(message.getResult());
-			
-			if(this.values.size() == this.router.routees().size()){
+
+			if (this.values.size() == this.router.routees().size()) {
 				valueToSend = this.law.evaluate(this.computeValue());
 				this.values.clear();
 			}
 		}
+
 	}
 
 	protected abstract S[] computeValue();
 
-    @Override
-    public final void postStop(){
-        tick.cancel();
-    }
+	@Override
+	public final void postStop() {
+		tick.cancel();
+	}
 }

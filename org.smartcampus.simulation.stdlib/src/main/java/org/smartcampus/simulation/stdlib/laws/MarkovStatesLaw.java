@@ -8,15 +8,21 @@ public class MarkovStatesLaw extends Law<Integer, Double> {
 
 	private int size;
 	private double[][] matrix;
-
-	public MarkovStatesLaw(int nbPlaces, double arrivalFreq,
-			double averageParkingTime) throws BadAttributeValueExpException {
+    
+        /**
+         * Creation of the tri-diagonal matrix of Markov
+         * @param nbPlaces
+         * @param arrivalFreq
+         * @param averageParkingTime
+         * @throws BadAttributeValueExpException
+         */
+	public MarkovStatesLaw(int nbPlaces, double arrivalFreq, double averageParkingTime) throws BadAttributeValueExpException {
 		this.size = nbPlaces + 1;
 		matrix = new double[size][size];
 		for(int i=0;i<size;i++){
 			for(int j=0;j<size;j++){
 				//diagonal
-				if(i==j) matrix[i][i]=-(i * averageParkingTime + arrivalFreq);
+				if(i==j) matrix[i][i]= -(i * averageParkingTime + arrivalFreq);
 				//upper diagonal
 				else if(j==i+1) matrix[i][j]=arrivalFreq;
 				//lower diagonal
