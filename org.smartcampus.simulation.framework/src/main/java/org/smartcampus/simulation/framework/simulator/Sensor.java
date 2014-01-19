@@ -17,14 +17,14 @@ public final class Sensor<S, R> extends UntypedActor {
 
 	private int time;
 	private S value;
-	protected LoggingAdapter log;
-	protected R lastValue;
+	private LoggingAdapter log;
+	private R lastReturnedValue;
 	private SensorTransformation<S, R> transformation;
 
 	public Sensor(SensorTransformation<S, R> t) {
 		this.log = Logging.getLogger(getContext().system(), this);
 		this.transformation = t;
-		this.lastValue = null;
+		this.lastReturnedValue = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -34,9 +34,9 @@ public final class Sensor<S, R> extends UntypedActor {
 			UpdateSensorSimulation<S> message = (UpdateSensorSimulation<S>) o;
 			this.time = message.getBegin();
 			this.value = message.getValue();
-			R res = this.transformation.transform(this.value);
+			R res = this.transformation.transform(this.value,this.lastReturnedValue);
 			// saves the value in case it is needed for next calculation
-			lastValue = res;
+			lastReturnedValue = res;
 			this.log.debug("[" + time + "," + (res) + "]");
 
 			this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());

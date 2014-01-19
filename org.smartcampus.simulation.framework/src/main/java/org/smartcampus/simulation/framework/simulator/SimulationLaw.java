@@ -103,7 +103,6 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 				this.values.clear();
 			}
 		}
-		
 	}
 
 	protected abstract S[] computeValue();

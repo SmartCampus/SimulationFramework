@@ -1,5 +1,5 @@
 package org.smartcampus.simulation.framework.simulator;
 
 public interface SensorTransformation<T, R> {
-	public R transform(T val);
+	public R transform(T val, R lastVal);
 }

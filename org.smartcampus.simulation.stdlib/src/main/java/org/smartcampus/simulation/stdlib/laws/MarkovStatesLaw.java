@@ -31,10 +31,6 @@ public class MarkovStatesLaw extends Law<Integer, Double> {
 			throw new BadAttributeValueExpException("you need to give two ints");
 		int i = x[0];
 		int j = x[1];
-		if (i < 0 || i > size - 1 || j < 0 || j > size - 1) {
-			throw new BadAttributeValueExpException(
-					"ints must be between 0 and " + (size - 1));
-		}
 		return matrix[i][j];
 	}
 
