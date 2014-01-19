@@ -25,6 +25,7 @@ public final class Sensor<S, R> extends UntypedActor {
         this.transformation = t;
     }
       
+	@SuppressWarnings("unchecked")
 	@Override
     public void onReceive(Object o) throws Exception {
         if(o instanceof UpdateSensorSimulation){
