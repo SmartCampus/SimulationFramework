@@ -2,10 +2,14 @@ package org.smartcampus.simulation.stdlib.sensors;
 
 import java.util.Random;
 
+import javax.management.BadAttributeValueExpException;
+
 import org.smartcampus.simulation.framework.simulator.Law;
 import org.smartcampus.simulation.framework.simulator.Sensor;
 import org.smartcampus.simulation.framework.simulator.Simulator;
+import org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw;
 import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
+import org.smartcampus.simulation.stdlib.simulationlaw.ParkingMarkovSimulationLaw;
 import org.smartcampus.simulation.stdlib.simulationlaw.ParkingSimulationLaw;
 
 /**
@@ -26,9 +30,18 @@ public class SensorParkingBoolean extends Sensor<Double, Boolean> {
 		Law<Double,Double> polynome = new PolynomialLaw(24839.21865, -14430.25924,
 				3359.404392, -401.9522656, 26.18040012, -0.8830270156,
 				0.01208028907);
+		Law<Integer, Double> markov=null;
+		try {
+			markov = new MarkovStatesLaw(15, 0.01, 0.001);
+		} catch (BadAttributeValueExpException e) {
+			e.printStackTrace();
+		}
 		s.addParkingLot("Parking1", ParkingSimulationLaw.class)
 				.addSensors("Parking1", SensorParkingBoolean.class, 5)
-				.initParkingLot("Parking1", polynome);
+				.initSimulationLaw("Parking1", polynome);
+		s.addParkingLot("Parking2", ParkingMarkovSimulationLaw.class)
+				.addSensors("Parking2", SensorParkingBoolean.class, 15)
+				.initSimulationLaw("Parking2", markov);
 		s.simulate();
 	}
 

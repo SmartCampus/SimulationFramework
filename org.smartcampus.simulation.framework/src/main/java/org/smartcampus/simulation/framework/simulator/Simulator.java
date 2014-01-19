@@ -32,7 +32,7 @@ public class Simulator {
 		return this;
 	}
 
-	public Simulator initParkingLot(String name, final Law<?, ?> initVal) {
+	public Simulator initSimulationLaw(String name, final Law<?, ?> initVal) {
 		controller.tell(new InitSimulationLaw(name, initVal), ActorRef.noSender());
 		return this;
 	}

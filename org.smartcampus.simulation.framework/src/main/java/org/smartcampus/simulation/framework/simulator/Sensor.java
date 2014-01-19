@@ -14,11 +14,13 @@ import java.lang.Override;
 public abstract class Sensor<S, R> extends UntypedActor {
 
     private int time ;
-    protected LoggingAdapter log;
     private S value;
+    protected LoggingAdapter log;
+    protected R lastValue;
     
     public Sensor() {
     	this.log = Logging.getLogger(getContext().system(), this);	
+    	lastValue=null;
     }
       
 	@Override
@@ -29,6 +31,8 @@ public abstract class Sensor<S, R> extends UntypedActor {
             this.value= (S) message.getValue();
             
         	R res = this.transformResponse(this.value);
+        	//saves the value in case it is needed for next calculation
+        	lastValue = res;
         	this.log.debug("["+time+","+(res)+"]");
         }
     }
