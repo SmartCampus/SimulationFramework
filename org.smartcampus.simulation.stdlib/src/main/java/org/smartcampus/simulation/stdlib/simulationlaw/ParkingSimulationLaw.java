@@ -6,7 +6,9 @@ import java.util.GregorianCalendar;
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
 /**
+ *
  * Created by foerster on 14/01/14.
+ *
  */
 public class ParkingSimulationLaw extends SimulationLaw<Double, Double, Boolean> {
 	
@@ -21,4 +23,9 @@ public class ParkingSimulationLaw extends SimulationLaw<Double, Double, Boolean>
 		}
 		return t;
 	}
+
+    @Override
+    protected void onComplete() {
+        sendValue("R2D2","42","0000000000000");
+    }
 }

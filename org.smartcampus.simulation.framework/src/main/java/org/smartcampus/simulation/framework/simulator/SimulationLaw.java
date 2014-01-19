@@ -37,6 +37,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 	public SimulationLaw() {
 		this.values = new LinkedList<R>();
 		this.log = Logging.getLogger(getContext().system(), this);
+        getContext().actorOf(Props.create(DataSender.class),"dataSender");
 	}
 
 	private void createSensor(int numberOfSensors, SensorTransformation<S, R> t) {
@@ -116,6 +117,16 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      */
     private void sendNewValue(){
         getSelf().tell(new UpdateSimulation(),getSelf());
+    }
+
+    /**
+     * Simulate a virtual sensor that send data
+     * @param name the name of the sensor
+     * @param value the value of the sensor
+     * @param time the time corresponding to the value
+     */
+    public final void sendValue(String name,String value,String time){
+        getContext().getChild("dataSender").tell(new SendValue(name,value,time),getSelf());
     }
 
 	@Override
