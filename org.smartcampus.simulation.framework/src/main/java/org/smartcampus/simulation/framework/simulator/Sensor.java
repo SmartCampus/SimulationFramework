@@ -1,5 +1,7 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import akka.routing.DefaultResizer;
+import akka.routing.RoundRobinPool;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
@@ -20,8 +22,9 @@ public final class Sensor<T, R> extends UntypedActor {
 
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
-        this.dataSender = this.getContext().actorOf(Props.create(DataSender.class),
-                "dataSender");
+        this.dataSender = getContext().actorOf(new RoundRobinPool(5).withResizer(new DefaultResizer(1,10) {
+        }).props(
+                Props.create(DataSender.class)), "sensorDataSender");
         this.lastReturnedValue = null;
     }
 

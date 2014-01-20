@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import akka.routing.*;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
@@ -18,10 +20,6 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.routing.ActorRefRoutee;
-import akka.routing.BroadcastRoutingLogic;
-import akka.routing.Routee;
-import akka.routing.Router;
 
 /**
  * Created by foerster on 14/01/14.
@@ -29,6 +27,7 @@ import akka.routing.Router;
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
     private Router           router;
+    private ActorRef dataSender;
     protected Law<S, T>      law;
     private T                valueToSend;
     protected int            time;
@@ -41,7 +40,9 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     public SimulationLaw() {
         this.values = new LinkedList<R>();
         this.log = Logging.getLogger(this.getContext().system(), this);
-        this.getContext().actorOf(Props.create(DataSender.class), "dataSender");
+        this.dataSender = getContext().actorOf(new RoundRobinPool(5).withResizer(new DefaultResizer(1,10) {
+        }).props(
+                Props.create(DataSender.class)), "simulationDataSender");
     }
 
     protected abstract S[] computeValue();
@@ -62,8 +63,8 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     /**
      * Describe in this method all you want to do when you receive all the result from the
      * sensors
-     * E.g : send a new value ( with sendNewValue() ) or calculate the average or whatever
-     */
+     * E.g : calculate the average or whatever and send it using sendValue
+    */
     protected abstract void onComplete();
 
     @SuppressWarnings("unchecked")
@@ -134,13 +135,9 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      *            the name of the sensor
      * @param value
      *            the value of the sensor
-     * @param time
-     *            the time corresponding to the value
      */
     public final void sendValue(final String name, final String value) {
-        this.getContext()
-                .getChild("dataSender")
-                .tell(new SendValue(this.getSelf().path().name() + " - " + name, value,
+        dataSender.tell(new SendValue(this.getSelf().path().name() + " - " + name, value,
                         this.time), this.getSelf());
     }
 }
