@@ -25,6 +25,5 @@ public class ParkingSimulationLaw extends SimulationLaw<Double, Double, Boolean>
 
     @Override
     protected void onComplete() {
-        this.sendValue("R2D2", "42");
     }
 }
