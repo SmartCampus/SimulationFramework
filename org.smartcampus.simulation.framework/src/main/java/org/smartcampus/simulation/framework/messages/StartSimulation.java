@@ -1,26 +1,26 @@
 package org.smartcampus.simulation.framework.messages;
 
 public class StartSimulation {
-	private final int begin;
-	private final int duration;
-	private final int interval;
-	
-	public StartSimulation(int b, int d, int i) {
-		this.begin = b;
-		this.duration = d;
-		this.interval = i;
-	}
+    private final int begin;
+    private final int duration;
+    private final int interval;
 
-	public int getBegin() {
-		return begin;
-	}
+    public StartSimulation(final int b, final int d, final int i) {
+        this.begin = b;
+        this.duration = d;
+        this.interval = i;
+    }
 
-	public int getDuration() {
-		return duration;
-	}
+    public int getBegin() {
+        return this.begin;
+    }
 
-	public int getInterval() {
-		return interval;
-	}
+    public int getDuration() {
+        return this.duration;
+    }
+
+    public int getInterval() {
+        return this.interval;
+    }
 
 }

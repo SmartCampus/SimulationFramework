@@ -1,13 +1,13 @@
 package org.smartcampus.simulation.framework.messages;
 
 public class ReturnMessage<R> {
-	private final R result;
+    private final R result;
 
-	public ReturnMessage(R v) {
-		this.result = v;
-	}
+    public ReturnMessage(final R v) {
+        this.result = v;
+    }
 
-	public R getResult() {
-		return result;
-	}
+    public R getResult() {
+        return this.result;
+    }
 }

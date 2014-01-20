@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import org.smartcampus.simulation.framework.messages.*;
-
+import org.smartcampus.simulation.framework.messages.AddSensor;
+import org.smartcampus.simulation.framework.messages.Complete;
+import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
+import org.smartcampus.simulation.framework.messages.ReturnMessage;
+import org.smartcampus.simulation.framework.messages.SendValue;
+import org.smartcampus.simulation.framework.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
+import org.smartcampus.simulation.framework.messages.UpdateSimulation;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
@@ -24,113 +29,129 @@ import akka.routing.Router;
  */
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
-	private Router router;
-	protected Law<S, T> law;
-	private T valueToSend;
-	protected int time;
-	private int interval;
-	private Cancellable tick;
-	protected List<R> values;
+    private Router           router;
+    protected Law<S, T>      law;
+    private T                valueToSend;
+    protected int            time;
+    private int              interval;
+    private Cancellable      tick;
+    protected List<R>        values;
 
-	protected LoggingAdapter log;
+    protected LoggingAdapter log;
 
-	public SimulationLaw() {
-		this.values = new LinkedList<R>();
-		this.log = Logging.getLogger(getContext().system(), this);
-        getContext().actorOf(Props.create(DataSender.class),"dataSender");
-	}
+    public SimulationLaw() {
+        this.values = new LinkedList<R>();
+        this.log = Logging.getLogger(this.getContext().system(), this);
+        this.getContext().actorOf(Props.create(DataSender.class), "dataSender");
+    }
 
-	private void createSensor(int numberOfSensors, SensorTransformation<S, R> t) {
+    protected abstract S[] computeValue();
 
-		List<Routee> routees = new ArrayList<Routee>();
-		for (int i = 0; i < numberOfSensors; i++) {
-			ActorRef r = getContext().actorOf(Props.create(Sensor.class, t),
-					getSelf().path().name() + "-" + i);
-			getContext().watch(r);
-			routees.add(new ActorRefRoutee(r));
-		}
-		this.router = new Router(new BroadcastRoutingLogic(), routees);
-	}
+    private void createSensor(final int numberOfSensors,
+            final SensorTransformation<S, R> t) {
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public final void onReceive(Object o) throws Exception {
-		if (o instanceof StartSimulation) {
-			StartSimulation message = (StartSimulation) o;
-			this.time = message.getBegin();
-			this.interval = message.getInterval();
-
-			valueToSend = this.law.evaluate(this.computeValue());
-
-			tick = getContext()
-					.system()
-					.scheduler()
-					.schedule(Duration.Zero(),
-							Duration.create(interval, TimeUnit.SECONDS),
-							getSelf(), new UpdateSimulation(),
-							getContext().dispatcher(), null);
-		} else if (o instanceof AddSensor) {
-			AddSensor message = (AddSensor) o;
-			if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
-				SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
-						.getSensorTransformation();
-				this.createSensor(message.getNbSensors(), t);
-			} else {
-				// TODO error
-			}
-		} else if (o instanceof InitSimulationLaw) {
-			InitSimulationLaw message = (InitSimulationLaw) o;
-			if (message.getLaw() instanceof Law<?, ?>) {
-				law = (Law<S, T>) message.getLaw();
-			} else {
-				// TODO error
-			}
-		} else if (o instanceof UpdateSimulation) {
-			router.route(new UpdateSensorSimulation<T>(time, valueToSend),
-					getSelf());
-			time++;
-		} else if (o instanceof ReturnMessage<?>) {
-			ReturnMessage<R> message = (ReturnMessage<R>) o;
-			this.values.add(message.getResult());
-
-			if (this.values.size() == this.router.routees().size()) {
-				valueToSend = this.law.evaluate(this.computeValue());
-				this.values.clear();
-                getSelf().tell(new Complete(),getSelf());
-			}
-		} else if ( o instanceof Complete){
-            onComplete();
+        List<Routee> routees = new ArrayList<Routee>();
+        for (int i = 0; i < numberOfSensors; i++) {
+            ActorRef r = this.getContext().actorOf(Props.create(Sensor.class, t),
+                    this.getSelf().path().name() + "-" + i);
+            this.getContext().watch(r);
+            routees.add(new ActorRefRoutee(r));
         }
-
-	}
-
-	protected abstract S[] computeValue();
+        this.router = new Router(new BroadcastRoutingLogic(), routees);
+    }
 
     /**
-     * Describe in this method all you want to do when you receive all the result from the sensors
+     * Describe in this method all you want to do when you receive all the result from the
+     * sensors
      * E.g : send a new value ( with sendNewValue() ) or calculate the average or whatever
      */
     protected abstract void onComplete();
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public final void onReceive(final Object o) throws Exception {
+        if (o instanceof StartSimulation) {
+            StartSimulation message = (StartSimulation) o;
+            this.time = message.getBegin();
+            this.interval = message.getInterval();
+
+            this.valueToSend = this.law.evaluate(this.computeValue());
+
+            this.tick = this
+                    .getContext()
+                    .system()
+                    .scheduler()
+                    .schedule(Duration.Zero(),
+                            Duration.create(this.interval, TimeUnit.SECONDS),
+                            this.getSelf(), new UpdateSimulation(),
+                            this.getContext().dispatcher(), null);
+        }
+        else if (o instanceof AddSensor) {
+            AddSensor message = (AddSensor) o;
+            if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
+                SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
+                        .getSensorTransformation();
+                this.createSensor(message.getNbSensors(), t);
+            }
+            else {
+                // TODO error
+            }
+        }
+        else if (o instanceof InitSimulationLaw) {
+            InitSimulationLaw message = (InitSimulationLaw) o;
+            if (message.getLaw() instanceof Law<?, ?>) {
+                this.law = (Law<S, T>) message.getLaw();
+            }
+            else {
+                // TODO error
+            }
+        }
+        else if (o instanceof UpdateSimulation) {
+            this.router.route(new UpdateSensorSimulation<T>(this.time, this.valueToSend),
+                    this.getSelf());
+            this.time++;
+        }
+        else if (o instanceof ReturnMessage<?>) {
+            ReturnMessage<R> message = (ReturnMessage<R>) o;
+            this.values.add(message.getResult());
+
+            if (this.values.size() == this.router.routees().size()) {
+                this.valueToSend = this.law.evaluate(this.computeValue());
+                this.values.clear();
+                this.getSelf().tell(new Complete(), this.getSelf());
+            }
+        }
+        else if (o instanceof Complete) {
+            this.onComplete();
+        }
+
+    }
+
+    @Override
+    public final void postStop() {
+        this.tick.cancel();
+    }
+
     /**
-     * Send a new value to all the sensor that was calculate when all the result were receive
+     * Send a new value to all the sensor that was calculate when all the result were
+     * receive
      */
-    private void sendNewValue(){
-        getSelf().tell(new UpdateSimulation(),getSelf());
+    private void sendNewValue() {
+        this.getSelf().tell(new UpdateSimulation(), this.getSelf());
     }
 
     /**
      * Simulate a virtual sensor that send data
-     * @param name the name of the sensor
-     * @param value the value of the sensor
-     * @param time the time corresponding to the value
+     * 
+     * @param name
+     *            the name of the sensor
+     * @param value
+     *            the value of the sensor
+     * @param time
+     *            the time corresponding to the value
      */
-    public final void sendValue(String name,String value,String time){
-        getContext().getChild("dataSender").tell(new SendValue(name,value,time),getSelf());
+    public final void sendValue(final String name, final String value, final String time) {
+        this.getContext().getChild("dataSender")
+                .tell(new SendValue(name, value, time), this.getSelf());
     }
-
-	@Override
-	public final void postStop() {
-		tick.cancel();
-	}
 }

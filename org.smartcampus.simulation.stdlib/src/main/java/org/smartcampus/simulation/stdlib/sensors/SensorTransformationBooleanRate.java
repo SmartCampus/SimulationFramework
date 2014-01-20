@@ -13,18 +13,7 @@ import org.smartcampus.simulation.stdlib.simulationlaw.ParkingMarkovSimulationLa
 public class SensorTransformationBooleanRate implements
 		SensorTransformation<Double, Boolean> {
 
-	@Override
-	public Boolean transform(Double p,Boolean last) {
-		if (p==0 || last==null)
-			return false;
-		p = Math.abs(p);
-		Random r = new Random();
-		if (r.nextFloat() < p)
-			return !last;
-		return last;
-	}
-
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		Simulator s = new Simulator();
 		Law<Integer, Double> markov = null;
 		try {
@@ -33,8 +22,21 @@ public class SensorTransformationBooleanRate implements
 			e.printStackTrace();
 		}
 		s.create("Parking2", ParkingMarkovSimulationLaw.class)
-				.addSensors("Parking2", new SensorTransformationBooleanRate(), 30)
-				.initSimulation("Parking2", markov);
+				.addSensors("Parking2", new SensorTransformationBooleanRate(),
+						30).initSimulation("Parking2", markov);
 		s.simulate(10, 10, 1);
+	}
+
+	@Override
+	public Boolean transform(Double p, final Boolean last) {
+		if ((p == 0) || (last == null)) {
+			return false;
+		}
+		p = Math.abs(p);
+		Random r = new Random();
+		if (r.nextFloat() < p) {
+			return !last;
+		}
+		return last;
 	}
 }

@@ -8,21 +8,21 @@ public class SendValue {
     private final String value;
     private final String time;
 
-    public SendValue(String name,String value,String time){
+    public SendValue(final String name, final String value, final String time) {
         this.name = name;
         this.value = value;
-        this.time = time ;
+        this.time = time;
     }
 
     public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value;
+        return this.name;
     }
 
     public String getTime() {
-        return time;
+        return this.time;
+    }
+
+    public String getValue() {
+        return this.value;
     }
 }

@@ -1,20 +1,19 @@
 package org.smartcampus.simulation.framework.messages;
 
-
 public class UpdateSensorSimulation<T> {
-	private final int begin;
-	private final T value;
+    private final int begin;
+    private final T   value;
 
-	public UpdateSensorSimulation(int b, T v) {
-		this.begin = b;
-		this.value = v;
-	}
+    public UpdateSensorSimulation(final int b, final T v) {
+        this.begin = b;
+        this.value = v;
+    }
 
-	public int getBegin() {
-		return begin;
-	}
+    public int getBegin() {
+        return this.begin;
+    }
 
-	public T getValue() {
-		return value;
-	}
+    public T getValue() {
+        return this.value;
+    }
 }
