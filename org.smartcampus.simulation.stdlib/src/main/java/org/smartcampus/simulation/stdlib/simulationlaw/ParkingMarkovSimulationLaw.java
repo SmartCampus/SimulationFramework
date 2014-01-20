@@ -19,13 +19,13 @@ public class ParkingMarkovSimulationLaw extends SimulationLaw<Integer, Double, B
 
     @Override
     protected void onComplete() {
-        int i = 0;
-        // counts the number of occupied parking spaces
-        for (boolean b : this.values) {
+        int nbPlacesOccupied = 0;
+        for (Boolean b : this.values) {
             if (b) {
-                i++;
+                nbPlacesOccupied++;
             }
         }
-        this.sendValue("occupation", ((i * 100) / this.values.size()) + "%");
+        this.sendValue("occupation", ((nbPlacesOccupied * 100) / this.values.size())
+                + "%");
     }
 }
