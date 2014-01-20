@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.Complete;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
@@ -117,27 +116,15 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
             if (this.values.size() == this.router.routees().size()) {
                 this.valueToSend = this.law.evaluate(this.computeValue());
+                this.onComplete();
                 this.values.clear();
-                this.getSelf().tell(new Complete(), this.getSelf());
             }
         }
-        else if (o instanceof Complete) {
-            this.onComplete();
-        }
-
     }
 
     @Override
     public final void postStop() {
         this.tick.cancel();
-    }
-
-    /**
-     * Send a new value to all the sensor that was calculate when all the result were
-     * receive
-     */
-    private void sendNewValue() {
-        this.getSelf().tell(new UpdateSimulation(), this.getSelf());
     }
 
     /**
@@ -150,8 +137,10 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      * @param time
      *            the time corresponding to the value
      */
-    public final void sendValue(final String name, final String value, final String time) {
-        this.getContext().getChild("dataSender")
-                .tell(new SendValue(name, value, time), this.getSelf());
+    public final void sendValue(final String name, final String value) {
+        this.getContext()
+                .getChild("dataSender")
+                .tell(new SendValue(this.getSelf().path().name() + " - " + name, value,
+                        this.time), this.getSelf());
     }
 }

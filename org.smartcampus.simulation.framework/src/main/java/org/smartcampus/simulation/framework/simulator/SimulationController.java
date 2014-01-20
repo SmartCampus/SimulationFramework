@@ -74,6 +74,6 @@ public class SimulationController extends UntypedActor {
     @Override
     public void postStop() throws Exception {
         this.log.debug("Je me suicide");
+        this.getContext().parent().tell(PoisonPill.getInstance(), this.getSelf());
     }
-
 }

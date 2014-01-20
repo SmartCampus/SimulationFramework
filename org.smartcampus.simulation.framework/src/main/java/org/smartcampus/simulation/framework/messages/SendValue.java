@@ -6,9 +6,9 @@ package org.smartcampus.simulation.framework.messages;
 public class SendValue {
     private final String name;
     private final String value;
-    private final String time;
+    private final int    time;
 
-    public SendValue(final String name, final String value, final String time) {
+    public SendValue(final String name, final String value, final int time) {
         this.name = name;
         this.value = value;
         this.time = time;
@@ -18,7 +18,7 @@ public class SendValue {
         return this.name;
     }
 
-    public String getTime() {
+    public int getTime() {
         return this.time;
     }
 
