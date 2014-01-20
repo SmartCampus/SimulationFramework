@@ -45,21 +45,33 @@ public class MarkovStatesLawTest {
         }
     }
 
-    /**
-     * Test method for
-     * {@link org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw#MarkovStatesLaw(java.util.List, java.util.List, java.util.List)}
-     * .
-     */
-    @Test
-    public void testMarkovStatesLaw() {
-        // assertEquals(5, this.m1.getSame().size);
+    @Test(expected = BadAttributeValueExpException.class)
+    public void testEvaluateIntegerArrayBadAttributeValueExpException1() throws Exception {
+        m1.evaluate(3, 11, 541223);
     }
 
     @Test(expected = BadAttributeValueExpException.class)
-    public void testEvaluateIntegerArrayBadAttributeValueExpException() throws Exception {
+    public void testEvaluateIntegerArrayBadAttributeValueExpException2() throws Exception {
+        m1.evaluate(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException1() throws Exception {
         m1.evaluate(3, 11);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException2() throws Exception {
         m1.evaluate(-1, 3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException3() throws Exception {
         m1.evaluate(3, -1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException4() throws Exception {
         m1.evaluate(11, 3);
     }
 
