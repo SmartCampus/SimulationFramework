@@ -1,7 +1,7 @@
 package org.smartcampus.simulation.framework.messages;
 
 /**
- * Created by foerster on 19/01/14.
+ * The SendValue message gives a name, a value and a time to a DataSender.
  */
 public class SendValue {
     private final String name;

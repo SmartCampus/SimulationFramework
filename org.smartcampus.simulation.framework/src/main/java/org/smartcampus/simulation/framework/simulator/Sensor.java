@@ -10,15 +10,15 @@ import akka.actor.UntypedActor;
 /**
  * Created by foerster on 14/01/14.
  */
-public final class Sensor<S, R> extends UntypedActor {
+public final class Sensor<T, R> extends UntypedActor {
 
     private int                        time;
-    private S                          value;
+    private T                          value;
     private R                          lastReturnedValue;
-    private SensorTransformation<S, R> transformation;
+    private SensorTransformation<T, R> transformation;
     private ActorRef                   dataSender;
 
-    public Sensor(final SensorTransformation<S, R> t) {
+    public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
         this.dataSender = this.getContext().actorOf(Props.create(DataSender.class),
                 "dataSender");
@@ -29,7 +29,7 @@ public final class Sensor<S, R> extends UntypedActor {
     @Override
     public void onReceive(final Object o) throws Exception {
         if (o instanceof UpdateSensorSimulation) {
-            UpdateSensorSimulation<S> message = (UpdateSensorSimulation<S>) o;
+            UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
             this.time = message.getBegin();
             this.value = message.getValue();
             R res = this.transformation.transform(this.value, this.lastReturnedValue);

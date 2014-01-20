@@ -1,5 +1,10 @@
 package org.smartcampus.simulation.framework.messages;
 
+/**
+ * The StartSimulation message allows to launch the simulation on all the SimulationLaw.
+ * It contains the start time of the simulation, the duration and the interval of time
+ * between each request.
+ */
 public class StartSimulation {
     private final int begin;
     private final int duration;

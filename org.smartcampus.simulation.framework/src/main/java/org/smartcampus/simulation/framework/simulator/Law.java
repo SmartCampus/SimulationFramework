@@ -8,7 +8,7 @@ package org.smartcampus.simulation.framework.simulator;
  * @creationDate 15 January 2014
  * 
  */
-public abstract class Law<T, S> {
+public abstract class Law<S, T> {
 
     /**
      * evaluate the law at the value x
@@ -18,5 +18,5 @@ public abstract class Law<T, S> {
      * @return the evaluation of the law at the value x
      * @throws Exception
      */
-    protected abstract S evaluate(T... x) throws Exception;
+    protected abstract T evaluate(S... x) throws Exception;
 }

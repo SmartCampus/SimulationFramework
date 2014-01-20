@@ -2,6 +2,10 @@ package org.smartcampus.simulation.framework.messages;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
+/**
+ * The CreateSimulationLaw message allows to create a new SimulationLaw according to the
+ * 'simulationLawClass'
+ */
 public class CreateSimulationLaw {
 
     private final String                                  name;

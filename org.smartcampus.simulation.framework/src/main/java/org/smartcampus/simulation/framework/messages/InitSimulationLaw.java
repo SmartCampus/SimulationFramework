@@ -2,6 +2,9 @@ package org.smartcampus.simulation.framework.messages;
 
 import org.smartcampus.simulation.framework.simulator.Law;
 
+/**
+ * The InitSimulationLaw message allows to initiate a SimulationLaw with a Law
+ */
 public class InitSimulationLaw {
     private final String    name;
     private final Law<?, ?> initVal;
