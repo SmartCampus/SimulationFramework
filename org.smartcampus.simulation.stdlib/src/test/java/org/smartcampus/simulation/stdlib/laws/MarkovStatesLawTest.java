@@ -15,10 +15,12 @@ import org.junit.Test;
 public class MarkovStatesLawTest {
 
     private static MarkovStatesLaw m1;
+    private static final double    arrivalFreq        = 0.2;
+    private static final double    averageParkingTime = 0.3;
 
     @BeforeClass
     public static void setUpClass() {
-        m1 = new MarkovStatesLaw(10, 0.2, 0.3);
+        m1 = new MarkovStatesLaw(10, arrivalFreq, averageParkingTime);
     }
 
     /**
@@ -30,14 +32,15 @@ public class MarkovStatesLawTest {
     public void testEvaluateIntegerArray() {
         try {
             for (int i = 0; i < 10; i++) {
-                Assert.assertEquals(0.2, m1.evaluate(i, i + 1), 0.01);
+                Assert.assertEquals(this.arrivalFreq, m1.evaluate(i, i + 1), 0.01);
             }
             for (int i = 1; i < 11; i++) {
-                Assert.assertEquals(i * 0.3, m1.evaluate(i, i - 1), 0.01);
+                Assert.assertEquals(i * this.averageParkingTime, m1.evaluate(i, i - 1),
+                        0.01);
             }
-            Assert.assertEquals(5 * 0.3, m1.evaluate(5, 4), 0.01);
-            Assert.assertEquals(-0.2, m1.evaluate(0, 0), 0.01);
-            Assert.assertEquals(-10 * 0.3, m1.evaluate(10, 10), 0.01);
+            Assert.assertEquals(5 * this.averageParkingTime, m1.evaluate(5, 4), 0.01);
+            Assert.assertEquals(-this.arrivalFreq, m1.evaluate(0, 0), 0.01);
+            Assert.assertEquals(-10 * this.averageParkingTime, m1.evaluate(10, 10), 0.01);
             Assert.assertEquals(0., m1.evaluate(1, 6), 0.01);
             Assert.assertEquals(0., m1.evaluate(8, 6), 0.01);
         } catch (Exception e) {
