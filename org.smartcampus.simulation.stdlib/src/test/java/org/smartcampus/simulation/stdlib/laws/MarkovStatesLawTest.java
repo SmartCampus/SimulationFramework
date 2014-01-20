@@ -3,58 +3,79 @@
  */
 package org.smartcampus.simulation.stdlib.laws;
 
-import junit.framework.TestCase;
+import javax.management.BadAttributeValueExpException;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author user
  * 
  */
-public class MarkovStatesLawTest extends TestCase {
+public class MarkovStatesLawTest {
 
-	private MarkovStatesLaw m1;
+    private static MarkovStatesLaw m1;
+    private static final double    arrivalFreq        = 0.2;
+    private static final double    averageParkingTime = 0.3;
 
-	@Override
-	protected void setUp() throws Exception {
-		this.m1 = new MarkovStatesLaw(10, 0.2, 0.3);
-	}
+    @BeforeClass
+    public static void setUpClass() {
+        m1 = new MarkovStatesLaw(10, arrivalFreq, averageParkingTime);
+    }
 
-	/**
-	 * Test method for
-	 * {@link org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw#evaluate(java.lang.Integer[])}
-	 * .
-	 */
-	public void testEvaluateIntegerArray() {
-		try {
-			for (int i = 0; i < 10; i++) {
-				assertEquals(0.2, this.m1.evaluate(i, i + 1), 0.01);
-			}
-			for (int i = 1; i < 11; i++) {
-				assertEquals(i * 0.3, this.m1.evaluate(i, i - 1), 0.01);
-			}
-			assertEquals(5 * 0.3, this.m1.evaluate(5, 4), 0.01);
-			assertEquals(-0.2, this.m1.evaluate(0, 0), 0.01);
-			assertEquals(-10 * 0.3, this.m1.evaluate(10, 10), 0.01);
-			assertEquals(0., this.m1.evaluate(1, 6), 0.01);
-			assertEquals(0., this.m1.evaluate(8, 6), 0.01);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     * Test method for
+     * {@link org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw#evaluate(java.lang.Integer[])}
+     * .
+     */
+    @Test
+    public void testEvaluateIntegerArray() {
+        try {
+            for (int i = 0; i < 10; i++) {
+                Assert.assertEquals(this.arrivalFreq, m1.evaluate(i, i + 1), 0.01);
+            }
+            for (int i = 1; i < 11; i++) {
+                Assert.assertEquals(i * this.averageParkingTime, m1.evaluate(i, i - 1),
+                        0.01);
+            }
+            Assert.assertEquals(5 * this.averageParkingTime, m1.evaluate(5, 4), 0.01);
+            Assert.assertEquals(-this.arrivalFreq, m1.evaluate(0, 0), 0.01);
+            Assert.assertEquals(-10 * this.averageParkingTime, m1.evaluate(10, 10), 0.01);
+            Assert.assertEquals(0., m1.evaluate(1, 6), 0.01);
+            Assert.assertEquals(0., m1.evaluate(8, 6), 0.01);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * Test method for
-	 * {@link org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw#MarkovStatesLaw(java.util.List, java.util.List, java.util.List)}
-	 * .
-	 */
-	public void testMarkovStatesLaw() {
-		// assertEquals(5, this.m1.getSame().size);
-	}
+    @Test(expected = BadAttributeValueExpException.class)
+    public void testEvaluateIntegerArrayBadAttributeValueExpException1() throws Exception {
+        m1.evaluate(3, 11, 541223);
+    }
 
-	/*
-	 * @Test(expected = BadAttributeValueExpException.class) public void
-	 * testEvaluateIntegerArrayBadAttributeValueExpException() throws
-	 * BadAttributeValueExpException{ this.m1.evaluate(3,11);
-	 * this.m1.evaluate(-1,3); this.m1.evaluate(3,-1); this.m1.evaluate(11,3); }
-	 */
+    @Test(expected = BadAttributeValueExpException.class)
+    public void testEvaluateIntegerArrayBadAttributeValueExpException2() throws Exception {
+        m1.evaluate(3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException1() throws Exception {
+        m1.evaluate(3, 11);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException2() throws Exception {
+        m1.evaluate(-1, 3);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException3() throws Exception {
+        m1.evaluate(3, -1);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testEvaluateIntegerIndexOutOfBoundsException4() throws Exception {
+        m1.evaluate(11, 3);
+    }
 
 }
