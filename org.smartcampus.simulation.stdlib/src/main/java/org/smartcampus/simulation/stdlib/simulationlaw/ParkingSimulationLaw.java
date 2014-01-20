@@ -18,7 +18,7 @@ public class ParkingSimulationLaw extends SimulationLaw<Double, Double, Boolean>
         Double[] t = { (double) (c.get(Calendar.HOUR_OF_DAY) + (c.get(Calendar.MINUTE) / 60)) };
 
         if ((t[0] < 6.5) || (t[0] > 18.5)) {
-            return null; // the polynom will return 0
+            return null; // the polynomial will return 0
         }
         return t;
     }
