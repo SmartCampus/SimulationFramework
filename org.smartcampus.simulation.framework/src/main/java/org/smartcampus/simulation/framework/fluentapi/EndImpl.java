@@ -9,20 +9,25 @@ import akka.actor.ActorRef;
  */
 public class EndImpl extends SimulationWrapper implements End {
 
-    public EndImpl(final ActorRef controllerRef) {
+    private int start,duration,frequency;
+
+    public EndImpl(final ActorRef controllerRef,int start,int duration,int frequency) {
         super(controllerRef);
+        this.start = start;
+        this.duration = duration;
+        this.frequency = frequency;
     }
 
     @Override
-    public void simulateReal(final int begin, final int duration, final int frequence) {
-        this.controllerRef.tell(new InitTypeSimulation(begin, duration, frequence,
-                frequence), ActorRef.noSender());
+    public void simulateReal() {
+        this.controllerRef.tell(new InitTypeSimulation(start, duration, frequency,
+                frequency), ActorRef.noSender());
         this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
     }
 
     @Override
-    public void simulateVirtual(final int begin, final int duration, final int frequence) {
-        this.controllerRef.tell(new InitTypeSimulation(begin, duration, frequence, 1),
+    public void simulateVirtual() {
+        this.controllerRef.tell(new InitTypeSimulation(start, duration, frequency, 1),
                 ActorRef.noSender());
         this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
     }

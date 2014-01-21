@@ -14,8 +14,8 @@ public class SimulatorImpl extends SimulationWrapper implements Simulator,Start 
     }
 
     @Override
-    public End setUrl(String url) {
-        return new EndImpl(controllerRef);
+    public SimulationStart setUrl(String url) {
+        return new SimulationStartImpl(controllerRef);
     }
 
     @Override

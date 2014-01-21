@@ -24,6 +24,10 @@ public class MainParkingMarkovSimulationLaw {
                 .add(30, new SensorTransformationBooleanRate()).init(markov)
                 .create("Parking3", ParkingSimulationLaw.class)
                 .add(30, new SensorTransformationBooleanPercent()).init(polynome)
-                .setUrl("Not Used").simulateReal(10, 10, 1);
+                .setUrl("Not Used")
+                .start(10)
+                .duration(10)
+                .frequency(1)
+                .simulateReal();
     }
 }

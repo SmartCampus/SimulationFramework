@@ -16,7 +16,11 @@ public class MainParkingSimulationLaw {
         Start sim = new StartImpl();
         sim.create("Parking1", ParkingSimulationLaw.class)
                 .add(5, new SensorTransformationBooleanPercent()).init(polynome)
-                .setUrl("Not currently used").simulateReal(10, 10, 1);
+                .setUrl("Not currently used")
+                .start(10)
+                .duration(10)
+                .frequency(1)
+                .simulateReal();
 
     }
 }
