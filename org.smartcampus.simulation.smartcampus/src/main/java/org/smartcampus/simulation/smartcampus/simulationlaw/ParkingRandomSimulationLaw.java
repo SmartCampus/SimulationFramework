@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.stdlib.simulationlaw;
+package org.smartcampus.simulation.smartcampus.simulationlaw;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 

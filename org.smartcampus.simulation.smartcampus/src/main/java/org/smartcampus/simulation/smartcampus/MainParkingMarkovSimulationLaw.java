@@ -1,14 +1,14 @@
-package org.smartcampus.simulation.stdlib;
+package org.smartcampus.simulation.smartcampus;
 
 import org.smartcampus.simulation.framework.fluentapi.Start;
 import org.smartcampus.simulation.framework.fluentapi.StartImpl;
 import org.smartcampus.simulation.framework.simulator.Law;
+import org.smartcampus.simulation.smartcampus.simulationlaw.ParkingMarkovSimulationLaw;
+import org.smartcampus.simulation.smartcampus.simulationlaw.ParkingSimulationLaw;
 import org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw;
 import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
 import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanPercent;
 import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanRate;
-import org.smartcampus.simulation.stdlib.simulationlaw.ParkingMarkovSimulationLaw;
-import org.smartcampus.simulation.stdlib.simulationlaw.ParkingSimulationLaw;
 
 public class MainParkingMarkovSimulationLaw {
 

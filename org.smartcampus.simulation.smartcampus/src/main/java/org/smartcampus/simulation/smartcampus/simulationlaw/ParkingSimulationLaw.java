@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.stdlib.simulationlaw;
+package org.smartcampus.simulation.smartcampus.simulationlaw;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
