@@ -3,6 +3,7 @@ package org.smartcampus.simulation.framework.simulator;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -37,9 +38,11 @@ public class Simulator {
         return this;
     }
 
-    public Simulator simulate(final int begin, final int duration, final int interval) {
-        this.controller.tell(new StartSimulation(begin, duration, interval),
-                ActorRef.noSender());
+    public Simulator simulate(final int begin, final int duration, final int frequence,
+            final int realTimeFrequence) {
+        this.controller.tell(new InitTypeSimulation(begin, duration, frequence,
+                realTimeFrequence), ActorRef.noSender());
+        this.controller.tell(new StartSimulation(), ActorRef.noSender());
         return this;
     }
 }

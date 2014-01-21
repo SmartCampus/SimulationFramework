@@ -14,7 +14,7 @@ public class ParkingRandomSimulationLaw extends SimulationLaw<Object, Object, Bo
         s.create("Parking1", ParkingRandomSimulationLaw.class)
                 .addSensors("Parking1", new SensorTransformationBooleanRandom(), 5)
                 .initSimulation("Parking1", rand);
-        s.simulate(10, 10, 1);
+        s.simulate(10, 10, 1, 1);
     }
 
     @Override

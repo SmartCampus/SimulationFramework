@@ -15,6 +15,6 @@ public class MainParkingSimulationLaw {
         s.create("Parking1", ParkingSimulationLaw.class)
                 .addSensors("Parking1", new SensorTransformationBooleanPercent(), 5)
                 .initSimulation("Parking1", polynome);
-        s.simulate(10, 10, 1);
+        s.simulate(10, 10, 1, 1);
     }
 }

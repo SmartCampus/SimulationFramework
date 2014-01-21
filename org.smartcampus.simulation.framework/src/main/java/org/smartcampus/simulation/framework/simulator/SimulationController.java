@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
@@ -16,6 +17,7 @@ import akka.event.LoggingAdapter;
 public class SimulationController extends UntypedActor {
 
     private LoggingAdapter log;
+    private int            duration;
 
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
@@ -48,6 +50,17 @@ public class SimulationController extends UntypedActor {
             // TODO A mettre dans un systeme de log
             this.log.debug("J'initialise un parking");
         }
+        else if (arg0 instanceof InitTypeSimulation) {
+            InitTypeSimulation tmp = (InitTypeSimulation) arg0;
+            this.duration = tmp.getDuration();
+
+            for (ActorRef a : this.getContext().getChildren()) {
+                a.tell(tmp, this.getSelf());
+            }
+
+            // TODO A mettre dans un systeme de log
+            this.log.debug("J'initialise le type de la simulation");
+        }
         else if (arg0 instanceof StartSimulation) {
             StartSimulation tmp = (StartSimulation) arg0;
             for (ActorRef a : this.getContext().getChildren()) {
@@ -60,7 +73,7 @@ public class SimulationController extends UntypedActor {
             this.getContext()
                     .system()
                     .scheduler()
-                    .scheduleOnce(Duration.create(tmp.getDuration(), TimeUnit.SECONDS),
+                    .scheduleOnce(Duration.create(this.duration, TimeUnit.SECONDS),
                             this.getSelf(), PoisonPill.getInstance(),
                             this.getContext().dispatcher(), null);
         }

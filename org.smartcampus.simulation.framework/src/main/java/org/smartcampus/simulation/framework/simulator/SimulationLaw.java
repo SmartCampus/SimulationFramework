@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
+import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -31,22 +33,26 @@ import akka.routing.Router;
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
     private Router           router;
-    private ActorRef         dataSender;
-    protected Law<S, T>      law;
-    private T                valueToSend;
-    protected int            time;
-    private int              interval;
+    private ActorRef         dataMaker;
     private Cancellable      tick;
-    protected List<R>        values;
 
+    private T                valueToSend;
+    private int              realTimeFrequency;
+    private int              frequency;
+
+    private Law<S, T>        law;
+    private int              time;
+
+    protected List<R>        values;
     protected LoggingAdapter log;
 
     public SimulationLaw() {
         this.values = new LinkedList<R>();
         this.log = Logging.getLogger(this.getContext().system(), this);
-        this.dataSender = this.getContext().actorOf(
-                new RoundRobinPool(5).withResizer(new DefaultResizer(1, 10)).props(
-                        Props.create(DataSender.class)), "simulationDataSender");
+    }
+
+    public int getTime() {
+        return this.time;
     }
 
     protected abstract S[] computeValue();
@@ -74,11 +80,29 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     @SuppressWarnings("unchecked")
     @Override
     public final void onReceive(final Object o) throws Exception {
-        if (o instanceof StartSimulation) {
-            StartSimulation message = (StartSimulation) o;
+        if (o instanceof InitTypeSimulation) {
+            InitTypeSimulation message = (InitTypeSimulation) o;
             this.time = message.getBegin();
-            this.interval = message.getInterval();
+            this.realTimeFrequency = message.getRealTimeFrequency();
+            this.frequency = message.getFrequency();
 
+            InitSensorSimulation init;
+            if (this.frequency == this.realTimeFrequency) {
+                this.dataMaker = this.getContext().actorOf(
+                        new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
+                                .props(Props.create(DataSender.class)),
+                        "simulationDataSender");
+                init = new InitSensorSimulation(null);
+            }
+            else {
+                this.dataMaker = this.getContext().actorOf(
+                        Props.create(DataWriter.class), "simulationDataWriter");
+                init = new InitSensorSimulation(this.dataMaker);
+            }
+
+            this.router.route(init, this.getSelf());
+        }
+        else if (o instanceof StartSimulation) {
             this.valueToSend = this.law.evaluate(this.computeValue());
 
             this.tick = this
@@ -86,7 +110,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                     .system()
                     .scheduler()
                     .schedule(Duration.Zero(),
-                            Duration.create(this.interval, TimeUnit.SECONDS),
+                            Duration.create(this.realTimeFrequency, TimeUnit.SECONDS),
                             this.getSelf(), new UpdateSimulation(),
                             this.getContext().dispatcher(), null);
         }
@@ -113,7 +137,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
         else if (o instanceof UpdateSimulation) {
             this.router.route(new UpdateSensorSimulation<T>(this.time, this.valueToSend),
                     this.getSelf());
-            this.time++;
+            this.time += this.frequency;
         }
         else if (o instanceof ReturnMessage<?>) {
             ReturnMessage<R> message = (ReturnMessage<R>) o;
@@ -141,7 +165,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      *            the value of the sensor
      */
     public final void sendValue(final String name, final String value) {
-        this.dataSender.tell(new SendValue(this.getSelf().path().name() + " - " + name,
+        this.dataMaker.tell(new SendValue(this.getSelf().path().name() + " - " + name,
                 value, this.time), this.getSelf());
     }
 }

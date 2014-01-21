@@ -15,7 +15,7 @@ public class MainParkingMarkovSimulationLaw {
         s.create("Parking2", ParkingMarkovSimulationLaw.class)
                 .addSensors("Parking2", new SensorTransformationBooleanRate(), 30)
                 .initSimulation("Parking2", markov);
-        s.simulate(10, 10, 1);
+        s.simulate(10, 10, 1, 1);
     }
 
 }

@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
@@ -18,14 +19,10 @@ public final class Sensor<T, R> extends UntypedActor {
     private T                          value;
     private R                          lastReturnedValue;
     private SensorTransformation<T, R> transformation;
-    private ActorRef                   dataSender;
+    private ActorRef                   dataMaker;
 
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
-        this.dataSender = this.getContext().actorOf(
-                new RoundRobinPool(5).withResizer(new DefaultResizer(1, 10)).props(
-                        Props.create(DataSender.class)), "sensorDataSender");
-        this.lastReturnedValue = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -41,9 +38,24 @@ public final class Sensor<T, R> extends UntypedActor {
             this.lastReturnedValue = res;
 
             this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
-            this.dataSender
+            this.dataMaker
                     .tell(new SendValue(this.getSelf().path().name(), res.toString(),
                             this.time), this.getSelf());
         }
+        else if (o instanceof InitSensorSimulation) {
+            InitSensorSimulation message = (InitSensorSimulation) o;
+            ActorRef tmp = message.getDataMaker();
+            if (tmp == null) {
+                this.dataMaker = this.getContext().actorOf(
+                        new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
+                                .props(Props.create(DataSender.class)),
+                        "Sensor" + this.getSelf().path().name());
+                this.lastReturnedValue = null;
+            }
+            else {
+                this.dataMaker = tmp;
+            }
+        }
+
     }
 }
