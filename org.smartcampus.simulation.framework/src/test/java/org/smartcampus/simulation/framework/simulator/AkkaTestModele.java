@@ -30,7 +30,7 @@ public class AkkaTestModele {
     // Classe Interne utilisee dans les exemples
     private static class MyActor extends UntypedActor {
         @Override
-        public void onReceive(Object o) throws Exception {
+        public void onReceive(final Object o) throws Exception {
             if (o.equals("say42")) {
                 this.getSender().tell(42, this.getSelf());
             }
