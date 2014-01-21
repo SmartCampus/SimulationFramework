@@ -8,6 +8,15 @@ import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanRand
 
 public class ParkingRandomSimulationLaw extends SimulationLaw<Object, Object, Boolean> {
 
+    public static void main(final String[] args) {
+        Simulator s = new Simulator();
+        Law<Object, Object> rand = new RandomLaw();
+        s.create("Parking1", ParkingRandomSimulationLaw.class)
+                .addSensors("Parking1", new SensorTransformationBooleanRandom(), 5)
+                .initSimulation("Parking1", rand);
+        s.simulate(10, 10, 1);
+    }
+
     @Override
     protected Object[] computeValue() {
         return null;
@@ -22,14 +31,5 @@ public class ParkingRandomSimulationLaw extends SimulationLaw<Object, Object, Bo
             }
         }
         this.sendValue("Average", ((100 * res) / this.values.size()) + "%");
-    }
-
-    public static void main(final String[] args) {
-        Simulator s = new Simulator();
-        Law<Object, Object> rand = new RandomLaw();
-        s.create("Parking1", ParkingRandomSimulationLaw.class)
-                .addSensors("Parking1", new SensorTransformationBooleanRandom(), 5)
-                .initSimulation("Parking1", rand);
-        s.simulate(10, 10, 1);
     }
 }

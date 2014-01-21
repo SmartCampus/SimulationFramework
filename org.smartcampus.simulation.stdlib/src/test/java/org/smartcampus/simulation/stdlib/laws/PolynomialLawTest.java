@@ -15,7 +15,7 @@ public class PolynomialLawTest {
     private PolynomialLaw p, p1, p2;
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         this.p = new PolynomialLaw(2., 2., 2.);
         this.p1 = new PolynomialLaw(1., 1.);
         this.p2 = new PolynomialLaw(1., 2., 3.);

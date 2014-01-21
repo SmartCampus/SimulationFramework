@@ -32,15 +32,14 @@ public class MarkovStatesLawTest {
     public void testEvaluateIntegerArray() {
         try {
             for (int i = 0; i < 10; i++) {
-                Assert.assertEquals(this.arrivalFreq, m1.evaluate(i, i + 1), 0.01);
+                Assert.assertEquals(arrivalFreq, m1.evaluate(i, i + 1), 0.01);
             }
             for (int i = 1; i < 11; i++) {
-                Assert.assertEquals(i * this.averageParkingTime, m1.evaluate(i, i - 1),
-                        0.01);
+                Assert.assertEquals(i * averageParkingTime, m1.evaluate(i, i - 1), 0.01);
             }
-            Assert.assertEquals(5 * this.averageParkingTime, m1.evaluate(5, 4), 0.01);
-            Assert.assertEquals(-this.arrivalFreq, m1.evaluate(0, 0), 0.01);
-            Assert.assertEquals(-10 * this.averageParkingTime, m1.evaluate(10, 10), 0.01);
+            Assert.assertEquals(5 * averageParkingTime, m1.evaluate(5, 4), 0.01);
+            Assert.assertEquals(-arrivalFreq, m1.evaluate(0, 0), 0.01);
+            Assert.assertEquals(-10 * averageParkingTime, m1.evaluate(10, 10), 0.01);
             Assert.assertEquals(0., m1.evaluate(1, 6), 0.01);
             Assert.assertEquals(0., m1.evaluate(8, 6), 0.01);
         } catch (Exception e) {
