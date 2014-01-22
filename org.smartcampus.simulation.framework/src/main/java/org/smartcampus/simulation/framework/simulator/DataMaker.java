@@ -4,6 +4,9 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
+/**
+ * This class allow to write or send data
+ */
 public abstract class DataMaker extends UntypedActor {
     protected LoggingAdapter log;
 
@@ -12,5 +15,8 @@ public abstract class DataMaker extends UntypedActor {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     public abstract void onReceive(final Object o) throws Exception;
 }

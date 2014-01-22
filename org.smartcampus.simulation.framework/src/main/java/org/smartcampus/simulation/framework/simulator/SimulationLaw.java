@@ -28,41 +28,91 @@ import akka.routing.Routee;
 import akka.routing.Router;
 
 /**
- * Created by foerster on 14/01/14.
+ * 
+ * A SimulationLaw is a manager of sensors.
+ * 
+ * It can also send some value directly to a DataMaker(eg : average)
+ * 
+ * You have to implements the method computeValue and optionally the method onComplete
+ * 
+ * @param <S>
+ *            corresponds to the type of the parameter of the associated Law's method
+ *            'evaluate'
+ * @param <T>
+ *            corresponds to the return type of the associated Law's method 'evaluate'
+ * @param <R>
+ *            corresponds to the HTTP request type value
  */
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
-
+    /** This router allows to broadcast to all the sensors */
     private Router           router;
+
+    /** The DataMaker that allow the Simulation to send direct value */
     private ActorRef         dataMaker;
+
+    /** The scheduler which send an update every realTimeFrequency */
     private Cancellable      tick;
 
+    /** The T value to send to the sensors */
     private T                valueToSend;
+
+    /** The real time frequency correspond to the duration */
     private FiniteDuration   realTimeFrequency;
+
+    /** Each real time frequency, the time is increased by the frequency */
     private long             frequency;
 
+    /** The law associated to the SimulationLaw */
     private Law<S, T>        law;
+
+    /** The current time of the simulation */
     private long             time;
 
+    /** This list contains the result of the sensors */
     protected List<R>        values;
+
+    /** Allow to print logs */
     protected LoggingAdapter log;
 
+    /** Default constructor */
     public SimulationLaw() {
         this.values = new LinkedList<R>();
         this.log = Logging.getLogger(this.getContext().system(), this);
     }
 
+    /**
+     * Return the current time of the simulation
+     * 
+     * @return the current time of the simulation
+     */
     public long getTime() {
         return this.time;
     }
 
+    /**
+     * Return an array of values which corresponds to the parameter of the associated
+     * Law's method 'evaluate'
+     * 
+     * @return an array of type S
+     */
     protected abstract S[] computeValue();
 
+    /**
+     * Allows to create sensors.
+     * 
+     * @param numberOfSensors
+     *            the number of sensors to create
+     * 
+     * @param transformation
+     *            the transformation of the sensor
+     */
     private void createSensor(final int numberOfSensors,
-            final SensorTransformation<S, R> t) {
+            final SensorTransformation<S, R> transformation) {
 
         List<Routee> routees = new ArrayList<Routee>();
         for (int i = 0; i < numberOfSensors; i++) {
-            ActorRef r = this.getContext().actorOf(Props.create(Sensor.class, t),
+            ActorRef r = this.getContext().actorOf(
+                    Props.create(Sensor.class, transformation),
                     this.getSelf().path().name() + "-" + i);
             this.getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
@@ -79,6 +129,9 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
     @SuppressWarnings("unchecked")
     @Override
+    /**
+     * @inheritDoc
+     */
     public final void onReceive(final Object o) throws Exception {
         if (o instanceof InitTypeSimulation) {
             InitTypeSimulation message = (InitTypeSimulation) o;
@@ -150,6 +203,9 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     public final void postStop() {
         this.tick.cancel();
     }
