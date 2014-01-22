@@ -1,6 +1,6 @@
 package org.smartcampus.simulation.smartcampus.law;
 
-import javax.management.BadAttributeValueExpException;
+import java.security.InvalidParameterException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class ParkingMarkovLawTest {
         }
     }
 
-    @Test(expected = BadAttributeValueExpException.class)
+    @Test(expected = InvalidParameterException.class)
     public void testEvaluateAttributeException() throws Exception {
         m1.evaluate(2);
     }

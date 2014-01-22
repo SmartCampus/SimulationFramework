@@ -3,7 +3,7 @@
  */
 package org.smartcampus.simulation.stdlib.laws;
 
-import javax.management.BadAttributeValueExpException;
+import java.security.InvalidParameterException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,24 +38,30 @@ public class MarkovChainTest {
         }
     }
 
-    @Test(expected = BadAttributeValueExpException.class)
+    @Test(expected = InvalidParameterException.class)
     public void testConstructorExceptionSize() throws Exception {
         double[][] mat = { { 0.3, 0.4 }, { 0.2, 0.2 }, { 0.2, 0.2 } };
-        new MarkovChain(mat);
+        new MarkovChain(mat); // not a square matrix
     }
 
-    @Test(expected = BadAttributeValueExpException.class)
+    @Test(expected = InvalidParameterException.class)
     public void testConstructorExceptionProbabilities() throws Exception {
         double[][] mat = { { 0.3, 14 }, { 0.2, 0.2 } };
-        new MarkovChain(mat);
+        new MarkovChain(mat); // 14 is > 1
     }
 
-    @Test(expected = BadAttributeValueExpException.class)
+    @Test(expected = InvalidParameterException.class)
+    public void testConstructorExceptionProbabilities2() throws Exception {
+        double[][] mat = { { 0.3, 0.5 }, { 0.7, 0.2 } };
+        new MarkovChain(mat); // sum of the lines aren't 1
+    }
+
+    @Test(expected = InvalidParameterException.class)
     public void testEvaluateAttributeException1() throws Exception {
-        m1.evaluate(1, 1, 1);
+        m1.evaluate(1, 1, 1); // too many arguments
     }
 
-    @Test(expected = BadAttributeValueExpException.class)
+    @Test(expected = InvalidParameterException.class)
     public void testEvaluateAttributeException2() throws Exception {
         m1.evaluate(2);
     }

@@ -28,6 +28,10 @@ public class PolynomialLaw extends Law<Double, Double> {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     * Must receive 1 double
+     */
     public Double evaluate(final Double... x) {
         double res = 0;
         if (x == null) {

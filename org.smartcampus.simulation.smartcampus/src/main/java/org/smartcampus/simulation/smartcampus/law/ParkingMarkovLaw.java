@@ -1,8 +1,16 @@
 package org.smartcampus.simulation.smartcampus.law;
 
-import javax.management.BadAttributeValueExpException;
 import org.smartcampus.simulation.stdlib.laws.MarkovChain;
 
+/**
+ * Describes a parking occupancy states chain. It is constructed with the arrival
+ * frequency of cars in the parking and multiplicative inverse of the average time spent
+ * in the parking
+ * The states matrix is constructed using the formula given in the paper "Predicting
+ * Parking Lot Occupancy in Vehicular Ad Hoc Networks" by Murat Caliskan, Andreas
+ * Barthels, Björn Scheuermann and Martin Mauve
+ * The matrix diagonal is valued so that Mii=-sum(Mij) (j=0->size,j!=i)
+ */
 public class ParkingMarkovLaw extends MarkovChain {
 
     /**
@@ -14,8 +22,7 @@ public class ParkingMarkovLaw extends MarkovChain {
      * @param arrivalFreq
      *            the arrival frequency of cars in the parking
      * @param averageParkingTime
-     *            multiplicative inverse of the average time spent int the parking
-     * @throws BadAttributeValueExpException
+     *            multiplicative inverse of the average time spent in the parking
      */
     public ParkingMarkovLaw(final int nbPlaces, final double arrivalFreq,
             final double averageParkingTime) {
@@ -40,6 +47,9 @@ public class ParkingMarkovLaw extends MarkovChain {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     protected Double evaluate(final Integer... x) throws Exception {
         return super.evaluate(x);
     }
