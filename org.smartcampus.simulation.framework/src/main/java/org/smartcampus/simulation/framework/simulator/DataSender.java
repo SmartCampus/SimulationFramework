@@ -43,6 +43,7 @@ public class DataSender extends DataMaker {
             httpconn.setRequestProperty("charset", "utf-8");
             httpconn.setRequestProperty("Content-Length",
                     "" + Integer.toString(obj.toString().getBytes().length));
+            httpconn.setRequestProperty("Content-Type","application/json");
 
             httpconn.connect();
             DataOutputStream wr = new DataOutputStream(httpconn.getOutputStream());
@@ -61,6 +62,7 @@ public class DataSender extends DataMaker {
             in.close();
 
             httpconn.disconnect();
+            log.debug("Response : " + response);
         }
     }
 }
