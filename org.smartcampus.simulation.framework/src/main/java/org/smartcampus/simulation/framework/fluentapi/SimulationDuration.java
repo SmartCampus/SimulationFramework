@@ -1,8 +1,10 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
+import scala.concurrent.duration.FiniteDuration;
+
 /**
  * Created by foerster on 21/01/14.
  */
 public interface SimulationDuration {
-    public SimulationFrequency duration(int duration);
+    public SimulationFrequency duration(FiniteDuration duration);
 }

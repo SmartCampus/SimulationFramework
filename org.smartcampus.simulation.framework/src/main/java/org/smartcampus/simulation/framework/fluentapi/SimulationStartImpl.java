@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
+import java.sql.Timestamp;
 import akka.actor.ActorRef;
 
 /**
@@ -7,12 +8,19 @@ import akka.actor.ActorRef;
  */
 public class SimulationStartImpl extends SimulationWrapper implements SimulationStart {
 
-    public SimulationStartImpl(ActorRef controllerRef) {
+    public SimulationStartImpl(final ActorRef controllerRef) {
         super(controllerRef);
     }
 
     @Override
-    public SimulationDuration start(int date) {
-        return new SimulationDurationImpl(controllerRef,date);
+    public SimulationDuration start(final String date) {
+        return new SimulationDurationImpl(this.controllerRef, Timestamp.valueOf(date)
+                .getTime());
+    }
+
+    @Override
+    public SimulationDuration start(final long date) {
+        return new SimulationDurationImpl(this.controllerRef, date);
+
     }
 }

@@ -3,7 +3,6 @@ package org.smartcampus.simulation.framework.simulator;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
@@ -14,6 +13,7 @@ import org.smartcampus.simulation.framework.messages.StartSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
 import akka.actor.Props;
@@ -37,11 +37,11 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     private Cancellable      tick;
 
     private T                valueToSend;
-    private int              realTimeFrequency;
-    private int              frequency;
+    private FiniteDuration   realTimeFrequency;
+    private long             frequency;
 
     private Law<S, T>        law;
-    private int              time;
+    private long             time;
 
     protected List<R>        values;
     protected LoggingAdapter log;
@@ -51,7 +51,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
         this.log = Logging.getLogger(this.getContext().system(), this);
     }
 
-    public int getTime() {
+    public long getTime() {
         return this.time;
     }
 
@@ -87,7 +87,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
             this.frequency = message.getFrequency();
 
             InitSensorSimulation init;
-            if (this.frequency == this.realTimeFrequency) {
+            if (this.frequency == this.realTimeFrequency.toMillis()) {
                 this.dataMaker = this.getContext().actorOf(
                         new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
                                 .props(Props.create(DataSender.class)),
@@ -109,10 +109,8 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                     .getContext()
                     .system()
                     .scheduler()
-                    .schedule(Duration.Zero(),
-                            Duration.create(this.realTimeFrequency, TimeUnit.SECONDS),
-                            this.getSelf(), new UpdateSimulation(),
-                            this.getContext().dispatcher(), null);
+                    .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
+                            new UpdateSimulation(), this.getContext().dispatcher(), null);
         }
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;

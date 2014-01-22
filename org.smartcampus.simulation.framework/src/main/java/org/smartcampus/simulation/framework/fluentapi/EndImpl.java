@@ -1,7 +1,10 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
+import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 
 /**
@@ -9,9 +12,11 @@ import akka.actor.ActorRef;
  */
 public class EndImpl extends SimulationWrapper implements End {
 
-    private int start,duration,frequency;
+    private long start;
+    private FiniteDuration duration, frequency;
 
-    public EndImpl(final ActorRef controllerRef,int start,int duration,int frequency) {
+    public EndImpl(final ActorRef controllerRef, final long start,
+            final FiniteDuration duration, final FiniteDuration frequency) {
         super(controllerRef);
         this.start = start;
         this.duration = duration;
@@ -20,14 +25,15 @@ public class EndImpl extends SimulationWrapper implements End {
 
     @Override
     public void simulateReal() {
-        this.controllerRef.tell(new InitTypeSimulation(start, duration, frequency,
-                frequency), ActorRef.noSender());
+        this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
+                this.frequency, this.frequency.toMillis()), ActorRef.noSender());
         this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
     }
 
     @Override
     public void simulateVirtual() {
-        this.controllerRef.tell(new InitTypeSimulation(start, duration, frequency, 1),
+        this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
+                Duration.create(100, TimeUnit.MILLISECONDS), this.frequency.toMillis()),
                 ActorRef.noSender());
         this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
     }

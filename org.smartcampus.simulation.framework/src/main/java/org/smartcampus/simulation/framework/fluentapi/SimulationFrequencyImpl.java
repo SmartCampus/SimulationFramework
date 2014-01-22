@@ -1,23 +1,26 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 
 /**
  * Created by foerster on 22/01/14.
  */
-public class SimulationFrequencyImpl extends SimulationWrapper implements SimulationFrequency {
+public class SimulationFrequencyImpl extends SimulationWrapper implements
+        SimulationFrequency {
 
-    private int start;
-    private int duration;
+    private long           start;
+    private FiniteDuration duration;
 
-    public SimulationFrequencyImpl(ActorRef controllerRef,int start,int duration) {
+    public SimulationFrequencyImpl(final ActorRef controllerRef, final long start,
+            final FiniteDuration duration) {
         super(controllerRef);
         this.start = start;
         this.duration = duration;
     }
 
     @Override
-    public End frequency(int frequency) {
-        return new EndImpl(controllerRef,start,duration,frequency);
+    public End frequency(final FiniteDuration frequency) {
+        return new EndImpl(this.controllerRef, this.start, this.duration, frequency);
     }
 }

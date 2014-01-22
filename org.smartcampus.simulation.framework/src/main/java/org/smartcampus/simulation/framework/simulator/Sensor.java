@@ -15,8 +15,6 @@ import akka.routing.RoundRobinPool;
  */
 public final class Sensor<T, R> extends UntypedActor {
 
-    private int                        time;
-    private T                          value;
     private R                          lastReturnedValue;
     private SensorTransformation<T, R> transformation;
     private ActorRef                   dataMaker;
@@ -30,17 +28,17 @@ public final class Sensor<T, R> extends UntypedActor {
     public void onReceive(final Object o) throws Exception {
         if (o instanceof UpdateSensorSimulation) {
             UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
-            this.time = message.getBegin();
-            this.value = message.getValue();
-            R res = this.transformation.transform(this.value, this.lastReturnedValue);
+            long time = message.getBegin();
+            T value = message.getValue();
+            R res = this.transformation.transform(value, this.lastReturnedValue);
 
             // saves the value in case it is needed for next calculation
             this.lastReturnedValue = res;
 
             this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
-            this.dataMaker
-                    .tell(new SendValue(this.getSelf().path().name(), res.toString(),
-                            this.time), this.getSelf());
+            this.dataMaker.tell(
+                    new SendValue(this.getSelf().path().name(), res.toString(), time),
+                    this.getSelf());
         }
         else if (o instanceof InitSensorSimulation) {
             InitSensorSimulation message = (InitSensorSimulation) o;

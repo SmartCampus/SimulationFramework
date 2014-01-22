@@ -7,6 +7,7 @@ import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
@@ -17,7 +18,9 @@ import akka.event.LoggingAdapter;
 public class SimulationController extends UntypedActor {
 
     private LoggingAdapter log;
-    private int            duration;
+    private FiniteDuration duration;
+    private long           frequency;
+    private long           realTimeFrequency;
 
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
@@ -53,6 +56,8 @@ public class SimulationController extends UntypedActor {
         else if (arg0 instanceof InitTypeSimulation) {
             InitTypeSimulation tmp = (InitTypeSimulation) arg0;
             this.duration = tmp.getDuration();
+            this.frequency = tmp.getFrequency();
+            this.realTimeFrequency = tmp.getRealTimeFrequency().toMillis();
 
             for (ActorRef a : this.getContext().getChildren()) {
                 a.tell(tmp, this.getSelf());
@@ -70,12 +75,28 @@ public class SimulationController extends UntypedActor {
             // TODO A mettre dans un systeme de log
             this.log.debug("Je lance la simulation");
 
-            this.getContext()
-                    .system()
-                    .scheduler()
-                    .scheduleOnce(Duration.create(this.duration, TimeUnit.SECONDS),
-                            this.getSelf(), PoisonPill.getInstance(),
-                            this.getContext().dispatcher(), null);
+            if (this.frequency == this.realTimeFrequency) {
+                this.getContext()
+                        .system()
+                        .scheduler()
+                        .scheduleOnce(this.duration, this.getSelf(),
+                                PoisonPill.getInstance(), this.getContext().dispatcher(),
+                                null);
+            }
+            else {
+
+                long virtualDuration = ((this.duration.toMillis() / this.frequency) * this.realTimeFrequency)
+                        + (this.realTimeFrequency / 4);
+
+                this.getContext()
+                        .system()
+                        .scheduler()
+                        .scheduleOnce(
+                                Duration.create(virtualDuration, TimeUnit.MILLISECONDS),
+                                this.getSelf(), PoisonPill.getInstance(),
+                                this.getContext().dispatcher(), null);
+            }
+
         }
         else {
 
