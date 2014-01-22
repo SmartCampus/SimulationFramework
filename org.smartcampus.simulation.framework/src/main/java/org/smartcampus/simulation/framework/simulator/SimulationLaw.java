@@ -3,6 +3,8 @@ package org.smartcampus.simulation.framework.simulator;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import akka.japi.Procedure;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
@@ -111,6 +113,8 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                     .scheduler()
                     .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
                             new UpdateSimulation(), this.getContext().dispatcher(), null);
+
+            getContext().become(simulationStarted);
         }
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
@@ -132,22 +136,29 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                 // TODO error
             }
         }
-        else if (o instanceof UpdateSimulation) {
-            this.router.route(new UpdateSensorSimulation<T>(this.time, this.valueToSend),
-                    this.getSelf());
-            this.time += this.frequency;
-        }
-        else if (o instanceof ReturnMessage<?>) {
-            ReturnMessage<R> message = (ReturnMessage<R>) o;
-            this.values.add(message.getResult());
 
-            if (this.values.size() == this.router.routees().size()) {
-                this.valueToSend = this.law.evaluate(this.computeValue());
-                this.onComplete();
-                this.values.clear();
+    }
+
+    private Procedure<Object> simulationStarted = new Procedure<Object>() {
+        @Override
+        public void apply(Object o) throws Exception {
+            if (o instanceof UpdateSimulation) {
+                router.route(new UpdateSensorSimulation<T>(time, valueToSend),
+                        getSelf());
+                time += frequency;
+            }
+            else if (o instanceof ReturnMessage<?>) {
+                ReturnMessage<R> message = (ReturnMessage<R>) o;
+                values.add(message.getResult());
+
+                if (values.size() == router.routees().size()) {
+                    valueToSend = law.evaluate(computeValue());
+                    onComplete();
+                    values.clear();
+                }
             }
         }
-    }
+    };
 
     @Override
     public final void postStop() {
