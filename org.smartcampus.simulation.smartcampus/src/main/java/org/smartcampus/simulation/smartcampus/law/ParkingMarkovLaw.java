@@ -8,7 +8,7 @@ import org.smartcampus.simulation.stdlib.law.MarkovChain;
  * in the parking
  * The states matrix is constructed using the formula given in the paper "Predicting
  * Parking Lot Occupancy in Vehicular Ad Hoc Networks" by Murat Caliskan, Andreas
- * Barthels, Björn Scheuermann and Martin Mauve
+ * Barthels, Bjorn Scheuermann and Martin Mauve
  * The matrix diagonal is valued so that Mii=-sum(Mij) (j=0->size,j!=i)
  */
 public class ParkingMarkovLaw extends MarkovChain {
