@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.stdlib.laws;
+package org.smartcampus.simulation.stdlib.law;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.smartcampus.simulation.framework.simulator.Law;
  */
 public class PolynomialLaw extends Law<Double, Double> {
 
-    List<Double> coeficients;
+    List<Double> coefficients;
 
     /**
      * create the PolynomialLaw. Each monomial has to be written even if it's 0
@@ -21,9 +21,9 @@ public class PolynomialLaw extends Law<Double, Double> {
      *            to the higher one
      */
     public PolynomialLaw(final Double... doubles) {
-        this.coeficients = new LinkedList<Double>();
+        this.coefficients = new LinkedList<Double>();
         for (Double e : doubles) {
-            this.coeficients.add(e);
+            this.coefficients.add(e);
         }
     }
 
@@ -38,17 +38,17 @@ public class PolynomialLaw extends Law<Double, Double> {
             return 0.;
         }
         double n = x[0];
-        for (int i = 0; i < this.coeficients.size(); i++) {
-            res += this.coeficients.get(i) * Math.pow(n, i);
+        for (int i = 0; i < this.coefficients.size(); i++) {
+            res += this.coefficients.get(i) * Math.pow(n, i);
         }
         return res;
     }
 
     /**
-     * @return the coeficients
+     * @return the coefficients
      */
-    protected List<Double> getCoeficients() {
-        return this.coeficients;
+    protected List<Double> getCoefficients() {
+        return this.coefficients;
     }
 
     /**
@@ -57,7 +57,7 @@ public class PolynomialLaw extends Law<Double, Double> {
      * @return the original ordonnee
      */
     protected Double getOriginalOrdonee() {
-        return this.coeficients.get(0);
+        return this.coefficients.get(0);
     }
 
 }

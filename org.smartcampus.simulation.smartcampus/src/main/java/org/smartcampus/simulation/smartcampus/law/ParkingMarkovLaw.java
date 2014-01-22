@@ -1,6 +1,6 @@
 package org.smartcampus.simulation.smartcampus.law;
 
-import org.smartcampus.simulation.stdlib.laws.MarkovChain;
+import org.smartcampus.simulation.stdlib.law.MarkovChain;
 
 /**
  * Describes a parking occupancy states chain. It is constructed with the arrival

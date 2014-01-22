@@ -1,8 +1,8 @@
-package org.smartcampus.simulation.smartcampus.simulationlaw;
+package org.smartcampus.simulation.smartcampus.simulation;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
-public class ParkingMarkovSimulationLaw extends SimulationLaw<Integer, Double, Boolean> {
+public class ParkingMarkovSimulation extends SimulationLaw<Integer, Double, Boolean> {
 
     @Override
     protected Integer[] computeValue() {

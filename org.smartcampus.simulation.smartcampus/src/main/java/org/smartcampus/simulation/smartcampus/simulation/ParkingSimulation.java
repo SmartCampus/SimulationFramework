@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.smartcampus.simulationlaw;
+package org.smartcampus.simulation.smartcampus.simulation;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -10,7 +10,7 @@ import org.smartcampus.simulation.framework.simulator.SimulationLaw;
  * Created by foerster on 14/01/14.
  * 
  */
-public class ParkingSimulationLaw extends
+public class ParkingSimulation extends
 		SimulationLaw<Double, Double, Boolean> {
 
 	@Override

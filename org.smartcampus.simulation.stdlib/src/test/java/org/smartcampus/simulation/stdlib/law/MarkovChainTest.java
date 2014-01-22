@@ -1,12 +1,13 @@
 /**
  * 
  */
-package org.smartcampus.simulation.stdlib.laws;
+package org.smartcampus.simulation.stdlib.law;
 
 import java.security.InvalidParameterException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.smartcampus.simulation.stdlib.law.MarkovChain;
 
 public class MarkovChainTest {
 

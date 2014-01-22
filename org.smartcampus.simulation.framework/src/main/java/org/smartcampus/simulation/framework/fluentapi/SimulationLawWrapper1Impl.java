@@ -14,7 +14,7 @@ public class SimulationLawWrapper1Impl extends SimulationLawWrapper implements S
     }
 
     @Override
-    public Simulator init(Law<?, ?> initVal) {
+    public Simulator withLaw(Law<?, ?> initVal) {
         controllerRef.tell(new InitSimulationLaw(simulationLawName, initVal), ActorRef.noSender());
         return new SimulatorImpl(controllerRef);
     }
