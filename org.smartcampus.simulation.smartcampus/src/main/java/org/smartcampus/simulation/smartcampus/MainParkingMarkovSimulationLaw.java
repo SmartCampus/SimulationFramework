@@ -1,24 +1,22 @@
 package org.smartcampus.simulation.smartcampus;
 
 import java.util.concurrent.TimeUnit;
-
 import org.smartcampus.simulation.framework.fluentapi.Start;
 import org.smartcampus.simulation.framework.fluentapi.StartImpl;
 import org.smartcampus.simulation.framework.simulator.Law;
+import org.smartcampus.simulation.smartcampus.law.ParkingMarkovLaw;
 import org.smartcampus.simulation.smartcampus.simulationlaw.ParkingMarkovSimulationLaw;
 import org.smartcampus.simulation.smartcampus.simulationlaw.ParkingSimulationLaw;
-import org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw;
 import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
 import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanPercent;
 import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanRate;
-
 import scala.concurrent.duration.Duration;
 
 public class MainParkingMarkovSimulationLaw {
 
 	public static void main(final String[] args) {
 		Law<Integer, Double> markov = null;
-		markov = new MarkovStatesLaw(30, 0.1, 0.01);
+		markov = new ParkingMarkovLaw(30, 0.1, 0.01);
 
 		Law<Double, Double> polynome = new PolynomialLaw(24839.21865,
 				-14430.25924, 3359.404392, -401.9522656, 26.18040012,

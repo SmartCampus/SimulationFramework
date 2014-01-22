@@ -24,7 +24,6 @@ public final class Sensor<T, R> extends UntypedActor {
         this.transformation = t;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onReceive(final Object o) throws Exception {
        if (o instanceof InitSensorSimulation) {
@@ -42,9 +41,9 @@ public final class Sensor<T, R> extends UntypedActor {
             }
            getContext().become(simulationStarted);
         }
-
     }
 
+    @SuppressWarnings("unchecked")
     private Procedure<Object> simulationStarted = new Procedure<Object>() {
         @Override
         public void apply(Object o) {

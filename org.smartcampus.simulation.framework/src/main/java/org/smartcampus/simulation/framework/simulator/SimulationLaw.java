@@ -140,6 +140,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     }
 
     private Procedure<Object> simulationStarted = new Procedure<Object>() {
+        @SuppressWarnings("unchecked")
         @Override
         public void apply(Object o) throws Exception {
             if (o instanceof UpdateSimulation) {
