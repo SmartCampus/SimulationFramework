@@ -12,16 +12,18 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+/**
+ * Temporary server for faking the middleware
+ * 
+ */
 public class ServeurWeb {
 
     static Socket s;
-
-    /*
-     * arguments a passer au programme : -numero du port
-     */
+    public static int numPort = 8000;
 
     public static void main(final String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        HttpServer server = HttpServer
+                .create(new InetSocketAddress(numPort), 0);
         server.createContext("/value", new MyHandler());
         server.setExecutor(null); // creates a default executor
         server.start();
