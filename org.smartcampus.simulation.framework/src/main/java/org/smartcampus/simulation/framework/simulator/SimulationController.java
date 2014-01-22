@@ -1,10 +1,9 @@
 package org.smartcampus.simulation.framework.simulator;
 
 import java.util.concurrent.TimeUnit;
-
-import akka.japi.Procedure;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitOutput;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -16,13 +15,14 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.japi.Procedure;
 
 public class SimulationController extends UntypedActor {
 
     private LoggingAdapter log;
     private FiniteDuration duration;
-    private long           frequency;
-    private long           realTimeFrequency;
+    private long frequency;
+    private long realTimeFrequency;
 
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
@@ -99,8 +99,16 @@ public class SimulationController extends UntypedActor {
                                 this.getContext().dispatcher(), null);
             }
 
-            getContext().become(simulationStarted);
+            this.getContext().become(this.simulationStarted);
 
+        }
+        else if (arg0 instanceof InitOutput) {
+            for (ActorRef a : this.getContext().getChildren()) {
+                a.tell(arg0, this.getSelf());
+            }
+
+            // TODO A mettre dans un systeme de log
+            this.log.debug("Je transmet le set de l'output");
         }
         else {
 
@@ -111,7 +119,7 @@ public class SimulationController extends UntypedActor {
 
     private Procedure<Object> simulationStarted = new Procedure<Object>() {
         @Override
-        public void apply(Object message) {
+        public void apply(final Object message) {
 
         }
     };

@@ -9,7 +9,7 @@ import org.smartcampus.simulation.framework.messages.SendValue;
 
 public class DataWriter extends DataMaker {
     private final String path = System.getProperty("user.dir") + "/"
-                                      + this.getSelf().path().name() + "-log.txt";
+            + this.getSelf().path().name() + "-log.txt";
 
     public DataWriter() {
         super();
@@ -20,8 +20,17 @@ public class DataWriter extends DataMaker {
         }
     }
 
+    public DataWriter(final String s) {
+        super(s);
+        File tmp = new File(this.path);
+        if (tmp.exists()) {
+            tmp.delete();
+        }
+    }
+
     @Override
     public void onReceive(final Object o) throws Exception {
+        super.onReceive(o);
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
             this.log.debug("J'ecris le " + new Timestamp(sendValue.getTime())

@@ -3,10 +3,10 @@ package org.smartcampus.simulation.framework.simulator;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import akka.japi.Procedure;
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
+import org.smartcampus.simulation.framework.messages.InitOutput;
+import org.smartcampus.simulation.framework.messages.InitSensorRealSimulation;
+import org.smartcampus.simulation.framework.messages.InitSensorVirtualSimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
@@ -22,6 +22,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.japi.Procedure;
 import akka.routing.ActorRefRoutee;
 import akka.routing.BroadcastRoutingLogic;
 import akka.routing.DefaultResizer;
@@ -34,18 +35,19 @@ import akka.routing.Router;
  */
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
 
-    private Router           router;
-    private ActorRef         dataMaker;
-    private Cancellable      tick;
+    private Router router;
+    private ActorRef dataMaker;
+    private Cancellable tick;
+    private String output;
 
-    private T                valueToSend;
-    private FiniteDuration   realTimeFrequency;
-    private long             frequency;
+    private T valueToSend;
+    private FiniteDuration realTimeFrequency;
+    private long frequency;
 
-    private Law<S, T>        law;
-    private long             time;
+    private Law<S, T> law;
+    private long time;
 
-    protected List<R>        values;
+    protected List<R> values;
     protected LoggingAdapter log;
 
     public SimulationLaw() {
@@ -88,21 +90,23 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
             this.realTimeFrequency = message.getRealTimeFrequency();
             this.frequency = message.getFrequency();
 
-            InitSensorSimulation init;
             if (this.frequency == this.realTimeFrequency.toMillis()) {
                 this.dataMaker = this.getContext().actorOf(
                         new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
-                                .props(Props.create(DataSender.class)),
+                                .props(Props.create(DataSender.class, this.output)),
                         "simulationDataSender");
-                init = new InitSensorSimulation(null);
+                InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
+                this.router.route(init, this.getSelf());
             }
             else {
                 this.dataMaker = this.getContext().actorOf(
-                        Props.create(DataWriter.class), "simulationDataWriter");
-                init = new InitSensorSimulation(this.dataMaker);
+                        Props.create(DataWriter.class, this.output),
+                        "simulationDataWriter");
+                InitSensorVirtualSimulation init = new InitSensorVirtualSimulation(
+                        this.dataMaker);
+                this.router.route(init, this.getSelf());
             }
 
-            this.router.route(init, this.getSelf());
         }
         else if (o instanceof StartSimulation) {
             this.valueToSend = this.law.evaluate(this.computeValue());
@@ -114,7 +118,10 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                     .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
                             new UpdateSimulation(), this.getContext().dispatcher(), null);
 
-            getContext().become(simulationStarted);
+            this.getContext().become(this.simulationStarted);
+        }
+        else if (o instanceof InitOutput) {
+            this.output = ((InitOutput) o).getOutput();
         }
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
@@ -140,21 +147,25 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     }
 
     private Procedure<Object> simulationStarted = new Procedure<Object>() {
+        @SuppressWarnings("unchecked")
         @Override
-        public void apply(Object o) throws Exception {
+        public void apply(final Object o) throws Exception {
             if (o instanceof UpdateSimulation) {
-                router.route(new UpdateSensorSimulation<T>(time, valueToSend),
-                        getSelf());
-                time += frequency;
+                SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
+                        SimulationLaw.this.time, SimulationLaw.this.valueToSend),
+                        SimulationLaw.this.getSelf());
+                SimulationLaw.this.time += SimulationLaw.this.frequency;
             }
             else if (o instanceof ReturnMessage<?>) {
                 ReturnMessage<R> message = (ReturnMessage<R>) o;
-                values.add(message.getResult());
+                SimulationLaw.this.values.add(message.getResult());
 
-                if (values.size() == router.routees().size()) {
-                    valueToSend = law.evaluate(computeValue());
-                    onComplete();
-                    values.clear();
+                if (SimulationLaw.this.values.size() == SimulationLaw.this.router
+                        .routees().size()) {
+                    SimulationLaw.this.valueToSend = SimulationLaw.this.law
+                            .evaluate(SimulationLaw.this.computeValue());
+                    SimulationLaw.this.onComplete();
+                    SimulationLaw.this.values.clear();
                 }
             }
         }

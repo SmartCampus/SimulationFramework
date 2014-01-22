@@ -1,27 +1,30 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
-import akka.actor.ActorRef;
 import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
+import org.smartcampus.simulation.framework.messages.InitOutput;
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
+import akka.actor.ActorRef;
 
 /**
  * Created by foerster on 21/01/14.
  */
-public class SimulatorImpl extends SimulationWrapper implements Simulator,Start {
+public class SimulatorImpl extends SimulationWrapper implements Simulator, Start {
 
-    public SimulatorImpl(ActorRef controllerRef) {
+    public SimulatorImpl(final ActorRef controllerRef) {
         super(controllerRef);
     }
 
     @Override
-    public SimulationStart setUrl(String url) {
-        return new SimulationStartImpl(controllerRef);
+    public SimulationStart setOutput(final String output) {
+        this.controllerRef.tell(new InitOutput(output), ActorRef.noSender());
+        return new SimulationStartImpl(this.controllerRef);
     }
 
     @Override
     public SimulationLawWrapper0 create(final String name,
-                                        final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass) {
-        controllerRef.tell(new CreateSimulationLaw(name, simulationLawClass), ActorRef.noSender());
-        return new SimulationLawWrapper0Impl(name,controllerRef);
+            final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass) {
+        this.controllerRef.tell(new CreateSimulationLaw(name, simulationLawClass),
+                ActorRef.noSender());
+        return new SimulationLawWrapper0Impl(name, this.controllerRef);
     }
 }

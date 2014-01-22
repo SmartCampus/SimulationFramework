@@ -1,13 +1,14 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import akka.japi.Procedure;
-import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
+import org.smartcampus.simulation.framework.messages.InitSensorRealSimulation;
+import org.smartcampus.simulation.framework.messages.InitSensorVirtualSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.japi.Procedure;
 import akka.routing.DefaultResizer;
 import akka.routing.RoundRobinPool;
 
@@ -16,51 +17,54 @@ import akka.routing.RoundRobinPool;
  */
 public final class Sensor<T, R> extends UntypedActor {
 
-    private R                          lastReturnedValue;
+    private R lastReturnedValue;
     private SensorTransformation<T, R> transformation;
-    private ActorRef                   dataMaker;
+    private ActorRef dataMaker;
 
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onReceive(final Object o) throws Exception {
-       if (o instanceof InitSensorSimulation) {
-            InitSensorSimulation message = (InitSensorSimulation) o;
+        if (o instanceof InitSensorRealSimulation) {
+            InitSensorRealSimulation message = (InitSensorRealSimulation) o;
+            String s = message.getUrl();
+            this.dataMaker = this.getContext().actorOf(
+                    new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
+                            Props.create(DataSender.class, s)),
+                    "Sensor" + this.getSelf().path().name());
+            this.lastReturnedValue = null;
+            this.getContext().become(this.simulationStarted);
+        }
+        else if (o instanceof InitSensorVirtualSimulation) {
+            InitSensorVirtualSimulation message = (InitSensorVirtualSimulation) o;
             ActorRef tmp = message.getDataMaker();
-            if (tmp == null) {
-                this.dataMaker = this.getContext().actorOf(
-                        new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
-                                .props(Props.create(DataSender.class)),
-                        "Sensor" + this.getSelf().path().name());
-                this.lastReturnedValue = null;
-            }
-            else {
-                this.dataMaker = tmp;
-            }
-           getContext().become(simulationStarted);
+            this.dataMaker = tmp;
+            this.lastReturnedValue = null;
+            this.getContext().become(this.simulationStarted);
         }
 
     }
 
+    @SuppressWarnings("unchecked")
     private Procedure<Object> simulationStarted = new Procedure<Object>() {
         @Override
-        public void apply(Object o) {
+        public void apply(final Object o) {
             if (o instanceof UpdateSensorSimulation) {
                 UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
                 long time = message.getBegin();
                 T value = message.getValue();
-                R res = transformation.transform(value, lastReturnedValue);
+                R res = Sensor.this.transformation.transform(value,
+                        Sensor.this.lastReturnedValue);
 
                 // saves the value in case it is needed for next calculation
-                lastReturnedValue = res;
+                Sensor.this.lastReturnedValue = res;
 
-                getSender().tell(new ReturnMessage<R>(res), getSelf());
-                dataMaker.tell(
-                        new SendValue(getSelf().path().name(), res.toString(), time),
-                        getSelf());
+                Sensor.this.getSender().tell(new ReturnMessage<R>(res),
+                        Sensor.this.getSelf());
+                Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
+                        .name(), res.toString(), time), Sensor.this.getSelf());
             }
         }
     };

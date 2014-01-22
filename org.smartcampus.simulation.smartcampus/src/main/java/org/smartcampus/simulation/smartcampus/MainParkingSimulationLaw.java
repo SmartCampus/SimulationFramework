@@ -21,7 +21,7 @@ public class MainParkingSimulationLaw {
 		Start sim = new StartImpl();
 		sim.create("Parking1", ParkingSimulationLaw.class)
 				.add(5, new SensorTransformationBooleanPercent())
-				.init(polynome).setUrl("Not currently used")
+				.init(polynome).setOutput("Not currently used")
 				.start(System.currentTimeMillis())
 				.duration(Duration.create(1, TimeUnit.DAYS))
 				.frequency(Duration.create(1, TimeUnit.HOURS))
