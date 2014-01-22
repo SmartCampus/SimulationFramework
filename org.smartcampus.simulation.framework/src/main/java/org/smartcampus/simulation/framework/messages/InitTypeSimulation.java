@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.messages;
 
+import java.io.Serializable;
 import scala.concurrent.duration.FiniteDuration;
 
 /**
@@ -7,7 +8,8 @@ import scala.concurrent.duration.FiniteDuration;
  * It contains the start time of the simulation, the duration and the interval of time
  * between each request.
  */
-public class InitTypeSimulation {
+public class InitTypeSimulation implements Serializable {
+    private static final long    serialVersionUID = 4100669196416200411L;
     private final long           begin;
     private final FiniteDuration duration;
     private final FiniteDuration realTimeFrequency;

@@ -1,13 +1,14 @@
 package org.smartcampus.simulation.framework.messages;
 
+import java.io.Serializable;
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
 /**
  * The CreateSimulationLaw message allows to create a new SimulationLaw according to the
  * 'simulationLawClass'
  */
-public class CreateSimulationLaw {
-
+public class CreateSimulationLaw implements Serializable {
+    private static final long                             serialVersionUID = -4644784620359844269L;
     private final String                                  name;
     private final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass;
 

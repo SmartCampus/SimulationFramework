@@ -7,18 +7,14 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
+/**
+ * @inheritDoc
+ * 
+ *             This class allow to write in a file
+ */
 public class DataWriter extends DataMaker {
     private final String path = System.getProperty("user.dir") + "/"
             + this.getSelf().path().name() + "-log.txt";
-
-    public DataWriter() {
-        super();
-
-        File tmp = new File(this.path);
-        if (tmp.exists()) {
-            tmp.delete();
-        }
-    }
 
     public DataWriter(final String s) {
         super(s);
@@ -29,8 +25,10 @@ public class DataWriter extends DataMaker {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     public void onReceive(final Object o) throws Exception {
-        super.onReceive(o);
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
             this.log.debug("J'ecris le " + new Timestamp(sendValue.getTime())

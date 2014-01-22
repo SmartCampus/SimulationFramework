@@ -4,9 +4,13 @@
 package org.smartcampus.simulation.framework.simulator;
 
 /**
- * @author Jerome Rancati
- * @creationDate 15 January 2014
+ * This class allows to implement mathematical models
  * 
+ * @param <S>
+ *            corresponds to the type of the parameter of the method 'evaluate'
+ * 
+ * @param <T>
+ *            corresponds to the return type of the method 'evaluate'
  */
 public abstract class Law<S, T> {
 

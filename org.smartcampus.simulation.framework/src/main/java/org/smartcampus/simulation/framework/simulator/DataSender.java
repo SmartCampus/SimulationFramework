@@ -7,6 +7,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
+/**
+ * @inheritDoc
+ * 
+ *             This class allow to send a request HTTP
+ */
 public class DataSender extends DataMaker {
 
     public DataSender(final String url) {
@@ -14,8 +19,10 @@ public class DataSender extends DataMaker {
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     public void onReceive(final Object o) throws Exception {
-        super.onReceive(o);
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
             StringBuilder obj = new StringBuilder();

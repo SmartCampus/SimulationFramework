@@ -5,9 +5,6 @@ import org.smartcampus.simulation.framework.messages.InitOutput;
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 import akka.actor.ActorRef;
 
-/**
- * Created by foerster on 21/01/14.
- */
 public class SimulatorImpl extends SimulationWrapper implements Simulator, Start {
 
     public SimulatorImpl(final ActorRef controllerRef) {

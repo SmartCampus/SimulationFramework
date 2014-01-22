@@ -13,19 +13,35 @@ import akka.routing.DefaultResizer;
 import akka.routing.RoundRobinPool;
 
 /**
- * Created by foerster on 14/01/14.
+ * A Sensor is an akka Actor. It transforms the value receive by the SimulationLaw in the
+ * type of the HTTP request
+ * 
+ * @param <T>
+ *            corresponds to the return type of the associated Law's method 'evaluate'
+ * @param <R>
+ *            corresponds to the HTTP request type value
  */
 public final class Sensor<T, R> extends UntypedActor {
 
+    /** The last returned value */
     private R lastReturnedValue;
+    /** The transformation */
     private SensorTransformation<T, R> transformation;
+    /**
+     * The output Actor. It can be a DataSender(HTTP Request) or a DataWriter(File). if it
+     * is a DataWriter, it is shared by every sensors
+     */
     private ActorRef dataMaker;
 
+    /** default constructor */
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
     }
 
     @Override
+    /**
+     * @inheritDoc
+     */
     public void onReceive(final Object o) throws Exception {
         if (o instanceof InitSensorRealSimulation) {
             InitSensorRealSimulation message = (InitSensorRealSimulation) o;
@@ -44,7 +60,6 @@ public final class Sensor<T, R> extends UntypedActor {
             this.lastReturnedValue = null;
             this.getContext().become(this.simulationStarted);
         }
-
     }
 
     @SuppressWarnings("unchecked")

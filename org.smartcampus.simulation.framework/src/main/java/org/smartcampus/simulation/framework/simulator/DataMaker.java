@@ -1,28 +1,24 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import org.smartcampus.simulation.framework.messages.SendValue;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
+/**
+ * This class allow to write or send data
+ */
 public abstract class DataMaker extends UntypedActor {
     protected LoggingAdapter log;
     protected String output;
 
-    public DataMaker() {
-        this.log = Logging.getLogger(this.getContext().system(), this);
-    }
-
     public DataMaker(final String out) {
-        super();
+        this.log = Logging.getLogger(this.getContext().system(), this);
         this.output = out;
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public void onReceive(final Object o) throws Exception {
-        if (o instanceof SendValue) {
-            SendValue sendValue = (SendValue) o;
-            // this.output = "http://localhost:8000/value";
-        }
-    }
+    public abstract void onReceive(final Object o) throws Exception;
 }

@@ -17,13 +17,22 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Procedure;
 
-public class SimulationController extends UntypedActor {
-
+/**
+ * The SimulationController allows to transfer a message to a specific son or to
+ * broadcast it.
+ * It also kills all the actors once the 'duration' time arrives to an end.
+ */
+public final class SimulationController extends UntypedActor {
+    /** Allow to print logs */
     private LoggingAdapter log;
+    /** The duration of the simulation */
     private FiniteDuration duration;
+    /** The update frequency to the virtual time */
     private long frequency;
+    /** The sensor's request frequency */
     private long realTimeFrequency;
 
+    /** Default Contructor */
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
     }
