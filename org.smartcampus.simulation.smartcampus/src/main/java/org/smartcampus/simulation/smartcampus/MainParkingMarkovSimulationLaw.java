@@ -26,12 +26,12 @@ public class MainParkingMarkovSimulationLaw {
 
         Start sim = new StartImpl();
         sim.create("Parking2", ParkingMarkovSimulation.class)
-                .add(30, new RateToBooleanChangeSensorTransformation())
+                .add(15000, new RateToBooleanChangeSensorTransformation())
                 .withLaw(markov).create("Parking3", ParkingSimulation.class)
-                .add(30, new PercentToBooleanSensorTransformation())
-                .withLaw(polynome).setOutput("http://localhost:8000/value")
+                .add(15000, new PercentToBooleanSensorTransformation())
+                .withLaw(polynome).setOutput("http://localhost:8080/collector/value")
                 .start("2014-01-22 08:25:00")
-                .duration(Duration.create(5, TimeUnit.SECONDS))
+                .duration(Duration.create(20, TimeUnit.MINUTES))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
     }
 }
