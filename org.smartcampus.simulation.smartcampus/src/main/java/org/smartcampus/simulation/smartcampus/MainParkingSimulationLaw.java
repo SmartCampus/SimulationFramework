@@ -1,14 +1,12 @@
 package org.smartcampus.simulation.smartcampus;
 
 import java.util.concurrent.TimeUnit;
-
 import org.smartcampus.simulation.framework.fluentapi.Start;
 import org.smartcampus.simulation.framework.fluentapi.StartImpl;
 import org.smartcampus.simulation.framework.simulator.Law;
-import org.smartcampus.simulation.smartcampus.simulationlaw.ParkingSimulationLaw;
-import org.smartcampus.simulation.stdlib.laws.PolynomialLaw;
-import org.smartcampus.simulation.stdlib.sensors.SensorTransformationBooleanPercent;
-
+import org.smartcampus.simulation.smartcampus.simulation.ParkingSimulation;
+import org.smartcampus.simulation.stdlib.law.PolynomialLaw;
+import org.smartcampus.simulation.stdlib.sensors.PercentToBooleanSensorTransformation;
 import scala.concurrent.duration.Duration;
 
 public class MainParkingSimulationLaw {
@@ -19,9 +17,9 @@ public class MainParkingSimulationLaw {
 				-0.8830270156, 0.01208028907);
 
 		Start sim = new StartImpl();
-		sim.create("Parking1", ParkingSimulationLaw.class)
-				.add(5, new SensorTransformationBooleanPercent())
-				.init(polynome).setUrl("Not currently used")
+		sim.create("Parking1", ParkingSimulation.class)
+				.add(5, new PercentToBooleanSensorTransformation())
+				.withLaw(polynome).setUrl("Not currently used")
 				.start(System.currentTimeMillis())
 				.duration(Duration.create(1, TimeUnit.DAYS))
 				.frequency(Duration.create(1, TimeUnit.HOURS))

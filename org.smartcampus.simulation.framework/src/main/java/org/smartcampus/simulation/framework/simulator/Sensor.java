@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import akka.japi.Procedure;
 import org.smartcampus.simulation.framework.messages.InitSensorSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
@@ -36,27 +37,12 @@ public final class Sensor<T, R> extends UntypedActor {
         this.transformation = t;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     /**
      * @inheritDoc
      */
     public void onReceive(final Object o) throws Exception {
-        if (o instanceof UpdateSensorSimulation) {
-            UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
-            long time = message.getBegin();
-            T value = message.getValue();
-            R res = this.transformation.transform(value, this.lastReturnedValue);
-
-            // saves the value in case it is needed for next calculation
-            this.lastReturnedValue = res;
-
-            this.getSender().tell(new ReturnMessage<R>(res), this.getSelf());
-            this.dataMaker.tell(
-                    new SendValue(this.getSelf().path().name(), res.toString(), time),
-                    this.getSelf());
-        }
-        else if (o instanceof InitSensorSimulation) {
+       if (o instanceof InitSensorSimulation) {
             InitSensorSimulation message = (InitSensorSimulation) o;
             ActorRef tmp = message.getDataMaker();
             if (tmp == null) {
@@ -69,7 +55,28 @@ public final class Sensor<T, R> extends UntypedActor {
             else {
                 this.dataMaker = tmp;
             }
+           getContext().become(simulationStarted);
         }
-
     }
+
+    @SuppressWarnings("unchecked")
+    private Procedure<Object> simulationStarted = new Procedure<Object>() {
+        @Override
+        public void apply(Object o) {
+            if (o instanceof UpdateSensorSimulation) {
+                UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
+                long time = message.getBegin();
+                T value = message.getValue();
+                R res = transformation.transform(value, lastReturnedValue);
+
+                // saves the value in case it is needed for next calculation
+                lastReturnedValue = res;
+
+                getSender().tell(new ReturnMessage<R>(res), getSelf());
+                dataMaker.tell(
+                        new SendValue(getSelf().path().name(), res.toString(), time),
+                        getSelf());
+            }
+        }
+    };
 }

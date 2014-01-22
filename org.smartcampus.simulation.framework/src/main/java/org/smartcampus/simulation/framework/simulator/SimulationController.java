@@ -1,6 +1,8 @@
 package org.smartcampus.simulation.framework.simulator;
 
 import java.util.concurrent.TimeUnit;
+
+import akka.japi.Procedure;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
@@ -106,6 +108,8 @@ public final class SimulationController extends UntypedActor {
                                 this.getContext().dispatcher(), null);
             }
 
+            getContext().become(simulationStarted);
+
         }
         else {
 
@@ -113,6 +117,13 @@ public final class SimulationController extends UntypedActor {
             this.log.debug("J'ai recu un message que je ne comprends pas");
         }
     }
+
+    private Procedure<Object> simulationStarted = new Procedure<Object>() {
+        @Override
+        public void apply(Object message) {
+
+        }
+    };
 
     @Override
     public void postStop() throws Exception {

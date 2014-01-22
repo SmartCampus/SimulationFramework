@@ -1,8 +1,8 @@
-package org.smartcampus.simulation.smartcampus.simulationlaw;
+package simulation;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
-public class ParkingRandomSimulationLaw extends SimulationLaw<Object, Object, Boolean> {
+public class RandomSimulation extends SimulationLaw<Object, Object, Boolean> {
 
     @Override
     protected Object[] computeValue() {

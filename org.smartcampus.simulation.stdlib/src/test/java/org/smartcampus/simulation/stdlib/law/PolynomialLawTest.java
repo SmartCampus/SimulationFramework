@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.smartcampus.simulation.stdlib.laws;
+package org.smartcampus.simulation.stdlib.law;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,7 +23,7 @@ public class PolynomialLawTest {
 
     /**
      * Test method for
-     * {@link org.smartcampus.simulation.stdlib.laws.PolynomialLaw#evaluate(java.lang.Double)}
+     * {@link org.smartcampus.simulation.stdlib.law.PolynomialLaw#evaluate(java.lang.Double)}
      * .
      */
     @Test
@@ -41,17 +41,17 @@ public class PolynomialLawTest {
 
     /**
      * Test method for
-     * {@link org.smartcampus.simulation.stdlib.laws.PolynomialLaw#getCoeficients()} .
+     * {@link org.smartcampus.simulation.stdlib.law.PolynomialLaw#getCoeficients()} .
      */
     public void testGetCoeficients() {
-        Assert.assertEquals(3, this.p.getCoeficients().size());
-        Assert.assertEquals(2, this.p1.getCoeficients().size());
-        Assert.assertEquals(3, this.p2.getCoeficients().size());
+        Assert.assertEquals(3, this.p.getCoefficients().size());
+        Assert.assertEquals(2, this.p1.getCoefficients().size());
+        Assert.assertEquals(3, this.p2.getCoefficients().size());
     }
 
     /**
      * Test method for
-     * {@link org.smartcampus.simulation.stdlib.laws.PolynomialLaw#getOriginalOrdonee()} .
+     * {@link org.smartcampus.simulation.stdlib.law.PolynomialLaw#getOriginalOrdonee()} .
      */
     public void testGetOriginalOrdonee() {
         Assert.assertEquals(2., this.p.getOriginalOrdonee(), 0.01);
