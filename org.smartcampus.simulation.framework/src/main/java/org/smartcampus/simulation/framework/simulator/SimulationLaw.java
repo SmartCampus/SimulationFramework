@@ -187,6 +187,6 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      */
     public final void sendValue(final String name, final String value) {
         this.dataMaker.tell(new SendValue(this.getSelf().path().name() + " - " + name,
-                value, this.time), this.getSelf());
+                value, this.time - this.frequency), this.getSelf());
     }
 }
