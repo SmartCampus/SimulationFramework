@@ -47,6 +47,62 @@ import akka.routing.Router;
  *            corresponds to the HTTP request type value
  */
 public abstract class SimulationLaw<S, T, R> extends UntypedActor {
+
+    /**
+     * This class is a new procedure used in the context of 'Simulation Started'
+     */
+    private class SimulationLawProcedure implements Procedure<Object> {
+
+        /**
+         * @inheritDoc
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        public void apply(final Object o) throws Exception {
+            if (o instanceof UpdateSimulation) {
+                this.updateSimulation();
+            }
+            else if (o instanceof ReturnMessage<?>) {
+                ReturnMessage<R> message = (ReturnMessage<R>) o;
+                this.returnMessage(message);
+            }
+        }
+
+        /**
+         * Handle the message returnMessage
+         * 
+         * @param message
+         *            contains the value of a sensor
+         */
+        private void returnMessage(final ReturnMessage<R> message) throws Exception {
+            SimulationLaw.this.values.add(message.getResult());
+
+            if (SimulationLaw.this.values.size() == SimulationLaw.this.router.routees()
+                    .size()) {
+                if (SimulationLaw.this.law != null) {
+                    SimulationLaw.this.valueToSend = SimulationLaw.this.law
+                            .evaluate(SimulationLaw.this.computeValue());
+                }
+                else {
+                    SimulationLaw.this.valueToSend = null;
+                }
+                SimulationLaw.this.onComplete();
+                SimulationLaw.this.values.clear();
+            }
+        }
+
+        /**
+         * Handle the message UpdateSimulation
+         */
+        private void updateSimulation() {
+            SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
+                    SimulationLaw.this.time, SimulationLaw.this.valueToSend),
+                    SimulationLaw.this.getSelf());
+            SimulationLaw.this.time += SimulationLaw.this.frequency;
+        }
+
+    }
+
     /** This list contains the result of the sensors */
     protected List<R> values;
 
@@ -79,10 +135,14 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     /** The current time of the simulation */
     private long time;
 
+    /** Context when the simulation start */
+    private Procedure<Object> simulationStarted;
+
     /** Default constructor */
     public SimulationLaw() {
         this.values = new LinkedList<R>();
         this.log = Logging.getLogger(this.getContext().system(), this);
+        this.simulationStarted = new SimulationLawProcedure();
     }
 
     /**
@@ -132,115 +192,119 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
      */
     protected abstract void onComplete();
 
-    @SuppressWarnings("unchecked")
-    @Override
     /**
      * @inheritDoc
      */
+    @Override
     public final void onReceive(final Object o) throws Exception {
         if (o instanceof InitTypeSimulation) {
             InitTypeSimulation message = (InitTypeSimulation) o;
-            this.time = message.getBegin();
-            this.realTimeFrequency = message.getRealTimeFrequency();
-            this.frequency = message.getFrequency();
-
-            if (this.frequency == this.realTimeFrequency.toMillis()) {
-                this.dataMaker = this.getContext().actorOf(
-                        new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5))
-                                .props(Props.create(DataSender.class, this.output)),
-                        "simulationDataSender");
-                InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
-                this.router.route(init, this.getSelf());
-            }
-            else {
-                this.dataMaker = this.getContext().actorOf(
-                        Props.create(DataWriter.class, this.output),
-                        "simulationDataWriter");
-                InitSensorVirtualSimulation init = new InitSensorVirtualSimulation(
-                        this.dataMaker);
-                this.router.route(init, this.getSelf());
-            }
-
+            this.initTypeSimulation(message);
         }
         else if (o instanceof StartSimulation) {
-            if (this.law != null) {
-                this.valueToSend = this.law.evaluate(this.computeValue());
-            }
-            else {
-                this.valueToSend = null;
-            }
-
-            this.tick = this
-                    .getContext()
-                    .system()
-                    .scheduler()
-                    .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
-                            new UpdateSimulation(), this.getContext().dispatcher(), null);
-
-            this.getContext().become(this.simulationStartedContext());
+            this.startSimulation();
         }
         else if (o instanceof InitOutput) {
             this.output = ((InitOutput) o).getOutput();
         }
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
-            if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
-                SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
-                        .getSensorTransformation();
-                this.createSensor(message.getNbSensors(), t);
-            }
-            else {
-                // TODO error
-            }
+            this.addSensor(message);
+
         }
         else if (o instanceof InitSimulationLaw) {
             InitSimulationLaw message = (InitSimulationLaw) o;
-            if (message.getLaw() instanceof Law<?, ?>) {
-                this.law = (Law<S, T>) message.getLaw();
-            }
-            else {
-                // TODO error
-            }
+            this.initSimulationLaw(message);
         }
     }
 
+    /**
+     * Handle the message InitTypeSimulation
+     * 
+     * @param message
+     *            contains the initialization of the simulation
+     */
+    private void initTypeSimulation(final InitTypeSimulation message) {
+        this.time = message.getBegin();
+        this.realTimeFrequency = message.getRealTimeFrequency();
+        this.frequency = message.getFrequency();
 
-    private Procedure<Object> simulationStartedContext(){
-        return new Procedure<Object>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void apply(final Object o) throws Exception {
-                if (o instanceof UpdateSimulation) {
-                    SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
-                            SimulationLaw.this.time, SimulationLaw.this.valueToSend),
-                            SimulationLaw.this.getSelf());
-                    SimulationLaw.this.time += SimulationLaw.this.frequency;
-                }
-                else if (o instanceof ReturnMessage<?>) {
-                    ReturnMessage<R> message = (ReturnMessage<R>) o;
-                    SimulationLaw.this.values.add(message.getResult());
+        if (this.frequency == this.realTimeFrequency.toMillis()) {
+            this.dataMaker = this.getContext().actorOf(
+                    new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
+                            Props.create(DataSender.class, this.output)),
+                    "simulationDataSender");
+            InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
+            this.router.route(init, this.getSelf());
+        }
+        else {
+            this.dataMaker = this.getContext().actorOf(
+                    Props.create(DataWriter.class, this.output), "simulationDataWriter");
+            InitSensorVirtualSimulation init = new InitSensorVirtualSimulation(
+                    this.dataMaker);
+            this.router.route(init, this.getSelf());
+        }
 
-                    if (SimulationLaw.this.values.size() == SimulationLaw.this.router
-                            .routees().size()) {
-                        if (SimulationLaw.this.law != null) {
-                            SimulationLaw.this.valueToSend = SimulationLaw.this.law
-                                    .evaluate(SimulationLaw.this.computeValue());
-                        }
-                        else {
-                            SimulationLaw.this.valueToSend = null;
-                        }
-                        SimulationLaw.this.onComplete();
-                        SimulationLaw.this.values.clear();
-                    }
-                }
-            }
-        };
     }
 
-    @Override
+    /**
+     * Handle the message StartSimulation
+     */
+    private void startSimulation() throws Exception {
+        if (this.law != null) {
+            this.valueToSend = this.law.evaluate(this.computeValue());
+        }
+        else {
+            this.valueToSend = null;
+        }
+
+        this.tick = this
+                .getContext()
+                .system()
+                .scheduler()
+                .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
+                        new UpdateSimulation(), this.getContext().dispatcher(), null);
+
+        this.getContext().become(this.simulationStarted);
+    }
+
+    /**
+     * Handle the message AddSensor
+     * 
+     * @param message
+     *            contains the number of sensors to add
+     */
+    @SuppressWarnings("unchecked")
+    private void addSensor(final AddSensor message) {
+        if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
+            SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
+                    .getSensorTransformation();
+            this.createSensor(message.getNbSensors(), t);
+        }
+        else {
+            // TODO error
+        }
+    }
+
+    /**
+     * Handle the message InitSimulationLaw
+     * 
+     * @param message
+     *            contains the initialization of the simulation law
+     */
+    @SuppressWarnings("unchecked")
+    private void initSimulationLaw(final InitSimulationLaw message) {
+        if (message.getLaw() instanceof Law<?, ?>) {
+            this.law = (Law<S, T>) message.getLaw();
+        }
+        else {
+            // TODO error
+        }
+    }
     /**
      * @inheritDoc
      */
+    @Override
     public final void postStop() {
         this.tick.cancel();
     }
@@ -257,4 +321,5 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
         this.dataMaker.tell(new SendValue(this.getSelf().path().name() + " - " + name,
                 value, this.time - this.frequency), this.getSelf());
     }
+
 }

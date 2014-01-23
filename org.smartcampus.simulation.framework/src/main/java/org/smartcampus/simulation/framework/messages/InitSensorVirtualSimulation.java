@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.messages;
 
+import java.io.Serializable;
 import akka.actor.ActorRef;
 
 /**
@@ -8,7 +9,8 @@ import akka.actor.ActorRef;
  * SimulationLaw and the Sensors
  * 
  */
-public class InitSensorVirtualSimulation {
+public class InitSensorVirtualSimulation implements Serializable {
+    private static final long serialVersionUID = -7098637119984925393L;
     private final ActorRef dataMaker;
 
     public InitSensorVirtualSimulation(final ActorRef a) {

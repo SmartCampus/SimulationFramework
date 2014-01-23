@@ -23,10 +23,42 @@ import akka.routing.RoundRobinPool;
  */
 public final class Sensor<T, R> extends UntypedActor {
 
+    /**
+     * This class is a new procedure used in the context of 'Simulation Started'
+     */
+    private class ProcedureSimulationStarted implements Procedure<Object> {
+
+        /**
+         * @inheritDoc
+         */
+        @SuppressWarnings("unchecked")
+        @Override
+        public void apply(final Object o) {
+            if (o instanceof UpdateSensorSimulation) {
+                UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
+                long time = message.getBegin();
+                T value = message.getValue();
+                R res = Sensor.this.transformation.transform(value,
+                        Sensor.this.lastReturnedValue);
+
+                // saves the value in case it is needed for next calculation
+                Sensor.this.lastReturnedValue = res;
+
+                Sensor.this.getSender().tell(new ReturnMessage<R>(res),
+                        Sensor.this.getSelf());
+                Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
+                        .name(), res.toString(), time), Sensor.this.getSelf());
+            }
+        }
+    }
+
     /** The last returned value */
     private R lastReturnedValue;
     /** The transformation */
     private SensorTransformation<T, R> transformation;
+    /** Context when the simulation start */
+    private Procedure<Object> simulationStarted;
+
     /**
      * The output Actor. It can be a DataSender(HTTP Request) or a DataWriter(File). if it
      * is a DataWriter, it is shared by every sensors
@@ -36,6 +68,7 @@ public final class Sensor<T, R> extends UntypedActor {
     /** default constructor */
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
+        this.simulationStarted = new ProcedureSimulationStarted();
     }
 
     @Override
@@ -45,44 +78,41 @@ public final class Sensor<T, R> extends UntypedActor {
     public void onReceive(final Object o) throws Exception {
         if (o instanceof InitSensorRealSimulation) {
             InitSensorRealSimulation message = (InitSensorRealSimulation) o;
-            String s = message.getUrl();
-            this.dataMaker = this.getContext().actorOf(
-                    new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                            Props.create(DataSender.class, s)),
-                    "Sensor" + this.getSelf().path().name());
-            this.lastReturnedValue = null;
-            this.getContext().become(this.simulationStartedContext());
+            this.initSensorRealSimulation(message);
+
         }
         else if (o instanceof InitSensorVirtualSimulation) {
             InitSensorVirtualSimulation message = (InitSensorVirtualSimulation) o;
-            ActorRef tmp = message.getDataMaker();
-            this.dataMaker = tmp;
-            this.lastReturnedValue = null;
-            this.getContext().become(this.simulationStartedContext());
+            this.initSensorVirtualSimulation(message);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Procedure<Object> simulationStartedContext() {
-        return new Procedure<Object>() {
-            @Override
-            public void apply(final Object o) {
-                if (o instanceof UpdateSensorSimulation) {
-                    UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
-                    long time = message.getBegin();
-                    T value = message.getValue();
-                    R res = Sensor.this.transformation.transform(value,
-                            Sensor.this.lastReturnedValue);
+    /**
+     * Handle the message initSensorRealSimulation
+     * 
+     * @param message
+     *            the message initSensorRealSimulation
+     */
+    private void initSensorRealSimulation(final InitSensorRealSimulation message) {
+        String s = message.getUrl();
+        this.dataMaker = this.getContext().actorOf(
+                new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
+                        Props.create(DataSender.class, s)),
+                "Sensor" + this.getSelf().path().name());
+        this.lastReturnedValue = null;
+        this.getContext().become(this.simulationStarted);
+    }
 
-                    // saves the value in case it is needed for next calculation
-                    Sensor.this.lastReturnedValue = res;
-
-                    Sensor.this.getSender().tell(new ReturnMessage<R>(res),
-                            Sensor.this.getSelf());
-                    Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
-                            .name(), res.toString(), time), Sensor.this.getSelf());
-                }
-            }
-        };
+    /**
+     * Handle the message initSensorVirtualSimulation
+     * 
+     * @param message
+     *            the message initSensorVirtualSimulation
+     */
+    private void initSensorVirtualSimulation(final InitSensorVirtualSimulation message) {
+        ActorRef tmp = message.getDataMaker();
+        this.dataMaker = tmp;
+        this.lastReturnedValue = null;
+        this.getContext().become(this.simulationStarted);
     }
 }
