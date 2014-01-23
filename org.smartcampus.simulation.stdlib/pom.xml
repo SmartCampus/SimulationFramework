@@ -9,7 +9,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>smartcampus.simulation.stdlib</name>
+  <name>smartcampus.org.smartcampus.simulation.stdlib.simulation.stdlib</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -29,6 +29,12 @@
         <scope>compile</scope>
     	<version>1.0-SNAPSHOT</version>
     </dependency>
+      <dependency>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi-ooxml</artifactId>
+          <version>3.10-beta2</version>
+      </dependency>
+
   </dependencies>
 
     <build>
