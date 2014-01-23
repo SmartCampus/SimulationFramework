@@ -108,7 +108,7 @@ public final class SimulationController extends UntypedActor {
                                 this.getContext().dispatcher(), null);
             }
 
-            this.getContext().become(this.simulationStarted);
+            this.getContext().become(this.simulationStartedContext());
 
         }
         else if (arg0 instanceof InitOutput) {
@@ -126,12 +126,14 @@ public final class SimulationController extends UntypedActor {
         }
     }
 
-    private Procedure<Object> simulationStarted = new Procedure<Object>() {
-        @Override
-        public void apply(final Object message) {
+    private Procedure<Object> simulationStartedContext(){
+        return new Procedure<Object>() {
+            @Override
+            public void apply(final Object message) {
 
-        }
-    };
+            }
+        };
+    }
 
     @Override
     public void postStop() throws Exception {

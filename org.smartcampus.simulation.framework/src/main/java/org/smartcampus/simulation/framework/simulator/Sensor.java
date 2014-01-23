@@ -51,36 +51,38 @@ public final class Sensor<T, R> extends UntypedActor {
                             Props.create(DataSender.class, s)),
                     "Sensor" + this.getSelf().path().name());
             this.lastReturnedValue = null;
-            this.getContext().become(this.simulationStarted);
+            this.getContext().become(this.simulationStartedContext());
         }
         else if (o instanceof InitSensorVirtualSimulation) {
             InitSensorVirtualSimulation message = (InitSensorVirtualSimulation) o;
             ActorRef tmp = message.getDataMaker();
             this.dataMaker = tmp;
             this.lastReturnedValue = null;
-            this.getContext().become(this.simulationStarted);
+            this.getContext().become(this.simulationStartedContext());
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Procedure<Object> simulationStarted = new Procedure<Object>() {
-        @Override
-        public void apply(final Object o) {
-            if (o instanceof UpdateSensorSimulation) {
-                UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
-                long time = message.getBegin();
-                T value = message.getValue();
-                R res = Sensor.this.transformation.transform(value,
-                        Sensor.this.lastReturnedValue);
+    private Procedure<Object> simulationStartedContext() {
+        return new Procedure<Object>() {
+            @Override
+            public void apply(final Object o) {
+                if (o instanceof UpdateSensorSimulation) {
+                    UpdateSensorSimulation<T> message = (UpdateSensorSimulation<T>) o;
+                    long time = message.getBegin();
+                    T value = message.getValue();
+                    R res = Sensor.this.transformation.transform(value,
+                            Sensor.this.lastReturnedValue);
 
-                // saves the value in case it is needed for next calculation
-                Sensor.this.lastReturnedValue = res;
+                    // saves the value in case it is needed for next calculation
+                    Sensor.this.lastReturnedValue = res;
 
-                Sensor.this.getSender().tell(new ReturnMessage<R>(res),
-                        Sensor.this.getSelf());
-                Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
-                        .name(), res.toString(), time), Sensor.this.getSelf());
+                    Sensor.this.getSender().tell(new ReturnMessage<R>(res),
+                            Sensor.this.getSelf());
+                    Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
+                            .name(), res.toString(), time), Sensor.this.getSelf());
+                }
             }
-        }
-    };
+        };
+    }
 }

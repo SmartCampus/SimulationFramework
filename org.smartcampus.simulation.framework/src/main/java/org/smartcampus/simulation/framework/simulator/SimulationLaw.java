@@ -79,36 +79,6 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
     /** The current time of the simulation */
     private long time;
 
-    private Procedure<Object> simulationStarted = new Procedure<Object>() {
-        @SuppressWarnings("unchecked")
-        @Override
-        public void apply(final Object o) throws Exception {
-            if (o instanceof UpdateSimulation) {
-                SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
-                        SimulationLaw.this.time, SimulationLaw.this.valueToSend),
-                        SimulationLaw.this.getSelf());
-                SimulationLaw.this.time += SimulationLaw.this.frequency;
-            }
-            else if (o instanceof ReturnMessage<?>) {
-                ReturnMessage<R> message = (ReturnMessage<R>) o;
-                SimulationLaw.this.values.add(message.getResult());
-
-                if (SimulationLaw.this.values.size() == SimulationLaw.this.router
-                        .routees().size()) {
-                    if (SimulationLaw.this.law != null) {
-                        SimulationLaw.this.valueToSend = SimulationLaw.this.law
-                                .evaluate(SimulationLaw.this.computeValue());
-                    }
-                    else {
-                        SimulationLaw.this.valueToSend = null;
-                    }
-                    SimulationLaw.this.onComplete();
-                    SimulationLaw.this.values.clear();
-                }
-            }
-        }
-    };
-
     /** Default constructor */
     public SimulationLaw() {
         this.values = new LinkedList<R>();
@@ -207,7 +177,7 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                     .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
                             new UpdateSimulation(), this.getContext().dispatcher(), null);
 
-            this.getContext().become(this.simulationStarted);
+            this.getContext().become(this.simulationStartedContext());
         }
         else if (o instanceof InitOutput) {
             this.output = ((InitOutput) o).getOutput();
@@ -232,6 +202,39 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
                 // TODO error
             }
         }
+    }
+
+
+    private Procedure<Object> simulationStartedContext(){
+        return new Procedure<Object>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public void apply(final Object o) throws Exception {
+                if (o instanceof UpdateSimulation) {
+                    SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
+                            SimulationLaw.this.time, SimulationLaw.this.valueToSend),
+                            SimulationLaw.this.getSelf());
+                    SimulationLaw.this.time += SimulationLaw.this.frequency;
+                }
+                else if (o instanceof ReturnMessage<?>) {
+                    ReturnMessage<R> message = (ReturnMessage<R>) o;
+                    SimulationLaw.this.values.add(message.getResult());
+
+                    if (SimulationLaw.this.values.size() == SimulationLaw.this.router
+                            .routees().size()) {
+                        if (SimulationLaw.this.law != null) {
+                            SimulationLaw.this.valueToSend = SimulationLaw.this.law
+                                    .evaluate(SimulationLaw.this.computeValue());
+                        }
+                        else {
+                            SimulationLaw.this.valueToSend = null;
+                        }
+                        SimulationLaw.this.onComplete();
+                        SimulationLaw.this.values.clear();
+                    }
+                }
+            }
+        };
     }
 
     @Override
