@@ -115,5 +115,4 @@ public final class Sensor<T, R> extends UntypedActor {
         this.lastReturnedValue = null;
         this.getContext().become(this.simulationStarted);
     }
-
 }

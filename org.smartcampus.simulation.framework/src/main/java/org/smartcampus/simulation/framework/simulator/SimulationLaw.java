@@ -301,7 +301,6 @@ public abstract class SimulationLaw<S, T, R> extends UntypedActor {
             // TODO error
         }
     }
-
     /**
      * @inheritDoc
      */
