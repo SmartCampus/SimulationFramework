@@ -27,6 +27,9 @@ public class DataSender extends DataMaker {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (RuntimeException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

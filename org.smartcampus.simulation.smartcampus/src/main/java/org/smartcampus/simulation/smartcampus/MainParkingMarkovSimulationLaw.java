@@ -31,7 +31,7 @@ public class MainParkingMarkovSimulationLaw {
                 .add(15000, new RateToBooleanChangeSensorTransformation())
                 .withLaw(markov).create("Parking3", ParkingSimulation.class)
                 .add(15000, new PercentToBooleanSensorTransformation())
-                .withLaw(polynome).setOutput(fabIP)
+                .withLaw(polynome).setOutput(pfeIP)
                 .start("2014-01-22 08:25:00")
                 .duration(Duration.create(10, TimeUnit.SECONDS))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
