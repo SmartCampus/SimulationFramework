@@ -13,11 +13,11 @@ import org.smartcampus.simulation.framework.messages.SendValue;
  *             This class allow to write in a file
  */
 public class DataWriter extends DataMaker {
-    private final String path = System.getProperty("user.dir") + "/"
-            + this.getSelf().path().name() + "-log.txt";
+    private final String path;
 
     public DataWriter(final String s) {
         super(s);
+        this.path = System.getProperty("user.dir") + "/" + this.output + ".txt";
         File tmp = new File(this.path);
         if (tmp.exists()) {
             tmp.delete();
