@@ -10,7 +10,7 @@ import akka.actor.ActorRef;
 /**
  * Created by foerster on 21/01/14.
  */
-public class EndImpl extends SimulationWrapper implements End {
+public class EndImpl extends SimulatorWrapper implements End {
 
     private long start;
     private FiniteDuration duration, frequency;

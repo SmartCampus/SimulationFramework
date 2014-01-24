@@ -31,6 +31,9 @@ public abstract class Simulation<T> extends UntypedActor {
     /** Each real time frequency, the time is increased by the frequency */
     protected long frequency;
 
+    /** The duration of the simulation */
+    protected long duration;
+
     /** the name of the output (url or file path) */
     protected String output;
 
@@ -57,7 +60,7 @@ public abstract class Simulation<T> extends UntypedActor {
      * {@inheritDoc}
      */
     @Override
-    public final void postStop() {
+    public void postStop() {
         this.tick.cancel();
     }
 
@@ -86,6 +89,6 @@ public abstract class Simulation<T> extends UntypedActor {
         this.time = message.getBegin();
         this.realTimeFrequency = message.getRealTimeFrequency();
         this.frequency = message.getFrequency();
-
+        this.duration = message.getDuration().toMillis();
     }
 }

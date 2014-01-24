@@ -1,5 +1,6 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import java.util.Random;
 import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.SendValue;
@@ -19,27 +20,40 @@ public abstract class Replay extends Simulation<String> {
     private String input;
 
     /**
+     * the number of the line that we have to read
      */
-    private int field;
+    protected int nbLineToRead;
 
     public Replay() {
         super();
-
         this.simulationStarted = new ReplayProcedure();
     }
 
     /**
-     * return the value located at the line l
+     * return the value of the next line
      * 
-     * @param l
-     *            the number of the line
+     * @return the value present at the next line
      */
-    protected abstract String getvalue(final int l);
+    protected abstract String getNextValue();
 
     /**
      * return the number of line in the input file
      */
-    protected abstract void getnbLine();
+    protected abstract int getnbLine();
+
+    /**
+     * closing the Input after reading the file
+     */
+    protected abstract void close();
+
+    /**
+     * going to the first line wanted in the file and returning the value of this line
+     * 
+     * @param firstLine
+     *            the number of the first line of the file
+     * @return the value at this line
+     */
+    protected abstract String beginReplay(int firstLine);
 
     /**
      * {@inheritDoc}
@@ -84,6 +98,8 @@ public abstract class Replay extends Simulation<String> {
      * Handle the message StartSimulation
      */
     private void startSimulation() throws Exception {
+        this.nbLineToRead = (int) (this.duration / this.frequency);
+        this.valueToSend = this.beginReplay(this.getLineToStart());
         this.tick = this
                 .getContext()
                 .system()
@@ -95,33 +111,22 @@ public abstract class Replay extends Simulation<String> {
     }
 
     /**
+     * The first line to start replaying the datas
+     * Taking a random number of line in the interval [0; nbLineInFile-nbLineToSend]
+     * 
+     * @return
+     */
+    private int getLineToStart() {
+        Random rand = new Random();
+
+        return rand.nextInt((int) (this.getnbLine() - (this.duration / this.frequency)));
+    }
+
+    /**
      * @return the input
      */
     protected String getInput() {
         return this.input;
-    }
-
-    /**
-     * @param input
-     *            the input to set
-     */
-    protected void setInput(final String input) {
-        this.input = input;
-    }
-
-    /**
-     * @return the field
-     */
-    protected int getField() {
-        return this.field;
-    }
-
-    /**
-     * @param field
-     *            the field to set
-     */
-    protected void setField(final int field) {
-        this.field = field;
     }
 
     /**
@@ -144,11 +149,16 @@ public abstract class Replay extends Simulation<String> {
          */
         private void updateSimulation() {
             // TODO
-            Replay.this.dataMaker.tell(new SendValue(Replay.this.getSelf().path().name()
-                    + " - ", Replay.this.getvalue(0), Replay.this.time),
-                    Replay.this.getSelf());
+            Replay.this.dataMaker.tell(new SendValue(Replay.this.getSelf().path().name(),
+                    Replay.this.getNextValue(), Replay.this.time), Replay.this.getSelf());
             Replay.this.time += Replay.this.frequency;
         }
+    }
+
+    @Override
+    public final void postStop() {
+        super.postStop();
+        this.close();
     }
 
 }

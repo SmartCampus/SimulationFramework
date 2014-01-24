@@ -5,10 +5,12 @@ import akka.actor.ActorRef;
 /**
  * Created by foerster on 21/01/14.
  */
-public class SimulationWrapper {
-    protected ActorRef controllerRef;
+public abstract class SimulationWrapper extends SimulatorWrapper {
+    protected String simulationLawName ;
 
-    public SimulationWrapper(ActorRef controllerRef){
-        this.controllerRef = controllerRef ;
+    public SimulationWrapper(String simulationLawName , ActorRef controllerRef){
+        super(controllerRef);
+        this.simulationLawName = simulationLawName ;
     }
+
 }
