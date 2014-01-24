@@ -3,15 +3,15 @@
  */
 package org.smartcampus.simulation.framework.simulator;
 
+import org.smartcampus.simulation.framework.messages.InitOutput;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.routing.DefaultResizer;
-import akka.routing.RoundRobinPool;
+import akka.japi.Procedure;
 
 public abstract class Simulation<T> extends UntypedActor {
     /** The current time of the simulation */
@@ -37,6 +37,13 @@ public abstract class Simulation<T> extends UntypedActor {
     /** Allow to print logs */
     protected LoggingAdapter log;
 
+    /** Context when the simulation start */
+    protected Procedure<Object> simulationStarted;
+
+    public Simulation() {
+        this.log = Logging.getLogger(this.getContext().system(), this);
+    }
+
     /**
      * Return the current time of the simulation
      * 
@@ -47,18 +54,24 @@ public abstract class Simulation<T> extends UntypedActor {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public final void postStop() {
         this.tick.cancel();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onReceive(final Object o) throws Exception {
         if (o instanceof InitTypeSimulation) {
             InitTypeSimulation message = (InitTypeSimulation) o;
             this.initTypeSimulation(message);
+        }
+        else if (o instanceof InitOutput) {
+            this.output = ((InitOutput) o).getOutput();
         }
 
     }
@@ -73,17 +86,6 @@ public abstract class Simulation<T> extends UntypedActor {
         this.time = message.getBegin();
         this.realTimeFrequency = message.getRealTimeFrequency();
         this.frequency = message.getFrequency();
-
-        if (this.frequency == this.realTimeFrequency.toMillis()) {
-            this.dataMaker = this.getContext().actorOf(
-                    new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                            Props.create(DataSender.class, this.output)),
-                    "simulationDataSender");
-        }
-        else {
-            this.dataMaker = this.getContext().actorOf(
-                    Props.create(DataWriter.class, this.output), "simulationDataWriter");
-        }
 
     }
 }
