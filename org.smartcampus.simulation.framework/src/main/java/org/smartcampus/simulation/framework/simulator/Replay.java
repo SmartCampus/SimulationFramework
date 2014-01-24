@@ -1,7 +1,10 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import org.smartcampus.simulation.framework.messages.InitInput;
+import org.smartcampus.simulation.framework.messages.InitReplayParam;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -24,9 +27,15 @@ public abstract class Replay extends Simulation<String> {
      */
     protected int nbLineToRead;
 
+    /**
+     * The parameters for the Subclasses
+     */
+    protected Map<String, Object> params;
+
     public Replay() {
         super();
         this.simulationStarted = new ReplayProcedure();
+        this.params = new HashMap<String, Object>();
     }
 
     /**
@@ -71,7 +80,21 @@ public abstract class Replay extends Simulation<String> {
             this.input = ((InitInput) o).getInput();
 
         }
+        else if (o instanceof InitReplayParam) {
+            InitReplayParam message = (InitReplayParam) o;
+            this.initReplayParam(message);
+        }
         // TODO
+    }
+
+    /**
+     * Handle the message InitReplayParam
+     * 
+     * @param message
+     *            contains the initialization of the parameters of the simulation
+     */
+    private void initReplayParam(final InitReplayParam message) {
+        this.params.put(message.getKey(), message.getValue());
     }
 
     /**
