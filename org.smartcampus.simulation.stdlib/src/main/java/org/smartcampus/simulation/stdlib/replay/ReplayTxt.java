@@ -30,7 +30,7 @@ public class ReplayTxt extends Replay {
      * {@inheritDoc}
      */
     @Override
-    protected int getnbLine() {
+    protected int getNbLine() {
         try {
             int res = 0;
 

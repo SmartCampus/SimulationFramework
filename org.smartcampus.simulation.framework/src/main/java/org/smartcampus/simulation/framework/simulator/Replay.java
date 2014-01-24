@@ -15,7 +15,7 @@ import akka.japi.Procedure;
 import akka.routing.DefaultResizer;
 import akka.routing.RoundRobinPool;
 
-public abstract class Replay extends Simulation<String> {
+public final class Replay extends Simulation<String> {
 
     /**
      * The path of the input file
@@ -32,6 +32,11 @@ public abstract class Replay extends Simulation<String> {
      */
     protected Map<String, Object> params;
 
+    /**
+     * The FileFormator using for specializing the reading of the file
+     */
+    FileFormator formator;
+
     public Replay() {
         super();
         this.simulationStarted = new ReplayProcedure();
@@ -43,17 +48,23 @@ public abstract class Replay extends Simulation<String> {
      * 
      * @return the value present at the next line
      */
-    protected abstract String getNextValue();
+    protected String getNextValue() {
+        return this.formator.getNextValue();
+    }
 
     /**
      * return the number of line in the input file
      */
-    protected abstract int getnbLine();
+    protected int getNbLine() {
+        return this.formator.getNbLine();
+    }
 
     /**
      * closing the Input after reading the file
      */
-    protected abstract void close();
+    protected void close() {
+        this.formator.close();
+    }
 
     /**
      * going to the first line wanted in the file and returning the value of this line
@@ -62,7 +73,9 @@ public abstract class Replay extends Simulation<String> {
      *            the number of the first line of the file
      * @return the value at this line
      */
-    protected abstract String beginReplay(int firstLine);
+    protected String beginReplay(final int firstLine) {
+        return this.formator.beginReplay(firstLine);
+    }
 
     /**
      * {@inheritDoc}
@@ -142,7 +155,7 @@ public abstract class Replay extends Simulation<String> {
     private int getLineToStart() {
         Random rand = new Random();
 
-        return rand.nextInt((int) (this.getnbLine() - (this.duration / this.frequency)));
+        return rand.nextInt((int) (this.getNbLine() - (this.duration / this.frequency)));
     }
 
     /**
