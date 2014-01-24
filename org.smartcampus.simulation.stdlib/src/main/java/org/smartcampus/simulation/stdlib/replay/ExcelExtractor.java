@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.stdlib.simulator;
+package org.smartcampus.simulation.stdlib.replay;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -10,7 +10,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,12 +17,12 @@ import java.util.regex.Pattern;
  * Created by foerster
  * on 23/01/14.
  */
-public class ExcelReplay {
+public class ExcelExtractor {
 
     private File tmp;
     private BufferedWriter writer;
 
-    public ExcelReplay(){
+    public ExcelExtractor(){
         try {
             tmp = File.createTempFile("excel_data",".tmp");
             writer = new BufferedWriter(new FileWriter(tmp));
@@ -36,12 +35,14 @@ public class ExcelReplay {
         return tmp;
     }
 
-    public void processOneSheet(String filename,String sheetNumber,String colName,int startLine,int numberOfLines) throws Exception {
-        OPCPackage pkg = OPCPackage.open(filename, PackageAccess.READ);
+    public void processOneSheet(String filename,String sheetNumber,String colName){
+        try{
+            OPCPackage pkg = OPCPackage.open(filename, PackageAccess.READ);
+
         XSSFReader r = new XSSFReader( pkg );
         SharedStringsTable sst = r.getSharedStringsTable();
 
-        XMLReader parser = fetchSheetParser(sst,colName,startLine,numberOfLines);
+        XMLReader parser = fetchSheetParser(sst,colName);
 
         // rId2 found by processing the Workbook
         // Seems to either be rId# or rSheet#
@@ -51,13 +52,14 @@ public class ExcelReplay {
         writer.flush();
         writer.close();
         sheet2.close();
+        } catch(Exception e){}
     }
 
 
-    public XMLReader fetchSheetParser(SharedStringsTable sst,String colName,int startLine,int numberOfLine) throws SAXException {
+    public XMLReader fetchSheetParser(SharedStringsTable sst,String colName) throws SAXException {
         XMLReader parser =
                 XMLReaderFactory.createXMLReader();
-        ContentHandler handler = new SheetHandler(sst,colName,startLine,numberOfLine,writer);
+        ContentHandler handler = new SheetHandler(sst,colName,writer);
         parser.setContentHandler(handler);
         return parser;
     }
@@ -77,7 +79,7 @@ public class ExcelReplay {
         private int currentLine;
         private Writer writer;
 
-        private SheetHandler(SharedStringsTable sst,String colName,int startLine,int numberOfLine,Writer writer) {
+        private SheetHandler(SharedStringsTable sst,String colName,Writer writer) {
             this.sst = sst;
             this.colName = colName;
             readThisValue = true;
@@ -146,9 +148,9 @@ public class ExcelReplay {
     }
 
     public static void main(String[] args) throws Exception {
-        ExcelReplay howto = new ExcelReplay();
+        ExcelExtractor howto = new ExcelExtractor();
         //howto.processOneSheet(args[0]);
-        howto.processOneSheet("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", "2","G",2,500000);
+        howto.processOneSheet("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", "2","G");
         System.out.println(howto.getFileRef().getAbsolutePath());
     }
 
