@@ -1,12 +1,13 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
-import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
+import org.smartcampus.simulation.framework.messages.CreateSimulation;
+import org.smartcampus.simulation.framework.simulator.Replay;
+import org.smartcampus.simulation.framework.simulator.Simulation;
+import org.smartcampus.simulation.framework.simulator.SimulationController;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.typesafe.config.ConfigFactory;
-import org.smartcampus.simulation.framework.simulator.SimulationController;
-import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
 public class StartImpl implements Start {
 
@@ -18,10 +19,20 @@ public class StartImpl implements Start {
                 "SimulationControlor");
     }
 
-    public SimulationLawWrapper0 create(final String name,
-                                        final Class<? extends SimulationLaw<?, ?, ?>> simulationLawClass) {
-        this.controller.tell(new CreateSimulationLaw(name, simulationLawClass),ActorRef.noSender());
-        return new SimulationLawWrapper0Impl(name,controller);
+    @Override
+    public SimulationLawWrapper0 create(final String simulationName,
+            final Class<? extends Simulation<?>> simulationClass) {
+        this.controller.tell(new CreateSimulation(simulationName, simulationClass),
+                ActorRef.noSender());
+        return new SimulationLawWrapper0Impl(simulationName, this.controller);
+    }
+
+    @Override
+    public ReplayWrapper0 replay(final String replayName,
+            final Class<? extends Replay> replayClass) {
+        this.controller.tell(new CreateSimulation(replayName, replayClass),
+                ActorRef.noSender());
+        return new ReplayWrapper0Impl(replayName, this.controller);
     }
 
 }

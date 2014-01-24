@@ -15,20 +15,22 @@ import scala.concurrent.duration.Duration;
 public class MainParkingMarkovSimulationLaw {
 
     public static void main(final String[] args) {
+        String fabIP = "http://172.19.250.149:4444/collector/value";
+        String pfeIP = "http://localhost:8080/collector/value";
         Law<Integer, Double> markov = null;
-        markov = new ParkingMarkovLaw(30, 0.1, 0.01);
+        markov = new ParkingMarkovLaw(500, 0.1, 0.01);
 
         Law<Double, Double> polynome = new PolynomialLaw(24839.21865, -14430.25924,
                 3359.404392, -401.9522656, 26.18040012, -0.8830270156, 0.01208028907);
 
         Start sim = new StartImpl();
         sim.create("Parking2", ParkingMarkovSimulation.class)
-                .add(15000, new RateToBooleanChangeSensorTransformation())
-                .withLaw(markov).create("Parking3", ParkingSimulation.class)
-                .add(15000, new PercentToBooleanSensorTransformation()).withLaw(polynome)
-                .setOutput("http://localhost:8080/collector/value")
-                .start("2014-01-22 08:25:00")
-                .duration(Duration.create(2, TimeUnit.MINUTES))
+                .add(500, new RateToBooleanChangeSensorTransformation()).withLaw(markov)
+                .create("Parking3", ParkingSimulation.class)
+                .add(500, new PercentToBooleanSensorTransformation()).withLaw(polynome)
+                .setOutput(pfeIP).start("2014-01-22 08:25:00")
+                .duration(Duration.create(20, TimeUnit.MINUTES))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
     }
+    // 172.19.250.149
 }

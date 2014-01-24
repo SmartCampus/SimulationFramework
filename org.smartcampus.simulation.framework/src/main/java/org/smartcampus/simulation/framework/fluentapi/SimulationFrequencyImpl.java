@@ -6,7 +6,7 @@ import akka.actor.ActorRef;
 /**
  * Created by foerster on 22/01/14.
  */
-public class SimulationFrequencyImpl extends SimulationWrapper implements
+public class SimulationFrequencyImpl extends SimulatorWrapper implements
         SimulationFrequency {
 
     private long           start;

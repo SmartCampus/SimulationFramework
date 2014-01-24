@@ -6,7 +6,7 @@ import akka.actor.ActorRef;
 /**
  * Created by foerster on 22/01/14.
  */
-public class SimulationStartImpl extends SimulationWrapper implements SimulationStart {
+public class SimulationStartImpl extends SimulatorWrapper implements SimulationStart {
 
     public SimulationStartImpl(final ActorRef controllerRef) {
         super(controllerRef);

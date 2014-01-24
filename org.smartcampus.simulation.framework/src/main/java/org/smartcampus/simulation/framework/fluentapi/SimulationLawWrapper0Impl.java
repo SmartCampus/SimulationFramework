@@ -7,7 +7,7 @@ import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 /**
  * Created by foerster on 21/01/14.
  */
-public class SimulationLawWrapper0Impl extends SimulationLawWrapper implements SimulationLawWrapper0 {
+public class SimulationLawWrapper0Impl extends SimulationWrapper implements SimulationLawWrapper0 {
 
     public SimulationLawWrapper0Impl(String simulationLawName, ActorRef controllerRef) {
         super(simulationLawName, controllerRef);

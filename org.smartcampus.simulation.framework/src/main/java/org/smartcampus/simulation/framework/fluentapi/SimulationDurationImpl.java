@@ -6,7 +6,7 @@ import akka.actor.ActorRef;
 /**
  * Created by foerster on 22/01/14.
  */
-public class SimulationDurationImpl extends SimulationWrapper implements
+public class SimulationDurationImpl extends SimulatorWrapper implements
         SimulationDuration {
 
     private long start;

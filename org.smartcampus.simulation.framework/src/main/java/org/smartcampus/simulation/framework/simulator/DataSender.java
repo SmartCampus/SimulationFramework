@@ -14,8 +14,10 @@ import org.smartcampus.simulation.framework.messages.SendValue;
  */
 public class DataSender extends DataMaker {
 
-    public DataSender(final String url) {
-        super(url);
+    private static int nbGoodResponse = 0;
+
+    public DataSender(final String output) {
+        super(output);
     }
 
     @Override
@@ -26,16 +28,12 @@ public class DataSender extends DataMaker {
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
             StringBuilder obj = new StringBuilder();
-            obj.append("{");
-            obj.append("\"n\":");
-            obj.append(sendValue.getName());
-            obj.append(",\"v\":");
-            obj.append(sendValue.getValue());
-            obj.append(",\"t\":");
-            obj.append(sendValue.getTime());
-            obj.append("}");
+            obj.append("{").append("\"n\":").append(sendValue.getName())
+                    .append(",\"v\":").append(sendValue.getValue()).append(",\"t\":")
+                    .append(sendValue.getTime()).append("}");
             URL url = new URL(this.output);
             HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
+
             httpconn.setRequestMethod("POST");
 
             httpconn.setDoOutput(true);
@@ -43,7 +41,7 @@ public class DataSender extends DataMaker {
             httpconn.setRequestProperty("charset", "utf-8");
             httpconn.setRequestProperty("Content-Length",
                     "" + Integer.toString(obj.toString().getBytes().length));
-            httpconn.setRequestProperty("Content-Type","application/json");
+            httpconn.setRequestProperty("Content-Type", "application/json");
 
             httpconn.connect();
             DataOutputStream wr = new DataOutputStream(httpconn.getOutputStream());
@@ -53,16 +51,32 @@ public class DataSender extends DataMaker {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     httpconn.getInputStream()));
+
             String inputLine;
             StringBuffer response = new StringBuffer();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
+
             in.close();
 
+            if (httpconn.getResponseCode() != 201) {
+                this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
+            }
+            else {
+                nbGoodResponse++;
+            }
+
             httpconn.disconnect();
-            log.debug("Response : " + response);
+
         }
     }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+        this.log.debug("NbGoodResponse : " + nbGoodResponse);
+    }
+
 }

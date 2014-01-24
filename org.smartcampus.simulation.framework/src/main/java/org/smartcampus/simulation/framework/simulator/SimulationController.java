@@ -2,7 +2,8 @@ package org.smartcampus.simulation.framework.simulator;
 
 import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.CreateSimulationLaw;
+import org.smartcampus.simulation.framework.messages.CreateSimulation;
+import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitOutput;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
@@ -50,8 +51,8 @@ public final class SimulationController extends UntypedActor {
      */
     @Override
     public void onReceive(final Object arg0) throws Exception {
-        if (arg0 instanceof CreateSimulationLaw) {
-            CreateSimulationLaw tmp = (CreateSimulationLaw) arg0;
+        if (arg0 instanceof CreateSimulation) {
+            CreateSimulation tmp = (CreateSimulation) arg0;
             this.createSimulationLaw(tmp);
         }
         else if (arg0 instanceof AddSensor) {
@@ -76,6 +77,12 @@ public final class SimulationController extends UntypedActor {
             }
             this.log.debug("Je transmet le set de l'output");
         }
+        else if (arg0 instanceof InitInput) {
+            for (ActorRef a : this.getContext().getChildren()) {
+                a.tell(arg0, this.getSelf());
+            }
+            this.log.debug("Je transmet le set de l'input");
+        }
 
     }
 
@@ -85,11 +92,10 @@ public final class SimulationController extends UntypedActor {
      * @param tmp
      *            the message CreateSimulationLaw
      */
-    private void createSimulationLaw(final CreateSimulationLaw tmp) {
-        this.getContext().actorOf(Props.create(tmp.getSimulationLawClass()),
-                tmp.getName());
+    private void createSimulationLaw(final CreateSimulation tmp) {
+        this.getContext().actorOf(Props.create(tmp.getSimulationClass()), tmp.getName());
 
-        this.log.debug("Je cree un Parking");
+        this.log.debug("Je cree une Simulation");
     }
 
     /**
