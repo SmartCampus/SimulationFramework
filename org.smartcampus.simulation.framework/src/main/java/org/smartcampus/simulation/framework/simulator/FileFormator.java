@@ -68,4 +68,12 @@ public abstract class FileFormator {
         return this.input;
     }
 
+    /**
+     * @param input
+     *            the input to set
+     */
+    public void setInput(final String input) {
+        this.input = input;
+    }
+
 }

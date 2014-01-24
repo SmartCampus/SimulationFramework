@@ -18,6 +18,7 @@ public class MainParkingReplay {
                 -0.8830270156, 0.01208028907);
 
         Start sim = new StartImpl();
+        // TODO mettre un attribut de type FileFormator
         sim.replay("Parking1", ReplayTxt.class).setInput("testReplay.txt")
                 .setOutput("http://localhost:8080/collector/value")
                 .start(System.currentTimeMillis())

@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import org.smartcampus.simulation.framework.simulator.Replay;
+import org.smartcampus.simulation.framework.simulator.FileFormator;
 
-public class ReplayTxt extends Replay {
+public class ReplayTxt extends FileFormator {
 
-    FileReader fr;
-    BufferedReader br;
+    protected FileReader fr;
+    protected BufferedReader br;
 
     /**
      * {@inheritDoc}
@@ -20,7 +20,6 @@ public class ReplayTxt extends Replay {
             return this.br.readLine();
         } catch (IOException e) {
             // TODO Auto-generated catch block
-
             e.printStackTrace();
             return null;
         }
@@ -34,16 +33,16 @@ public class ReplayTxt extends Replay {
         try {
             int res = 0;
 
-            FileReader fr = new FileReader(this.getInput());
-            BufferedReader br = new BufferedReader(fr);
+            this.fr = new FileReader(this.getInput());
+            this.br = new BufferedReader(this.fr);
 
             // lecture du fichier texte
-            while (br.readLine() != null) {
+            while (this.br.readLine() != null) {
                 res++;
             }
 
-            br.close();
-            fr.close();
+            this.br.close();
+            this.fr.close();
 
             return res;
         } catch (FileNotFoundException e) {

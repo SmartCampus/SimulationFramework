@@ -86,15 +86,23 @@ public final class Replay extends Simulation<String> {
         if (o instanceof StartSimulation) {
             this.startSimulation();
         }
+        // TODO
+        // else if (o instanceof InitReplay) {
+        // this.formator = (InitReplay o).getFormator();
+        // }
+        // TODO
         else if (o instanceof InitTypeSimulation) {
             this.initTypeSimulation((InitTypeSimulation) o);
         }
         else if (o instanceof InitInput) {
             this.input = ((InitInput) o).getInput();
+            this.formator.setInput(this.input);
 
         }
         else if (o instanceof InitReplayParam) {
             InitReplayParam message = (InitReplayParam) o;
+            // TODO modifier pour new replay (set le fileformator et possibilite de mettre
+            // plusieurs parametre <=> tab[])
             this.initReplayParam(message);
         }
         // TODO
