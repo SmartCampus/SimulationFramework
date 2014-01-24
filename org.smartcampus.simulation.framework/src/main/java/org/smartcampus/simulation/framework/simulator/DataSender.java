@@ -1,9 +1,9 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
@@ -13,24 +13,11 @@ import org.smartcampus.simulation.framework.messages.SendValue;
  *             This class allow to send a request HTTP
  */
 public class DataSender extends DataMaker {
-    HttpURLConnection httpconn;
+
+    private static int nbGoodResponse = 0;
 
     public DataSender(final String output) {
         super(output);
-        URL url;
-        try {
-            url = new URL(this.output);
-            this.httpconn = (HttpURLConnection) url.openConnection();
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (RuntimeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -44,35 +31,52 @@ public class DataSender extends DataMaker {
             obj.append("{").append("\"n\":").append(sendValue.getName())
                     .append(",\"v\":").append(sendValue.getValue()).append(",\"t\":")
                     .append(sendValue.getTime()).append("}");
-            this.httpconn.setRequestMethod("POST");
+            URL url = new URL(this.output);
+            HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
 
-            this.httpconn.setDoOutput(true);
-            this.httpconn.setAllowUserInteraction(false);
-            this.httpconn.setRequestProperty("charset", "utf-8");
-            this.httpconn.setRequestProperty("Content-Length",
+            httpconn.setRequestMethod("POST");
+
+            httpconn.setDoOutput(true);
+            httpconn.setAllowUserInteraction(false);
+            httpconn.setRequestProperty("charset", "utf-8");
+            httpconn.setRequestProperty("Content-Length",
                     "" + Integer.toString(obj.toString().getBytes().length));
-            this.httpconn.setRequestProperty("Content-Type", "application/json");
+            httpconn.setRequestProperty("Content-Type", "application/json");
 
-            this.httpconn.connect();
-            DataOutputStream wr = new DataOutputStream(this.httpconn.getOutputStream());
+            httpconn.connect();
+            DataOutputStream wr = new DataOutputStream(httpconn.getOutputStream());
             wr.writeBytes(obj.toString());
             wr.flush();
             wr.close();
 
-            // this.log.debug("" + this.httpconn.getResponseCode());
-            // this.log.debug(this.httpconn.getResponseMessage());
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    httpconn.getInputStream()));
 
-            if (this.httpconn.getResponseCode() != 201) {
-                this.log.debug("BAD ------------------"
-                        + this.httpconn.getResponseMessage());
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
             }
+
+            in.close();
+
+            if (httpconn.getResponseCode() != 201) {
+                this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
+            }
+            else {
+                nbGoodResponse++;
+            }
+
+            httpconn.disconnect();
+
         }
     }
 
     @Override
     public void postStop() throws Exception {
-        this.httpconn.disconnect();
         super.postStop();
+        this.log.debug("NbGoodResponse : " + nbGoodResponse);
     }
 
 }
