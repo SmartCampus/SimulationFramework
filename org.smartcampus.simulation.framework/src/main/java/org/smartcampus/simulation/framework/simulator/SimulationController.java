@@ -163,12 +163,13 @@ public final class SimulationController extends UntypedActor {
         this.log.debug("Je lance la simulation");
 
         if (this.frequency == this.realTimeFrequency) {
+            FiniteDuration tmpDuration = Duration.create(this.duration.toMillis(),
+                    TimeUnit.MILLISECONDS);
             this.getContext()
                     .system()
                     .scheduler()
-                    .scheduleOnce(this.duration, this.getSelf(),
-                            PoisonPill.getInstance(), this.getContext().dispatcher(),
-                            null);
+                    .scheduleOnce(tmpDuration, this.getSelf(), PoisonPill.getInstance(),
+                            this.getContext().dispatcher(), null);
         }
         else {
 

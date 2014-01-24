@@ -127,11 +127,16 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      */
     private void initTypeSimulation(final InitTypeSimulation message) {
         if (this.frequency == this.realTimeFrequency.toMillis()) {
+            ActorRef counter = this.getContext().actorOf(
+                    Props.create(CounterResponse.class), "CounterResponses");
+
             this.dataMaker = this.getContext().actorOf(
                     new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                            Props.create(DataSender.class, this.output)),
+                            Props.create(DataSender.class, this.output, counter)),
                     "simulationDataSender");
-            InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
+
+            InitSensorRealSimulation init = new InitSensorRealSimulation(this.output,
+                    counter);
             this.router.route(init, this.getSelf());
         }
         else {

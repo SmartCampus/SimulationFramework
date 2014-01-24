@@ -5,7 +5,10 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
+import akka.actor.ActorRef;
 
 /**
  * @inheritDoc
@@ -14,10 +17,11 @@ import org.smartcampus.simulation.framework.messages.SendValue;
  */
 public class DataSender extends DataMaker {
 
-    private static int nbGoodResponse = 0;
+    private ActorRef counter;
 
-    public DataSender(final String output) {
+    public DataSender(final String output, final ActorRef counter) {
         super(output);
+        this.counter = counter;
     }
 
     @Override
@@ -49,6 +53,8 @@ public class DataSender extends DataMaker {
             wr.flush();
             wr.close();
 
+            this.counter.tell(new CountRequestsPlusOne(), this.getSelf());
+
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     httpconn.getInputStream()));
 
@@ -65,7 +71,7 @@ public class DataSender extends DataMaker {
                 this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
             }
             else {
-                nbGoodResponse++;
+                this.counter.tell(new CountResponsesPlusOne(), this.getSelf());
             }
 
             httpconn.disconnect();
@@ -76,7 +82,6 @@ public class DataSender extends DataMaker {
     @Override
     public void postStop() throws Exception {
         super.postStop();
-        this.log.debug("NbGoodResponse : " + nbGoodResponse);
     }
 
 }

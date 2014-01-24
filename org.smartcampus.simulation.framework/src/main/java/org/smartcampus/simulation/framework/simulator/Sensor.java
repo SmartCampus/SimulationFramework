@@ -95,9 +95,10 @@ public final class Sensor<T, R> extends UntypedActor {
      */
     private void initSensorRealSimulation(final InitSensorRealSimulation message) {
         String s = message.getUrl();
+        ActorRef counter = message.getCounter();
         this.dataMaker = this.getContext().actorOf(
                 new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                        Props.create(DataSender.class, s)),
+                        Props.create(DataSender.class, s, counter)),
                 "Sensor" + this.getSelf().path().name());
         this.lastReturnedValue = null;
         this.getContext().become(this.simulationStarted);
