@@ -5,6 +5,7 @@ import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
 import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitOutput;
+import org.smartcampus.simulation.framework.messages.InitReplayParam;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -78,6 +79,12 @@ public final class SimulationController extends UntypedActor {
             this.log.debug("Je transmet le set de l'output");
         }
         else if (arg0 instanceof InitInput) {
+            for (ActorRef a : this.getContext().getChildren()) {
+                a.tell(arg0, this.getSelf());
+            }
+            this.log.debug("Je transmet le set de l'input");
+        }
+        else if (arg0 instanceof InitReplayParam) {
             for (ActorRef a : this.getContext().getChildren()) {
                 a.tell(arg0, this.getSelf());
             }
