@@ -1,7 +1,6 @@
 package org.smartcampus.simulation.framework.messages;
 
 import java.io.Serializable;
-import akka.actor.ActorRef;
 
 /**
  * 
@@ -11,12 +10,10 @@ import akka.actor.ActorRef;
  */
 public class InitSensorRealSimulation implements Serializable {
     private static final long serialVersionUID = -4757997038007842114L;
-    private final String url;
-    private ActorRef counter;
+    private final String      url;
 
-    public InitSensorRealSimulation(final String url, final ActorRef counter) {
+    public InitSensorRealSimulation(final String url) {
         this.url = url;
-        this.counter = counter;
     }
 
     /**
@@ -24,10 +21,6 @@ public class InitSensorRealSimulation implements Serializable {
      */
     public String getUrl() {
         return this.url;
-    }
-
-    public ActorRef getCounter() {
-        return this.counter;
     }
 
 }

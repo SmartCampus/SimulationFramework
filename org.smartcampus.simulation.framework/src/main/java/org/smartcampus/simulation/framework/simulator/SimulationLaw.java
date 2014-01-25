@@ -46,7 +46,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
     protected List<R> values;
 
     /** This router allows to broadcast to all the sensors */
-    private Router router;
+    private Router    router;
 
     /** The law associated to the SimulationLaw */
     private Law<S, T> law;
@@ -56,6 +56,8 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         super();
         this.values = new LinkedList<R>();
         this.simulationStarted = new SimulationLawProcedure();
+        this.getContext()
+                .actorOf(Props.create(CounterResponse.class), "CounterResponses");
     }
 
     /**
@@ -127,16 +129,13 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      */
     private void initTypeSimulation(final InitTypeSimulation message) {
         if (this.frequency == this.realTimeFrequency.toMillis()) {
-            ActorRef counter = this.getContext().actorOf(
-                    Props.create(CounterResponse.class), "CounterResponses");
 
             this.dataMaker = this.getContext().actorOf(
                     new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                            Props.create(DataSender.class, this.output, counter)),
+                            Props.create(DataSender.class, this.output)),
                     "simulationDataSender");
 
-            InitSensorRealSimulation init = new InitSensorRealSimulation(this.output,
-                    counter);
+            InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
             this.router.route(init, this.getSelf());
         }
         else {

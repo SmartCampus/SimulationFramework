@@ -53,17 +53,17 @@ public final class Sensor<T, R> extends UntypedActor {
     }
 
     /** The last returned value */
-    private R lastReturnedValue;
+    private R                          lastReturnedValue;
     /** The transformation */
     private SensorTransformation<T, R> transformation;
     /** Context when the simulation start */
-    private Procedure<Object> simulationStarted;
+    private Procedure<Object>          simulationStarted;
 
     /**
      * The output Actor. It can be a DataSender(HTTP Request) or a DataWriter(File). if it
      * is a DataWriter, it is shared by every sensors
      */
-    private ActorRef dataMaker;
+    private ActorRef                   dataMaker;
 
     /** default constructor */
     public Sensor(final SensorTransformation<T, R> t) {
@@ -95,10 +95,9 @@ public final class Sensor<T, R> extends UntypedActor {
      */
     private void initSensorRealSimulation(final InitSensorRealSimulation message) {
         String s = message.getUrl();
-        ActorRef counter = message.getCounter();
         this.dataMaker = this.getContext().actorOf(
                 new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
-                        Props.create(DataSender.class, s, counter)),
+                        Props.create(DataSender.class, s)),
                 "Sensor" + this.getSelf().path().name());
         this.lastReturnedValue = null;
         this.getContext().become(this.simulationStarted);

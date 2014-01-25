@@ -8,7 +8,7 @@ import java.net.URL;
 import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
 import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
-import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 
 /**
  * @inheritDoc
@@ -17,11 +17,12 @@ import akka.actor.ActorRef;
  */
 public class DataSender extends DataMaker {
 
-    private ActorRef counter;
+    private ActorSelection counter;
 
-    public DataSender(final String output, final ActorRef counter) {
+    public DataSender(final String output) {
         super(output);
-        this.counter = counter;
+        this.counter = this.getContext().actorSelection(
+                "/user/SimulationControlor/*/CounterResponses");
     }
 
     @Override
