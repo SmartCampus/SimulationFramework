@@ -22,7 +22,7 @@ public class DataSender extends DataMaker {
     public DataSender(final String output) {
         super(output);
         this.counter = this.getContext().actorSelection(
-                "/user/SimulationControlor/*/CounterResponses");
+                "/user/SimulationControlor/CounterResponses");
     }
 
     @Override

@@ -27,13 +27,13 @@ import akka.japi.Procedure;
 public final class SimulationController extends UntypedActor {
 
     /** Allow to print logs */
-    private LoggingAdapter log;
+    private LoggingAdapter    log;
     /** The duration of the simulation */
-    private FiniteDuration duration;
+    private FiniteDuration    duration;
     /** The update frequency to the virtual time */
-    private long frequency;
+    private long              frequency;
     /** The sensor's request frequency */
-    private long realTimeFrequency;
+    private long              realTimeFrequency;
     /** Context when the simulation start */
     private Procedure<Object> simulationStarted;
 
@@ -45,6 +45,8 @@ public final class SimulationController extends UntypedActor {
             public void apply(final Object message) {
             }
         };
+        this.getContext()
+                .actorOf(Props.create(CounterResponse.class), "CounterResponses");
     }
 
     /**

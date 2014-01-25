@@ -56,8 +56,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         super();
         this.values = new LinkedList<R>();
         this.simulationStarted = new SimulationLawProcedure();
-        this.getContext()
-                .actorOf(Props.create(CounterResponse.class), "CounterResponses");
+
     }
 
     /**
