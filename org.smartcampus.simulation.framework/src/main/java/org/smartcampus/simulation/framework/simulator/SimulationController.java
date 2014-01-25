@@ -1,6 +1,5 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
 import org.smartcampus.simulation.framework.messages.InitInput;
@@ -9,11 +8,10 @@ import org.smartcampus.simulation.framework.messages.InitReplayParam;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
-import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -28,25 +26,18 @@ public final class SimulationController extends UntypedActor {
 
     /** Allow to print logs */
     private LoggingAdapter    log;
-    /** The duration of the simulation */
-    private FiniteDuration    duration;
-    /** The update frequency to the virtual time */
-    private long              frequency;
-    /** The sensor's request frequency */
-    private long              realTimeFrequency;
     /** Context when the simulation start */
     private Procedure<Object> simulationStarted;
+    /** Number of simulation created */
+    private int               nbSimulationCreated;
 
     /** Default Constructor */
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
-        this.simulationStarted = new Procedure<Object>() {
-            @Override
-            public void apply(final Object message) {
-            }
-        };
+        this.simulationStarted = new SimulationControlerProcedure();
         this.getContext()
                 .actorOf(Props.create(CounterResponse.class), "CounterResponses");
+        this.nbSimulationCreated = 0;
     }
 
     /**
@@ -90,7 +81,7 @@ public final class SimulationController extends UntypedActor {
             for (ActorRef a : this.getContext().getChildren()) {
                 a.tell(arg0, this.getSelf());
             }
-            this.log.debug("Je transmet le set de l'input");
+            this.log.debug("Je transmet le init replay");
         }
 
     }
@@ -102,8 +93,11 @@ public final class SimulationController extends UntypedActor {
      *            the message CreateSimulationLaw
      */
     private void createSimulationLaw(final CreateSimulation tmp) {
-        this.getContext().actorOf(Props.create(tmp.getSimulationClass()), tmp.getName());
+        ActorRef r = this.getContext().actorOf(Props.create(tmp.getSimulationClass()),
+                tmp.getName());
 
+        this.getContext().watch(r);
+        this.nbSimulationCreated++;
         this.log.debug("Je cree une Simulation");
     }
 
@@ -140,9 +134,6 @@ public final class SimulationController extends UntypedActor {
      *            the message InitTypeSimulation
      */
     private void initTypeSimulation(final InitTypeSimulation tmp) {
-        this.duration = tmp.getDuration();
-        this.frequency = tmp.getFrequency();
-        this.realTimeFrequency = tmp.getRealTimeFrequency().toMillis();
 
         for (ActorRef a : this.getContext().getChildren()) {
             a.tell(tmp, this.getSelf());
@@ -164,29 +155,6 @@ public final class SimulationController extends UntypedActor {
 
         this.log.debug("Je lance la simulation");
 
-        if (this.frequency == this.realTimeFrequency) {
-            FiniteDuration tmpDuration = Duration.create(this.duration.toMillis(),
-                    TimeUnit.MILLISECONDS);
-            this.getContext()
-                    .system()
-                    .scheduler()
-                    .scheduleOnce(tmpDuration, this.getSelf(), PoisonPill.getInstance(),
-                            this.getContext().dispatcher(), null);
-        }
-        else {
-
-            long virtualDuration = ((this.duration.toMillis() / this.frequency) * this.realTimeFrequency)
-                    + (this.realTimeFrequency / 4);
-
-            this.getContext()
-                    .system()
-                    .scheduler()
-                    .scheduleOnce(
-                            Duration.create(virtualDuration, TimeUnit.MILLISECONDS),
-                            this.getSelf(), PoisonPill.getInstance(),
-                            this.getContext().dispatcher(), null);
-        }
-
         this.getContext().become(this.simulationStarted);
     }
 
@@ -195,7 +163,29 @@ public final class SimulationController extends UntypedActor {
      */
     @Override
     public void postStop() throws Exception {
-        this.log.debug("Je me suicide");
+        this.log.debug("Je me suicide et je tue l'acteur system");
         this.getContext().parent().tell(PoisonPill.getInstance(), this.getSelf());
     }
+
+    /**
+     * This class is a new procedure used in the context of 'Simulation Started'
+     */
+    private class SimulationControlerProcedure implements Procedure<Object> {
+
+        /**
+         * @inheritDoc
+         */
+        @Override
+        public void apply(final Object message) {
+            if (message instanceof Terminated) {
+                SimulationController.this.nbSimulationCreated--;
+                if (SimulationController.this.nbSimulationCreated == 0) {
+                    SimulationController.this.log.debug("Tous mes fils sont morts !");
+                    SimulationController.this.getSelf().tell(PoisonPill.getInstance(),
+                            ActorRef.noSender());
+                }
+            }
+        }
+    }
+
 }

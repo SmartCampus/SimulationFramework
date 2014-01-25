@@ -8,8 +8,8 @@ import akka.event.LoggingAdapter;
 
 public class CounterResponse extends UntypedActor {
 
-    private int countResponse;
-    private int countRequests;
+    private int            countResponse;
+    private int            countRequests;
     private LoggingAdapter log;
 
     public CounterResponse() {
@@ -30,10 +30,9 @@ public class CounterResponse extends UntypedActor {
     }
 
     @Override
-    public void postStop() throws Exception {
-        super.postStop();
-        this.log.debug("Number of responses : " + this.countResponse);
+    public void postStop() {
         this.log.debug("Number of requests : " + this.countRequests);
+        this.log.debug("Number of responses : " + this.countResponse);
 
     }
 }

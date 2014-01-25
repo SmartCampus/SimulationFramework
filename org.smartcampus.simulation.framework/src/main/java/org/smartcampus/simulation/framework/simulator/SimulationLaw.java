@@ -15,7 +15,9 @@ import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.japi.Procedure;
 import akka.routing.ActorRefRoutee;
 import akka.routing.BroadcastRoutingLogic;
@@ -51,12 +53,15 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
     /** The law associated to the SimulationLaw */
     private Law<S, T> law;
 
+    /** The number of sensors dead. Used to end the simulation */
+    private int       nbDeadSensors;
+
     /** Default constructor */
     public SimulationLaw() {
         super();
         this.values = new LinkedList<R>();
         this.simulationStarted = new SimulationLawProcedure();
-
+        this.nbDeadSensors = 0;
     }
 
     /**
@@ -220,6 +225,12 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      */
     private class SimulationLawProcedure implements Procedure<Object> {
 
+        private boolean simulationInProgress;
+
+        public SimulationLawProcedure() {
+            this.simulationInProgress = true;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -232,6 +243,24 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
             else if (o instanceof ReturnMessage<?>) {
                 ReturnMessage<R> message = (ReturnMessage<R>) o;
                 this.returnMessage(message);
+            }
+            else if (o instanceof Terminated) {
+                this.terminated();
+            }
+        }
+
+        /**
+         * Handle the message Terminated
+         */
+        private void terminated() {
+            SimulationLaw.this.nbDeadSensors++;
+            if (SimulationLaw.this.nbDeadSensors == SimulationLaw.this.router.routees()
+                    .size()) {
+                SimulationLaw.this.log
+                        .debug("Tous mes capteurs sont mort, je me suicide");
+
+                SimulationLaw.this.getSelf().tell(PoisonPill.getInstance(),
+                        ActorRef.noSender());
             }
         }
 
@@ -262,12 +291,22 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
          * Handle the message UpdateSimulation
          */
         private void updateSimulation() {
-            SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
-                    SimulationLaw.this.time, SimulationLaw.this.valueToSend),
-                    SimulationLaw.this.getSelf());
-            SimulationLaw.this.time += SimulationLaw.this.frequency;
+            if (SimulationLaw.this.time >= SimulationLaw.this.end) {
+                if (this.simulationInProgress) {
+                    SimulationLaw.this.log.debug("Fin de la simulation");
+                    SimulationLaw.this.tick.cancel();
+                    SimulationLaw.this.router.route(PoisonPill.getInstance(),
+                            SimulationLaw.this.getSelf());
+                    this.simulationInProgress = false;
+                }
+            }
+            else {
+                SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
+                        SimulationLaw.this.time, SimulationLaw.this.valueToSend),
+                        SimulationLaw.this.getSelf());
+                SimulationLaw.this.time += SimulationLaw.this.frequency;
+            }
         }
-
     }
 
 }

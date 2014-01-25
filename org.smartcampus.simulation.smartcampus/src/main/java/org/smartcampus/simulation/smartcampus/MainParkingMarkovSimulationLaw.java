@@ -20,7 +20,7 @@ public class MainParkingMarkovSimulationLaw {
 		String fabIP = "http://172.19.250.149:4444/collector/value";
 		String pfeIP = "http://localhost:8080/collector/value";
 		Law<Integer, Double> markov = null;
-		markov = new ParkingMarkovLaw(400, 0.1, 0.01);
+		markov = new ParkingMarkovLaw(2000, 0.1, 0.01);
 
 		Law<Double, Double> polynome = new PolynomialLaw(24839.21865,
 				-14430.25924, 3359.404392, -401.9522656, 26.18040012,
@@ -28,9 +28,9 @@ public class MainParkingMarkovSimulationLaw {
 
 		Start sim = new StartImpl();
 		sim.create("Parking2", ParkingMarkovSimulation.class)
-				.add(400, new RateToBooleanChangeSensorTransformation())
+				.add(2000, new RateToBooleanChangeSensorTransformation())
 				.withLaw(markov).create("Parking3", ParkingSimulation.class)
-				.add(400, new PercentToBooleanSensorTransformation())
+				.add(2000, new PercentToBooleanSensorTransformation())
 				.withLaw(polynome).setOutput(pfeIP)
 				.start("2014-01-22 08:25:00")
 				.duration(Duration.create(2, TimeUnit.MINUTES))

@@ -15,30 +15,33 @@ import akka.japi.Procedure;
 
 public abstract class Simulation<T> extends UntypedActor {
     /** The current time of the simulation */
-    protected long time;
+    protected long              time;
     /** The DataMaker that allow the Simulation to send direct value */
-    protected ActorRef dataMaker;
+    protected ActorRef          dataMaker;
 
     /** The scheduler which send an update every realTimeFrequency */
-    protected Cancellable tick;
+    protected Cancellable       tick;
 
     /** The T value to send to the sensors */
-    protected T valueToSend;
+    protected T                 valueToSend;
 
     /** The real time frequency correspond to the duration */
-    protected FiniteDuration realTimeFrequency;
+    protected FiniteDuration    realTimeFrequency;
 
     /** Each real time frequency, the time is increased by the frequency */
-    protected long frequency;
+    protected long              frequency;
 
     /** The duration of the simulation */
-    protected long duration;
+    protected long              duration;
+
+    /** The end of the simulation */
+    protected long              end;
 
     /** the name of the output (url or file path) */
-    protected String output;
+    protected String            output;
 
     /** Allow to print logs */
-    protected LoggingAdapter log;
+    protected LoggingAdapter    log;
 
     /** Context when the simulation start */
     protected Procedure<Object> simulationStarted;
@@ -61,7 +64,7 @@ public abstract class Simulation<T> extends UntypedActor {
      */
     @Override
     public void postStop() {
-        this.tick.cancel();
+        this.log.debug("Je suis mort");
     }
 
     /**
@@ -90,5 +93,6 @@ public abstract class Simulation<T> extends UntypedActor {
         this.realTimeFrequency = message.getRealTimeFrequency();
         this.frequency = message.getFrequency();
         this.duration = message.getDuration().toMillis();
+        this.end = this.time + this.duration;
     }
 }
