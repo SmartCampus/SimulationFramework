@@ -7,7 +7,6 @@ import java.security.InvalidParameterException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.smartcampus.simulation.stdlib.law.MarkovChain;
 
 public class MarkovChainTest {
 
@@ -25,7 +24,6 @@ public class MarkovChainTest {
 
     /**
      * Test method for
-     * {@link org.smartcampus.simulation.stdlib.laws.MarkovStatesLaw#evaluate(java.lang.Integer[])}
      * .
      */
     @Test
@@ -37,6 +35,11 @@ public class MarkovChainTest {
         } catch (Exception e) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testGetSize() {
+        Assert.assertEquals(3,m1.getSize());
     }
 
     @Test(expected = InvalidParameterException.class)
