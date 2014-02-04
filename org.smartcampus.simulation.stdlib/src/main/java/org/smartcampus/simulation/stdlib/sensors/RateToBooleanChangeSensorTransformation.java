@@ -17,11 +17,11 @@ public class RateToBooleanChangeSensorTransformation implements
      * rate should be between 0(returns false) and 1(returns true)
      */
     public Boolean transform(Double rate, Boolean last) {
-        if (rate == 0) {
-            return false;
-        }
         if (last == null) {
             last = false;
+        }
+        if (rate == 0) {
+            return last;
         }
         rate = Math.abs(rate);
         Random r = new Random();
