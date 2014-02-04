@@ -10,7 +10,9 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,14 +30,17 @@ public class ExcelExtractor {
     private int sheetNumber;
     private int offset;
     private Map<String,String> columns ;
+    private List<String> timestampColumn;
     private Map<String,Writer> filesRef ;
+    private Writer timestampFile;
     private static final String filePrefix = "data_sensor_";
 
 
-    public ExcelExtractor(String filename,int sheetNumber,Map<String,String> columns,int offset){
+    public ExcelExtractor(String filename,int sheetNumber,Map<String,String> columns,List<String> timestampColumn,int offset){
         this.filename = filename;
         this.sheetNumber = sheetNumber;
         this.columns = columns;
+        this.timestampColumn = timestampColumn;
         this.offset = offset;
         this.filesRef = new HashMap<String, Writer>();
         try {
@@ -44,6 +49,9 @@ public class ExcelExtractor {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
                 filesRef.put(entry.getKey(),writer);
             }
+            File tmp = File.createTempFile("data_timestamp_",".tmp");
+            timestampFile = new BufferedWriter(new FileWriter(tmp));
+
         } catch (IOException e) {
             System.err.println("Cannot create temp file for excel replay");
         }
@@ -70,6 +78,8 @@ public class ExcelExtractor {
             w.flush();
             w.close();
         }
+        timestampFile.flush();
+        timestampFile.close();
         sheet2.close();
         } catch(Exception e){
             e.printStackTrace();
@@ -93,10 +103,10 @@ public class ExcelExtractor {
         private String lastContents;
         private boolean nextIsString;
         private boolean readThisValue;
+        private boolean isTimestamp;
         private Pattern pattern;
         private int currentLine;
         private Map<String,Boolean> needBlank ;
-
         private String currentColumn;
 
         private SheetHandler(SharedStringsTable sst) {
@@ -121,6 +131,11 @@ public class ExcelExtractor {
                     int line = Integer.valueOf(match.group(2));
                     // au passage à une nouvelle ligne les colonnes non trouvées sont remplacé par des lignes vides
                     if(line > currentLine && line > offset){
+                        try {
+                            timestampFile.write("\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         fillWithBlank();
                         for(String key : needBlank.keySet()){
                             needBlank.put(key,true);
@@ -129,8 +144,8 @@ public class ExcelExtractor {
                     currentColumn = match.group(1);
                     currentLine = line;
                     // Figure out if the column is interesting or not
-                    readThisValue = columns.keySet().contains(currentColumn);
-                    readThisValue = readThisValue && currentLine >= offset;
+                    readThisValue = columns.keySet().contains(currentColumn) && currentLine >= offset;
+                    isTimestamp = timestampColumn.contains(currentColumn) && currentLine >= offset ;
                     if(readThisValue){
                         needBlank.put(currentColumn,false);
                     }
@@ -148,7 +163,7 @@ public class ExcelExtractor {
 
         public void endElement(String uri, String localName, String name)
                 throws SAXException {
-            if(readThisValue){
+
 
                 // Process the last contents as required.
                 // Do now, as characters() may be called more than once
@@ -162,14 +177,26 @@ public class ExcelExtractor {
 
                 if(name.equals("v")) {
                     try {
-                        System.out.println("Column : " + currentColumn + "--- Line : " + currentLine);
-                        filesRef.get(currentColumn).write(lastContents + "\n");
-                    } catch (IOException e) {
+                        Writer dest ;
+                        if(readThisValue){
+                            System.out.println("Not wesh !");
+                            dest = filesRef.get(currentColumn);
+                            dest.write(lastContents+"\n");
+
+                        } else if (isTimestamp){
+                            dest = timestampFile;
+                            System.out.println("Wesh ?");
+                            dest.write(lastContents+" ");
+                        }
+
+                     } catch (IOException e) {
                         System.err.println("Cannot write to file its f**king annoying");
                     }
                 }
-            }
         }
+
+
+
 
         public void endDocument(){
             fillWithBlank();
@@ -199,8 +226,10 @@ public class ExcelExtractor {
         columns.put("G","O2");
         columns.put("H","pH");
         columns.put("I","temp");
-
-        ExcelExtractor howto = new ExcelExtractor("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", 3,columns,2);
+        List<String> timestampColumn = new ArrayList<String>();
+        timestampColumn.add("A");
+        timestampColumn.add("B");
+        ExcelExtractor howto = new ExcelExtractor("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", 3,columns,timestampColumn,2);
         howto.processSheet();
     }
 
