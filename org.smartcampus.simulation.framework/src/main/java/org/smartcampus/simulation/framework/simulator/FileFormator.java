@@ -2,40 +2,65 @@ package org.smartcampus.simulation.framework.simulator;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.smartcampus.simulation.framework.messages.InitReplayParam;
 
 public abstract class FileFormator {
-
     /**
      * The path of the input file
      */
     private String input;
 
     /**
-     * the number of the line that we have to read
-     */
-    protected int nbLineToRead;
-
-    /**
      * The parameters for the Subclasses
      */
-    protected Map<String, Object> params;
+    protected Map<String, String> params;
 
     public FileFormator() {
-        this.params = new HashMap<String, Object>();
+        this.params = new HashMap<String, String>();
     }
+
+    /**
+     * Handle the message InitReplayParam
+     * 
+     * @param message
+     *            contains the initialization of the parameters of the simulation
+     */
+    protected final void initReplayParam(final String key, final String value) {
+        this.params.put(key, value);
+    }
+
+    /**
+     * @return the input
+     */
+    protected final String getInput() {
+        return this.input;
+    }
+
+    /**
+     * @param input
+     *            the input to set
+     */
+    public void setInput(final String input) {
+        this.input = input;
+    }
+
+    /**
+     * Return the next frequency between the line n and n+1
+     * 
+     * @return the frequency in milliseconds
+     */
+    public abstract long getNextFrequency();
+
+    /**
+     * Allow to switch to the next line
+     */
+    public abstract void nextLine();
 
     /**
      * return the value of the next line
      * 
      * @return the value present at the next line
      */
-    protected abstract String getNextValue();
-
-    /**
-     * return the number of line in the input file
-     */
-    protected abstract int getNbLine();
+    protected abstract Map<String, String> getNextValue();
 
     /**
      * closing the Input after reading the file
@@ -49,31 +74,31 @@ public abstract class FileFormator {
      *            the number of the first line of the file
      * @return the value at this line
      */
-    protected abstract String beginReplay(int firstLine);
+    protected abstract void beginReplay();
 
     /**
-     * Handle the message InitReplayParam
+     * Get the different strings corresponding to the TimeStamp with the columns given.
      * 
-     * @param message
-     *            contains the initialization of the parameters of the simulation
+     * @param columns
+     *            The different columns which have the TimeStamp
+     * @return The strings corresponding to the TimeStamp
      */
-    private void initReplayParam(final InitReplayParam message) {
-        this.params.put(message.getKey(), message.getValue());
-    }
+    protected abstract String[] getTimeStamp(String... columns);
 
     /**
-     * @return the input
+     * Transform the strings in a TimeStamp in milliseconds
+     * 
+     * @param columns
+     *            The strings corresponding to the TimeStamp
+     * @return The TimeStamp in milliseconds
      */
-    protected String getInput() {
-        return this.input;
-    }
+    protected abstract long transform(String[] columns);
 
     /**
-     * @param input
-     *            the input to set
+     * Return if the end of file is reached
+     * 
+     * @return return false if the end of file is reached, true otherwise
      */
-    public void setInput(final String input) {
-        this.input = input;
-    }
+    public abstract boolean hasNextLine();
 
 }

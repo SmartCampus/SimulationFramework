@@ -1,80 +1,32 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.messages.InitInput;
+import org.smartcampus.simulation.framework.messages.InitReplay;
 import org.smartcampus.simulation.framework.messages.InitReplayParam;
-import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
+import org.smartcampus.simulation.framework.messages.InitReplaySimulation;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
 import scala.concurrent.duration.Duration;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.japi.Procedure;
-import akka.routing.DefaultResizer;
-import akka.routing.RoundRobinPool;
 
 public final class Replay extends Simulation<String> {
 
     /**
-     * The path of the input file
-     */
-    private String input;
-
-    /**
-     * the number of the line that we have to read
-     */
-    protected int nbLineToRead;
-
-    /**
-     * The parameters for the Subclasses
-     */
-    protected Map<String, Object> params;
-
-    /**
      * The FileFormator using for specializing the reading of the file
      */
-    FileFormator formator;
+    private FileFormator formator;
+
+    /** The current time of the replay */
+    private long time;
 
     public Replay() {
         super();
         this.simulationStarted = new ReplayProcedure();
-        this.params = new HashMap<String, Object>();
-    }
-
-    /**
-     * return the value of the next line
-     * 
-     * @return the value present at the next line
-     */
-    protected String getNextValue() {
-        return this.formator.getNextValue();
-    }
-
-    /**
-     * return the number of line in the input file
-     */
-    protected int getNbLine() {
-        return this.formator.getNbLine();
-    }
-
-    /**
-     * closing the Input after reading the file
-     */
-    protected void close() {
-        this.formator.close();
-    }
-
-    /**
-     * going to the first line wanted in the file and returning the value of this line
-     * 
-     * @param firstLine
-     *            the number of the first line of the file
-     * @return the value at this line
-     */
-    protected String beginReplay(final int firstLine) {
-        return this.formator.beginReplay(firstLine);
     }
 
     /**
@@ -86,91 +38,50 @@ public final class Replay extends Simulation<String> {
         if (o instanceof StartSimulation) {
             this.startSimulation();
         }
-        // TODO
-        // else if (o instanceof InitReplay) {
-        // this.formator = (InitReplay o).getFormator();
-        // }
-        // TODO
-        else if (o instanceof InitTypeSimulation) {
-            this.initTypeSimulation((InitTypeSimulation) o);
+        else if (o instanceof InitReplay) {
+            Class<? extends FileFormator> tmp = ((InitReplay) o).getFormator();
+            this.formator = tmp.newInstance();
+        }
+        else if (o instanceof InitReplaySimulation) {
+            this.initReplaySimulation((InitReplaySimulation) o);
         }
         else if (o instanceof InitInput) {
-            this.input = ((InitInput) o).getInput();
-            this.formator.setInput(this.input);
-
+            String input = ((InitInput) o).getInput();
+            this.formator.setInput(input);
         }
         else if (o instanceof InitReplayParam) {
             InitReplayParam message = (InitReplayParam) o;
-            // TODO modifier pour new replay (set le fileformator et possibilite de mettre
-            // plusieurs parametre <=> tab[])
-            this.initReplayParam(message);
+            this.formator.initReplayParam(message.getKey(), message.getValue());
         }
-        // TODO
-    }
-
-    /**
-     * Handle the message InitReplayParam
-     * 
-     * @param message
-     *            contains the initialization of the parameters of the simulation
-     */
-    private void initReplayParam(final InitReplayParam message) {
-        this.params.put(message.getKey(), message.getValue());
     }
 
     /**
      * Handle the message InitTypeSimulation
      * 
-     * @param message
+     * @param o
      *            contains the initialization of the simulation
      */
-    private void initTypeSimulation(final InitTypeSimulation message) {
-        if (this.frequency == this.realTimeFrequency.toMillis()) {
-            this.dataMaker = this.getContext().actorOf(
-                    new RoundRobinPool(15).withResizer(new DefaultResizer(1, 15)).props(
-                            Props.create(DataSender.class, this.output)),
-                    "simulationDataSender");
+    private void initReplaySimulation(final InitReplaySimulation o) {
+        this.time = o.getStart();
+        if (o.isReal()) {
+            this.dataMaker = null;
+            for (String s : this.formator.params.keySet()) {
+                this.getContext().actorOf(Props.create(DataSender.class, this.output), s);
+            }
         }
         else {
             this.dataMaker = this.getContext().actorOf(
                     Props.create(DataWriter.class, this.output), "simulationDataWriter");
         }
-
     }
 
     /**
      * Handle the message StartSimulation
      */
     private void startSimulation() throws Exception {
-        this.nbLineToRead = (int) (this.duration / this.frequency);
-        this.valueToSend = this.beginReplay(this.getLineToStart());
-        this.tick = this
-                .getContext()
-                .system()
-                .scheduler()
-                .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
-                        new UpdateSimulation(), this.getContext().dispatcher(), null);
-
+        this.formator.beginReplay();
         this.getContext().become(this.simulationStarted);
-    }
-
-    /**
-     * The first line to start replaying the datas
-     * Taking a random number of line in the interval [0; nbLineInFile-nbLineToSend]
-     * 
-     * @return
-     */
-    private int getLineToStart() {
-        Random rand = new Random();
-
-        return rand.nextInt((int) (this.getNbLine() - (this.duration / this.frequency)));
-    }
-
-    /**
-     * @return the input
-     */
-    protected String getInput() {
-        return this.input;
+        this.getSelf().tell(new UpdateSimulation(), this.getSelf());
     }
 
     /**
@@ -192,17 +103,47 @@ public final class Replay extends Simulation<String> {
          * Handle the message UpdateSimulation
          */
         private void updateSimulation() {
-            // TODO
-            Replay.this.dataMaker.tell(new SendValue(Replay.this.getSelf().path().name(),
-                    Replay.this.getNextValue(), Replay.this.time), Replay.this.getSelf());
-            Replay.this.time += Replay.this.frequency;
+            Map<String, String> nextValue = Replay.this.formator.getNextValue();
+
+            long nextFrequency = Replay.this.formator.getNextFrequency();
+
+            if (Replay.this.dataMaker == null) {
+                for (String sensor : nextValue.keySet()) {
+                    ActorRef actorTmp = Replay.this.getContext().getChild(sensor);
+
+                    actorTmp.tell(new SendValue(sensor, nextValue.get(sensor),
+                            Replay.this.time), Replay.this.getSelf());
+                }
+            }
+            else {
+                for (String sensor : nextValue.keySet()) {
+                    Replay.this.dataMaker
+                            .tell(new SendValue(sensor, nextValue.get(sensor),
+                                    Replay.this.time), Replay.this.getSelf());
+                }
+            }
+
+            if (Replay.this.formator.hasNextLine()) {
+
+                Replay.this.formator.nextLine();
+                Replay.this.time += nextFrequency;
+
+                Replay.this.tick = Replay.this
+                        .getContext()
+                        .system()
+                        .scheduler()
+                        .scheduleOnce(
+                                Duration.create(nextFrequency, TimeUnit.MILLISECONDS),
+                                Replay.this.getSelf(), new UpdateSimulation(),
+                                Replay.this.getContext().dispatcher(), null);
+            }
         }
     }
 
     @Override
     public final void postStop() {
         super.postStop();
-        this.close();
+        this.formator.close();
     }
 
 }

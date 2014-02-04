@@ -1,6 +1,12 @@
 package org.smartcampus.simulation.framework.fluentapi;
 
+import org.smartcampus.simulation.framework.fluentapi.replay.ReplayWrapper0;
+import org.smartcampus.simulation.framework.fluentapi.replay.ReplayWrapper0Impl;
+import org.smartcampus.simulation.framework.fluentapi.simulation.SimulationLawWrapper0;
+import org.smartcampus.simulation.framework.fluentapi.simulation.SimulationLawWrapper0Impl;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
+import org.smartcampus.simulation.framework.messages.InitReplay;
+import org.smartcampus.simulation.framework.simulator.FileFormator;
 import org.smartcampus.simulation.framework.simulator.Replay;
 import org.smartcampus.simulation.framework.simulator.Simulation;
 import org.smartcampus.simulation.framework.simulator.SimulationController;
@@ -29,9 +35,10 @@ public class StartImpl implements Start {
 
     @Override
     public ReplayWrapper0 replay(final String replayName,
-            final Class<? extends Replay> replayClass) {
-        this.controller.tell(new CreateSimulation(replayName, replayClass),
+            final Class<? extends FileFormator> replayClass) {
+        this.controller.tell(new CreateSimulation(replayName, Replay.class),
                 ActorRef.noSender());
+        this.controller.tell(new InitReplay(replayClass), ActorRef.noSender());
         return new ReplayWrapper0Impl(replayName, this.controller);
     }
 

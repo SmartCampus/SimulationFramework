@@ -1,12 +1,12 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
+import org.smartcampus.simulation.framework.fluentapi.SimulatorWrapper;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
 import org.smartcampus.simulation.framework.messages.InitOutput;
-import org.smartcampus.simulation.framework.simulator.Replay;
 import org.smartcampus.simulation.framework.simulator.Simulation;
 import akka.actor.ActorRef;
 
-public class SimulatorImpl extends SimulatorWrapper implements Simulator, Start {
+public class SimulatorImpl extends SimulatorWrapper implements Simulator {
 
     public SimulatorImpl(final ActorRef controllerRef) {
         super(controllerRef);
@@ -24,13 +24,5 @@ public class SimulatorImpl extends SimulatorWrapper implements Simulator, Start 
         this.controllerRef.tell(new CreateSimulation(name, simulationClass),
                 ActorRef.noSender());
         return new SimulationLawWrapper0Impl(name, this.controllerRef);
-    }
-
-    @Override
-    public ReplayWrapper0 replay(final String replayName,
-            final Class<? extends Replay> replayClass) {
-        this.controllerRef.tell(new CreateSimulation(replayName, replayClass),
-                ActorRef.noSender());
-        return new ReplayWrapper0Impl(replayName, this.controllerRef);
     }
 }

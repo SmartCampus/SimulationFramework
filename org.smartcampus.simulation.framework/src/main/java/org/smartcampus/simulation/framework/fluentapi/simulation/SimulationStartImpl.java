@@ -1,6 +1,7 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
 import java.sql.Timestamp;
+import org.smartcampus.simulation.framework.fluentapi.SimulatorWrapper;
 import akka.actor.ActorRef;
 
 /**
