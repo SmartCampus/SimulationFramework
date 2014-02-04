@@ -10,56 +10,77 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ *
  * Created by foerster
+ *
  * on 23/01/14.
+ *
  */
 public class ExcelExtractor {
 
-    private File tmp;
-    private BufferedWriter writer;
+    private String filename;
+    private int sheetNumber;
+    private int offset;
+    private Map<String,String> columns ;
+    private Map<String,Writer> filesRef ;
+    private static final String filePrefix = "data_sensor_";
 
-    public ExcelExtractor(){
+
+    public ExcelExtractor(String filename,int sheetNumber,Map<String,String> columns,int offset){
+        this.filename = filename;
+        this.sheetNumber = sheetNumber;
+        this.columns = columns;
+        this.offset = offset;
+        this.filesRef = new HashMap<String, Writer>();
         try {
-            tmp = File.createTempFile("excel_data",".tmp");
-            writer = new BufferedWriter(new FileWriter(tmp));
+            for(Map.Entry<String, String> entry : columns.entrySet()){
+                File tmp = File.createTempFile(filePrefix + entry.getValue() + "_", ".tmp");
+                BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
+                filesRef.put(entry.getKey(),writer);
+            }
         } catch (IOException e) {
             System.err.println("Cannot create temp file for excel replay");
         }
     }
 
-    public File getFileRef(){
-        return tmp;
-    }
 
-    public void processOneSheet(String filename,String sheetNumber,String colName){
+    public void processSheet(){
         try{
             OPCPackage pkg = OPCPackage.open(filename, PackageAccess.READ);
 
         XSSFReader r = new XSSFReader( pkg );
         SharedStringsTable sst = r.getSharedStringsTable();
 
-        XMLReader parser = fetchSheetParser(sst,colName);
+        XMLReader parser = fetchSheetParser(sst);
 
         // rId2 found by processing the Workbook
         // Seems to either be rId# or rSheet#
         InputStream sheet2 = r.getSheet("rId"+sheetNumber);
         InputSource sheetSource = new InputSource(sheet2);
         parser.parse(sheetSource);
-        writer.flush();
-        writer.close();
+
+        // close all the file writers
+        for(Writer w : filesRef.values()){
+            w.flush();
+            w.close();
+        }
         sheet2.close();
-        } catch(Exception e){}
+        } catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 
-    public XMLReader fetchSheetParser(SharedStringsTable sst,String colName) throws SAXException {
+    public XMLReader fetchSheetParser(SharedStringsTable sst) throws SAXException {
         XMLReader parser =
                 XMLReaderFactory.createXMLReader();
-        ContentHandler handler = new SheetHandler(sst,colName,writer);
+        ContentHandler handler = new SheetHandler(sst);
         parser.setContentHandler(handler);
         return parser;
     }
@@ -67,27 +88,26 @@ public class ExcelExtractor {
     /**
      * See org.xml.sax.helpers.DefaultHandler javadocs
      */
-    private static class SheetHandler extends DefaultHandler {
+    private class SheetHandler extends DefaultHandler {
         private SharedStringsTable sst;
         private String lastContents;
         private boolean nextIsString;
-        private String colName;
-        private int startLine;
-        private int numberOfLine;
         private boolean readThisValue;
         private Pattern pattern;
         private int currentLine;
-        private Writer writer;
+        private Map<String,Boolean> needBlank ;
 
-        private SheetHandler(SharedStringsTable sst,String colName,Writer writer) {
+        private String currentColumn;
+
+        private SheetHandler(SharedStringsTable sst) {
             this.sst = sst;
-            this.colName = colName;
             readThisValue = true;
-            this.startLine=startLine;
-            this.numberOfLine = numberOfLine;
             pattern = Pattern.compile("([A-Z]+)(.+)");
             currentLine = 1;
-            this.writer = writer;
+            needBlank = new HashMap<String, Boolean>();
+            for(String key : columns.keySet()){
+                needBlank.put(key,true);
+            }
         }
 
         public void startElement(String uri, String localName, String name,
@@ -98,20 +118,28 @@ public class ExcelExtractor {
                 String cellRef = attributes.getValue("r");
                 Matcher match = pattern.matcher(cellRef);
                 if(match.find()){
-                    String colRef = match.group(1);
-                    int rowRef = Integer.valueOf(match.group(2));
-                    readThisValue = colRef.equals(colName);
-                    readThisValue = readThisValue && rowRef >= startLine && rowRef <= startLine + numberOfLine ;
+                    int line = Integer.valueOf(match.group(2));
+                    // au passage à une nouvelle ligne les colonnes non trouvées sont remplacé par des lignes vides
+                    if(line > currentLine && line > offset){
+                        fillWithBlank();
+                        for(String key : needBlank.keySet()){
+                            needBlank.put(key,true);
+                        }
+                    }
+                    currentColumn = match.group(1);
+                    currentLine = line;
+                    // Figure out if the column is interesting or not
+                    readThisValue = columns.keySet().contains(currentColumn);
+                    readThisValue = readThisValue && currentLine >= offset;
+                    if(readThisValue){
+                        needBlank.put(currentColumn,false);
+                    }
                 } else {
                     readThisValue = false;
                 }
                 // Figure out if the value is an index in the SST
                 String cellType = attributes.getValue("t");
-                if(cellType != null && cellType.equals("s")) {
-                    nextIsString = true;
-                } else {
-                    nextIsString = false;
-                }
+                nextIsString = cellType != null && cellType.equals("s");
             }
             // Clear contents cache
             lastContents = "";
@@ -121,6 +149,7 @@ public class ExcelExtractor {
         public void endElement(String uri, String localName, String name)
                 throws SAXException {
             if(readThisValue){
+
                 // Process the last contents as required.
                 // Do now, as characters() may be called more than once
                 if(nextIsString) {
@@ -130,10 +159,11 @@ public class ExcelExtractor {
                 }
 
                 // v => contents of a cell
-                // Output after we've seen the string contents
+
                 if(name.equals("v")) {
                     try {
-                        writer.write(lastContents+"\n");
+                        System.out.println("Column : " + currentColumn + "--- Line : " + currentLine);
+                        filesRef.get(currentColumn).write(lastContents + "\n");
                     } catch (IOException e) {
                         System.err.println("Cannot write to file its f**king annoying");
                     }
@@ -141,17 +171,37 @@ public class ExcelExtractor {
             }
         }
 
+        public void endDocument(){
+            fillWithBlank();
+        }
+
         public void characters(char[] ch, int start, int length)
                 throws SAXException {
             lastContents += new String(ch, start, length);
         }
+
+        private void fillWithBlank(){
+            for(Map.Entry<String,Boolean> entry : needBlank.entrySet()){
+                if(entry.getValue()){
+                    try {
+                        System.out.println("Column : " + entry.getKey() + "  Blank");
+                        filesRef.get(entry.getKey()).write("\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
     public static void main(String[] args) throws Exception {
-        ExcelExtractor howto = new ExcelExtractor();
-        //howto.processOneSheet(args[0]);
-        howto.processOneSheet("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", "2","G");
-        System.out.println(howto.getFileRef().getAbsolutePath());
+        Map<String,String> columns = new HashMap<String, String>();
+        columns.put("G","O2");
+        columns.put("H","pH");
+        columns.put("I","temp");
+
+        ExcelExtractor howto = new ExcelExtractor("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", 3,columns,2);
+        howto.processSheet();
     }
 
 }
