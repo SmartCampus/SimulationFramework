@@ -6,9 +6,9 @@ public class InitReplayParam implements Serializable {
 
     private static final long serialVersionUID = 6546648934196676095L;
     private final String key;
-    private final Object value;
+    private final String value;
 
-    public InitReplayParam(final String key, final Object value) {
+    public InitReplayParam(final String key, final String value) {
         this.key = key;
         this.value = value;
     }
@@ -23,7 +23,7 @@ public class InitReplayParam implements Serializable {
     /**
      * @return the value
      */
-    public Object getValue() {
+    public String getValue() {
         return this.value;
     }
 
