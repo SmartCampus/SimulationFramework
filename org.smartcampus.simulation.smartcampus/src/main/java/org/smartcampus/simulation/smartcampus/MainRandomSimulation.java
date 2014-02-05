@@ -12,11 +12,13 @@ public class MainRandomSimulation {
     public static void main(final String[] args) {
         Start sim = new StartImpl();
         sim.create("Random", ParkingSimulation.class)
-                .add(5, new RandomSensorTransformation()).withLaw(null)
-                .setOutput("http://localhost:8000/value")
+                .add(350, new RandomSensorTransformation()).withLaw(null)
+                .setOutput("http://localhost:8080/collector/value")
                 .start(System.currentTimeMillis())
-                .duration(Duration.create(1, TimeUnit.DAYS))
-                .frequency(Duration.create(1, TimeUnit.HOURS)).simulateVirtual();
+
+                .duration(Duration.create(5, TimeUnit.MINUTES))
+                .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
+
     }
 
 }

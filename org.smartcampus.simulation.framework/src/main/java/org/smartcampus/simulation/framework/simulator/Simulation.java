@@ -37,7 +37,7 @@ public abstract class Simulation<T> extends UntypedActor {
      */
     @Override
     public void postStop() {
-        this.tick.cancel();
+        this.log.debug("Je suis mort");
     }
 
     /**
@@ -50,4 +50,8 @@ public abstract class Simulation<T> extends UntypedActor {
         }
 
     }
+
+
+
+
 }

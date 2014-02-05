@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.smartcampus.simulation.framework.messages.AddSensor;
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.InitSensorRealSimulation;
 import org.smartcampus.simulation.framework.messages.InitSensorVirtualSimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
@@ -11,12 +13,15 @@ import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.StopSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.japi.Procedure;
 import akka.routing.ActorRefRoutee;
 import akka.routing.BroadcastRoutingLogic;
@@ -65,12 +70,19 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
 
     /** The duration of the simulation */
     protected long duration;
+    /** The number of sensors dead. Used to end the simulation */
+    private int nbDeadSensors;
+
+    /** Tell if the simulation can send the next value */
+    private boolean canContinue;
 
     /** Default constructor */
     public SimulationLaw() {
         super();
         this.values = new LinkedList<R>();
         this.simulationStarted = new SimulationLawProcedure();
+        this.nbDeadSensors = 0;
+        this.canContinue = true;
     }
 
     /**
@@ -141,6 +153,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
             InitSimulationLaw message = (InitSimulationLaw) o;
             this.initSimulationLaw(message);
         }
+
     }
 
     /**
@@ -155,10 +168,12 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         this.frequency = message.getFrequency();
         this.duration = message.getDuration().toMillis();
         if (this.frequency == this.realTimeFrequency.toMillis()) {
+
             this.dataMaker = this.getContext().actorOf(
                     new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
                             Props.create(DataSender.class, this.output)),
                     "simulationDataSender");
+
             InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
             this.router.route(init, this.getSelf());
         }
@@ -169,6 +184,8 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
                     this.dataMaker);
             this.router.route(init, this.getSelf());
         }
+
+        this.getContext().watch(this.dataMaker);
 
     }
 
@@ -183,14 +200,9 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
             this.valueToSend = null;
         }
 
-        this.tick = this
-                .getContext()
-                .system()
-                .scheduler()
-                .schedule(Duration.Zero(), this.realTimeFrequency, this.getSelf(),
-                        new UpdateSimulation(), this.getContext().dispatcher(), null);
-
         this.getContext().become(this.simulationStarted);
+
+        this.getSelf().tell(new UpdateSimulation(), this.getSelf());
     }
 
     /**
@@ -237,13 +249,21 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      */
     public final void sendValue(final String name, final String value) {
         this.dataMaker.tell(new SendValue(this.getSelf().path().name() + " - " + name,
-                value, this.time - this.frequency), this.getSelf());
+                value, this.time), this.getSelf());
     }
 
     /**
      * This class is a new procedure used in the context of 'Simulation Started'
      */
     private class SimulationLawProcedure implements Procedure<Object> {
+
+        private boolean simulationInProgress;
+        private boolean isDataMakerDead;
+
+        public SimulationLawProcedure() {
+            this.simulationInProgress = true;
+            this.isDataMakerDead = false;
+        }
 
         /**
          * {@inheritDoc}
@@ -257,6 +277,42 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
             else if (o instanceof ReturnMessage<?>) {
                 ReturnMessage<R> message = (ReturnMessage<R>) o;
                 this.returnMessage(message);
+            }
+            else if (o instanceof Terminated) {
+                if (this.isDataMakerDead) {
+                    SimulationLaw.this.log.debug("Mon dataMaker est mort, je me suicide");
+
+                    SimulationLaw.this.getSelf().tell(PoisonPill.getInstance(),
+                            ActorRef.noSender());
+                }
+                else {
+                    this.terminated();
+                }
+            }
+            else if (o instanceof CountRequestsPlusOne) {
+                SimulationLaw.this.getContext().parent()
+                        .tell(o, SimulationLaw.this.getSelf());
+            }
+            else if (o instanceof CountResponsesPlusOne) {
+                SimulationLaw.this.getContext().parent()
+                        .tell(o, SimulationLaw.this.getSelf());
+            }
+        }
+
+        /**
+         * Handle the message Terminated
+         */
+        private void terminated() {
+            SimulationLaw.this.nbDeadSensors++;
+            if (SimulationLaw.this.nbDeadSensors == SimulationLaw.this.router.routees()
+                    .size()) {
+                SimulationLaw.this.log
+                        .debug("Tous mes capteurs sont mort, je tue mon dataMaker");
+
+                SimulationLaw.this.dataMaker.tell(PoisonPill.getInstance(),
+                        ActorRef.noSender());
+
+                this.isDataMakerDead = true;
             }
         }
 
@@ -279,7 +335,26 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
                     SimulationLaw.this.valueToSend = null;
                 }
                 SimulationLaw.this.onComplete();
+                SimulationLaw.this.time += SimulationLaw.this.frequency;
+                SimulationLaw.this.log.debug("Le temps est égal à : "
+                        + SimulationLaw.this.time);
                 SimulationLaw.this.values.clear();
+
+                if (SimulationLaw.this.canContinue) {
+                    SimulationLaw.this.log
+                            .debug("Le temps de calcul est plus long que la fréquence");
+
+                    SimulationLaw.this.tick = SimulationLaw.this
+                            .getContext()
+                            .system()
+                            .scheduler()
+                            .scheduleOnce(SimulationLaw.this.realTimeFrequency,
+                                    SimulationLaw.this.getSelf(), new UpdateSimulation(),
+                                    SimulationLaw.this.getContext().dispatcher(), null);
+                }
+                else {
+                    SimulationLaw.this.canContinue = true;
+                }
             }
         }
 
@@ -287,12 +362,43 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
          * Handle the message UpdateSimulation
          */
         private void updateSimulation() {
-            SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
-                    SimulationLaw.this.time, SimulationLaw.this.valueToSend),
-                    SimulationLaw.this.getSelf());
-            SimulationLaw.this.time += SimulationLaw.this.frequency;
-        }
+            if (SimulationLaw.this.time >= SimulationLaw.this.end) {
+                if (this.simulationInProgress) {
+                    SimulationLaw.this.log.debug("Fin de la simulation");
+                    SimulationLaw.this.tick.cancel();
+                    if (SimulationLaw.this.frequency == SimulationLaw.this.realTimeFrequency
+                            .toMillis()) {
+                        SimulationLaw.this.router.route(new StopSimulation(),
+                                SimulationLaw.this.getSelf());
+                    }
+                    else {
+                        SimulationLaw.this.router.route(PoisonPill.getInstance(),
+                                SimulationLaw.this.getSelf());
+                    }
+                    this.simulationInProgress = false;
+                }
+            }
+            else {
+                if (SimulationLaw.this.canContinue) {
 
+                    SimulationLaw.this.router.route(new UpdateSensorSimulation<T>(
+                            SimulationLaw.this.time, SimulationLaw.this.valueToSend),
+                            SimulationLaw.this.getSelf());
+                    SimulationLaw.this.canContinue = false;
+
+                    SimulationLaw.this.tick = SimulationLaw.this
+                            .getContext()
+                            .system()
+                            .scheduler()
+                            .scheduleOnce(SimulationLaw.this.realTimeFrequency,
+                                    SimulationLaw.this.getSelf(), new UpdateSimulation(),
+                                    SimulationLaw.this.getContext().dispatcher(), null);
+                }
+                else {
+                    SimulationLaw.this.canContinue = true;
+                }
+            }
+        }
     }
 
 }

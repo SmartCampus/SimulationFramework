@@ -1,12 +1,17 @@
 package org.smartcampus.simulation.framework.simulator;
 
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.InitSensorRealSimulation;
 import org.smartcampus.simulation.framework.messages.InitSensorVirtualSimulation;
 import org.smartcampus.simulation.framework.messages.ReturnMessage;
 import org.smartcampus.simulation.framework.messages.SendValue;
+import org.smartcampus.simulation.framework.messages.StopSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.japi.Procedure;
 import akka.routing.DefaultResizer;
@@ -44,10 +49,22 @@ public final class Sensor<T, R> extends UntypedActor {
                 // saves the value in case it is needed for next calculation
                 Sensor.this.lastReturnedValue = res;
 
-                Sensor.this.getSender().tell(new ReturnMessage<R>(res),
-                        Sensor.this.getSelf());
                 Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
                         .name(), res.toString(), time), Sensor.this.getSelf());
+                Sensor.this.getSender().tell(new ReturnMessage<R>(res),
+                        Sensor.this.getSelf());
+            }
+            else if (o instanceof CountRequestsPlusOne) {
+                Sensor.this.getContext().parent().tell(o, Sensor.this.getSelf());
+            }
+            else if (o instanceof CountResponsesPlusOne) {
+                Sensor.this.getContext().parent().tell(o, Sensor.this.getSelf());
+            }
+            else if (o instanceof StopSimulation) {
+                Sensor.this.dataMaker.tell(PoisonPill.getInstance(), ActorRef.noSender());
+            }
+            else if (o instanceof Terminated) {
+                Sensor.this.getSelf().tell(PoisonPill.getInstance(), ActorRef.noSender());
             }
         }
     }
@@ -99,6 +116,8 @@ public final class Sensor<T, R> extends UntypedActor {
                 new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
                         Props.create(DataSender.class, s)),
                 "Sensor" + this.getSelf().path().name());
+
+        this.getContext().watch(this.dataMaker);
         this.lastReturnedValue = null;
         this.getContext().become(this.simulationStarted);
     }

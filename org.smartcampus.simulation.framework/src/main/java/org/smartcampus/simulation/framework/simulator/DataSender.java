@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
 /**
@@ -13,8 +15,6 @@ import org.smartcampus.simulation.framework.messages.SendValue;
  *             This class allow to send a request HTTP
  */
 public class DataSender extends DataMaker {
-
-    private static int nbGoodResponse = 0;
 
     public DataSender(final String output) {
         super(output);
@@ -49,6 +49,8 @@ public class DataSender extends DataMaker {
             wr.flush();
             wr.close();
 
+            this.getSender().tell(new CountRequestsPlusOne(), this.getSelf());
+
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     httpconn.getInputStream()));
 
@@ -65,7 +67,7 @@ public class DataSender extends DataMaker {
                 this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
             }
             else {
-                nbGoodResponse++;
+                this.getSender().tell(new CountResponsesPlusOne(), this.getSelf());
             }
 
             httpconn.disconnect();
@@ -76,7 +78,6 @@ public class DataSender extends DataMaker {
     @Override
     public void postStop() throws Exception {
         super.postStop();
-        this.log.debug("NbGoodResponse : " + nbGoodResponse);
     }
 
 }

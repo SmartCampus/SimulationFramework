@@ -31,10 +31,12 @@ public class DataWriter extends DataMaker {
     public void onReceive(final Object o) throws Exception {
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
-            this.log.debug("J'ecris le " + new Timestamp(sendValue.getTime())
-                    + " dans un fichier la valeur : { n : " + sendValue.getName()
-                    + ", v :" + sendValue.getValue() + ", t:" + sendValue.getTime()
-                    + "} ");
+            /*
+             * this.log.debug("J'ecris le " + new Timestamp(sendValue.getTime())
+             * + " dans un fichier la valeur : { n : " + sendValue.getName()
+             * + ", v :" + sendValue.getValue() + ", t:" + sendValue.getTime()
+             * + "} ");
+             */
             this.ecrire("{ n : " + sendValue.getName() + ", v :" + sendValue.getValue()
                     + ", t:" + sendValue.getTime() + "} "
                     + new Timestamp(sendValue.getTime()) + "\n");

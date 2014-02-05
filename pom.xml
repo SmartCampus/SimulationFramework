@@ -12,6 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <clover.version>3.2.0</clover.version>
   </properties>
 
   <modules>
@@ -19,5 +20,6 @@
     <module>org.smartcampus.simulation.stdlib</module>
     <module>org.smartcampus.simulation.smartcampus</module>
   </modules>
+
 </project>
 
