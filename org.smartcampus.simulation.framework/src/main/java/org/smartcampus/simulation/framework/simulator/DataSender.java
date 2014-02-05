@@ -8,7 +8,6 @@ import java.net.URL;
 import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
 import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
-import akka.actor.ActorSelection;
 
 /**
  * @inheritDoc
@@ -17,12 +16,8 @@ import akka.actor.ActorSelection;
  */
 public class DataSender extends DataMaker {
 
-    private ActorSelection counter;
-
     public DataSender(final String output) {
         super(output);
-        this.counter = this.getContext().actorSelection(
-                "/user/SimulationControlor/CounterResponses");
     }
 
     @Override
@@ -54,7 +49,7 @@ public class DataSender extends DataMaker {
             wr.flush();
             wr.close();
 
-            this.counter.tell(new CountRequestsPlusOne(), this.getSelf());
+            this.getSender().tell(new CountRequestsPlusOne(), this.getSelf());
 
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     httpconn.getInputStream()));
@@ -72,7 +67,7 @@ public class DataSender extends DataMaker {
                 this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
             }
             else {
-                this.counter.tell(new CountResponsesPlusOne(), this.getSelf());
+                this.getSender().tell(new CountResponsesPlusOne(), this.getSelf());
             }
 
             httpconn.disconnect();

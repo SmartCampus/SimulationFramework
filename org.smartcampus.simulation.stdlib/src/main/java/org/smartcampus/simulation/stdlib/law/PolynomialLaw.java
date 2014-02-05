@@ -38,8 +38,10 @@ public class PolynomialLaw extends Law<Double, Double> {
             return 0.;
         }
         double n = x[0];
+        double pow = 1;
         for (int i = 0; i < this.coefficients.size(); i++) {
-            res += this.coefficients.get(i) * Math.pow(n, i);
+            res += this.coefficients.get(i) * pow;
+            pow *= n;
         }
         return res;
     }

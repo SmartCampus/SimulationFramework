@@ -1,6 +1,8 @@
 package org.smartcampus.simulation.framework.simulator;
 
 import org.smartcampus.simulation.framework.messages.AddSensor;
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
 import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitOutput;
@@ -25,18 +27,17 @@ import akka.japi.Procedure;
 public final class SimulationController extends UntypedActor {
 
     /** Allow to print logs */
-    private LoggingAdapter    log;
+    private LoggingAdapter log;
     /** Context when the simulation start */
     private Procedure<Object> simulationStarted;
     /** Number of simulation created */
-    private int               nbSimulationCreated;
+    private int nbSimulationCreated;
 
     /** Default Constructor */
     public SimulationController() {
         this.log = Logging.getLogger(this.getContext().system(), this);
         this.simulationStarted = new SimulationControlerProcedure();
-        this.getContext()
-                .actorOf(Props.create(CounterResponse.class), "CounterResponses");
+
         this.nbSimulationCreated = 0;
     }
 
@@ -134,7 +135,11 @@ public final class SimulationController extends UntypedActor {
      *            the message InitTypeSimulation
      */
     private void initTypeSimulation(final InitTypeSimulation tmp) {
-
+        InitTypeSimulation mess = tmp;
+        if (mess.getFrequency() == mess.getRealTimeFrequency().toMillis()) {
+            this.getContext().actorOf(Props.create(CounterResponse.class),
+                    "CounterResponses");
+        }
         for (ActorRef a : this.getContext().getChildren()) {
             a.tell(tmp, this.getSelf());
         }
@@ -184,6 +189,14 @@ public final class SimulationController extends UntypedActor {
                     SimulationController.this.getSelf().tell(PoisonPill.getInstance(),
                             ActorRef.noSender());
                 }
+            }
+            else if (message instanceof CountRequestsPlusOne) {
+                SimulationController.this.getContext().getChild("CounterResponses")
+                        .tell(message, SimulationController.this.getSelf());
+            }
+            else if (message instanceof CountResponsesPlusOne) {
+                SimulationController.this.getContext().getChild("CounterResponses")
+                        .tell(message, SimulationController.this.getSelf());
             }
         }
     }
