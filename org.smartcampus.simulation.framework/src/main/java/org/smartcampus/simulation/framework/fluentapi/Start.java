@@ -10,9 +10,9 @@ import org.smartcampus.simulation.framework.simulator.Simulation;
  */
 public interface Start {
 
-    public SimulationLawWrapper0 create(final String simulationName,
+    public SimulationLawWrapper0 createReplay(final String simulationName,
             final Class<? extends Simulation<?>> simulationClass);
 
-    public ReplayWrapper0 replay(String string, Class<? extends FileFormator> class1);
+    public ReplayWrapper0 createReplay(String string, Class<? extends FileFormator> class1);
 
 }

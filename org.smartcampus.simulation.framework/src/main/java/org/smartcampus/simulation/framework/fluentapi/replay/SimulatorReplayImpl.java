@@ -22,7 +22,7 @@ public class SimulatorReplayImpl extends SimulatorWrapper implements SimulatorRe
     }
 
     @Override
-    public ReplayWrapper0 replay(final String replayName,
+    public ReplayWrapper0 createReplay(final String replayName,
             final Class<? extends FileFormator> replayClass) {
         this.controllerRef.tell(new CreateSimulation(replayName, Replay.class),
                 ActorRef.noSender());

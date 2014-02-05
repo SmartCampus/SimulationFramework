@@ -7,5 +7,5 @@ import org.smartcampus.simulation.framework.simulator.FileFormator;
  */
 public interface StartReplay {
 
-    public ReplayWrapper0 replay(String string, Class<? extends FileFormator> class1);
+    public ReplayWrapper0 createReplay(String string, Class<? extends FileFormator> class1);
 }

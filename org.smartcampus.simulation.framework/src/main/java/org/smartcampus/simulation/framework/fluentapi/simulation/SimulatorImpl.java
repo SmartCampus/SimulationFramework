@@ -19,7 +19,7 @@ public class SimulatorImpl extends SimulatorWrapper implements Simulator {
     }
 
     @Override
-    public SimulationLawWrapper0 create(final String name,
+    public SimulationLawWrapper0 createSimulation(final String name,
             final Class<? extends Simulation<?>> simulationClass) {
         this.controllerRef.tell(new CreateSimulation(name, simulationClass),
                 ActorRef.noSender());
