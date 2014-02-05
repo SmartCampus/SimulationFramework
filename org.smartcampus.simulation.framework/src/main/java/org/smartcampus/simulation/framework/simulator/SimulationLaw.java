@@ -16,7 +16,6 @@ import org.smartcampus.simulation.framework.messages.StartSimulation;
 import org.smartcampus.simulation.framework.messages.StopSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
-import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -170,7 +169,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         this.realTimeFrequency = message.getRealTimeFrequency();
         this.frequency = message.getFrequency();
         this.duration = message.getDuration().toMillis();
-        this.end = this.time + this.duration ;
+        this.end = this.time + this.duration;
         if (this.frequency == this.realTimeFrequency.toMillis()) {
 
             this.dataMaker = this.getContext().actorOf(
