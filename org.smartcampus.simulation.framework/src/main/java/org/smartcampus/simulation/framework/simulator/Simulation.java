@@ -51,7 +51,4 @@ public abstract class Simulation<T> extends UntypedActor {
 
     }
 
-
-
-
 }
