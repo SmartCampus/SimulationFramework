@@ -83,6 +83,7 @@ public final class Replay extends Simulation<String> {
         else {
             this.dataMaker = this.getContext().actorOf(
                     Props.create(DataWriter.class, this.output), "simulationDataWriter");
+            this.getContext().watch(this.dataMaker);
         }
     }
 
@@ -109,7 +110,15 @@ public final class Replay extends Simulation<String> {
                 this.updateSimulation();
             }
             else if (o instanceof Terminated) {
-                this.terminated();
+                if (Replay.this.dataMaker != null) {
+                    Replay.this.log.debug("Tous mes fils sont mort, je me suicide");
+
+                    Replay.this.getSelf().tell(PoisonPill.getInstance(),
+                            ActorRef.noSender());
+                }
+                else {
+                    this.terminated();
+                }
             }
             else if (o instanceof CountRequestsPlusOne) {
                 Replay.this.getContext().parent().tell(o, Replay.this.getSelf());
@@ -158,14 +167,20 @@ public final class Replay extends Simulation<String> {
             if (Replay.this.formator.hasNextLine()) {
                 Replay.this.time += nextFrequency;
 
-                Replay.this.tick = Replay.this
-                        .getContext()
-                        .system()
-                        .scheduler()
-                        .scheduleOnce(
-                                Duration.create(nextFrequency, TimeUnit.MILLISECONDS),
-                                Replay.this.getSelf(), new UpdateSimulation(),
-                                Replay.this.getContext().dispatcher(), null);
+                if (Replay.this.dataMaker == null) {
+                    Replay.this.tick = Replay.this
+                            .getContext()
+                            .system()
+                            .scheduler()
+                            .scheduleOnce(
+                                    Duration.create(nextFrequency, TimeUnit.MILLISECONDS),
+                                    Replay.this.getSelf(), new UpdateSimulation(),
+                                    Replay.this.getContext().dispatcher(), null);
+                }
+                else {
+                    Replay.this.getSelf().tell(new UpdateSimulation(),
+                            Replay.this.getSelf());
+                }
             }
             else {
                 Replay.this.log.debug("Fin du replay, Je tue mes fils");

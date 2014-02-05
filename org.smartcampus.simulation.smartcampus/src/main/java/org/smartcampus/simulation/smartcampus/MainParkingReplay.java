@@ -14,10 +14,11 @@ public class MainParkingReplay {
 
         Start sim = new StartImpl();
 
-          sim.replay("Parking1", SuezExcelFormator.class).withSensor("katikate", "G")
-                  .withSensor("cecceile","H")
-          .setInput("/home/foerster/Documents/truc.xlsx")
-          .setOutput("swag")
-          .start(System.currentTimeMillis()).simulateVirtual();
+        sim.replay("Parking1", SuezExcelFormator.class)
+                .withSensor("katikate", "G")
+                .withSensor("cecceile", "H")
+                .setInput(
+                        "D:/Work/Projet/ProjetFinSI4/org.smartcampus.simulation.smartcampus/src/main/resources/test.xlsx")
+                .setOutput("swag").start(System.currentTimeMillis()).simulateVirtual();
     }
 }
