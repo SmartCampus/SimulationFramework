@@ -21,7 +21,7 @@ public abstract class FileFormator {
     /**
      * Handle the message InitReplayParam
      * 
-     * @param message
+     * @param value
      *            contains the initialization of the parameters of the simulation
      */
     protected final void initReplayParam(final String key, final String value) {
@@ -51,11 +51,6 @@ public abstract class FileFormator {
     public abstract long getNextFrequency();
 
     /**
-     * Allow to switch to the next line
-     */
-    public abstract void nextLine();
-
-    /**
      * return the value of the next line
      * 
      * @return the value present at the next line
@@ -69,21 +64,11 @@ public abstract class FileFormator {
 
     /**
      * going to the first line wanted in the file and returning the value of this line
-     * 
-     * @param firstLine
-     *            the number of the first line of the file
+     *
      * @return the value at this line
      */
     protected abstract void beginReplay();
 
-    /**
-     * Get the different strings corresponding to the TimeStamp with the columns given.
-     * 
-     * @param columns
-     *            The different columns which have the TimeStamp
-     * @return The strings corresponding to the TimeStamp
-     */
-    protected abstract String[] getTimeStamp(String... columns);
 
     /**
      * Transform the strings in a TimeStamp in milliseconds
@@ -92,7 +77,8 @@ public abstract class FileFormator {
      *            The strings corresponding to the TimeStamp
      * @return The TimeStamp in milliseconds
      */
-    protected abstract long transform(String[] columns);
+    protected abstract long transform(String... columns);
+
 
     /**
      * Return if the end of file is reached

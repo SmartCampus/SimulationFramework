@@ -124,8 +124,6 @@ public final class Replay extends Simulation<String> {
             }
 
             if (Replay.this.formator.hasNextLine()) {
-
-                Replay.this.formator.nextLine();
                 Replay.this.time += nextFrequency;
 
                 Replay.this.tick = Replay.this

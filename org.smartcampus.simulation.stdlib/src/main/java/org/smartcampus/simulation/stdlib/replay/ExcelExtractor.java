@@ -31,8 +31,10 @@ public class ExcelExtractor {
     private int offset;
     private Map<String,String> columns ;
     private List<String> timestampColumn;
-    private Map<String,Writer> filesRef ;
-    private Writer timestampFile;
+    private Map<String,Writer> filesWriters;
+    private Map<String,File> filesRefs;
+    private File timestampFile;
+    private Writer timestampWriter;
     private static final String filePrefix = "data_sensor_";
 
 
@@ -42,15 +44,18 @@ public class ExcelExtractor {
         this.columns = columns;
         this.timestampColumn = timestampColumn;
         this.offset = offset;
-        this.filesRef = new HashMap<String, Writer>();
+        this.filesWriters = new HashMap<String, Writer>();
+        this.filesRefs = new HashMap<String, File>();
         try {
             for(Map.Entry<String, String> entry : columns.entrySet()){
                 File tmp = File.createTempFile(filePrefix + entry.getValue() + "_", ".tmp");
                 BufferedWriter writer = new BufferedWriter(new FileWriter(tmp));
-                filesRef.put(entry.getKey(),writer);
+                filesWriters.put(entry.getKey(), writer);
+                filesRefs.put(entry.getKey(),tmp);
             }
             File tmp = File.createTempFile("data_timestamp_",".tmp");
-            timestampFile = new BufferedWriter(new FileWriter(tmp));
+            timestampWriter = new BufferedWriter(new FileWriter(tmp));
+            timestampFile = tmp;
 
         } catch (IOException e) {
             System.err.println("Cannot create temp file for excel replay");
@@ -74,16 +79,28 @@ public class ExcelExtractor {
         parser.parse(sheetSource);
 
         // close all the file writers
-        for(Writer w : filesRef.values()){
+        for(Writer w : filesWriters.values()){
             w.flush();
             w.close();
         }
-        timestampFile.flush();
-        timestampFile.close();
+        timestampWriter.flush();
+        timestampWriter.close();
         sheet2.close();
         } catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public String getTimestampRef(){
+        return timestampFile.getPath();
+    }
+
+    public Map<String,String> getFilesWriters(){
+        Map<String,String> paths = new HashMap<String, String>();
+        for(Map.Entry<String,File> entry : filesRefs.entrySet()){
+            paths.put(entry.getKey(),entry.getValue().getPath());
+        }
+        return paths;
     }
 
 
@@ -132,7 +149,7 @@ public class ExcelExtractor {
                     // au passage à une nouvelle ligne les colonnes non trouvées sont remplacé par des lignes vides
                     if(line > currentLine && line > offset){
                         try {
-                            timestampFile.write("\n");
+                            timestampWriter.write("\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -180,11 +197,11 @@ public class ExcelExtractor {
                         Writer dest ;
                         if(readThisValue){
                             System.out.println("Not wesh !");
-                            dest = filesRef.get(currentColumn);
+                            dest = filesWriters.get(currentColumn);
                             dest.write(lastContents+"\n");
 
                         } else if (isTimestamp){
-                            dest = timestampFile;
+                            dest = timestampWriter;
                             System.out.println("Wesh ?");
                             dest.write(lastContents+" ");
                         }
@@ -212,7 +229,7 @@ public class ExcelExtractor {
                 if(entry.getValue()){
                     try {
                         System.out.println("Column : " + entry.getKey() + "  Blank");
-                        filesRef.get(entry.getKey()).write("\n");
+                        filesWriters.get(entry.getKey()).write("\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

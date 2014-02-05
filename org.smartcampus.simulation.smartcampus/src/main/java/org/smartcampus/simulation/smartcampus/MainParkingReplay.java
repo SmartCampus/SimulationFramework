@@ -3,6 +3,7 @@ package org.smartcampus.simulation.smartcampus;
 import org.smartcampus.simulation.framework.fluentapi.Start;
 import org.smartcampus.simulation.framework.fluentapi.StartImpl;
 import org.smartcampus.simulation.framework.simulator.Law;
+import org.smartcampus.simulation.smartcampus.replay.SuezExcelFormator;
 import org.smartcampus.simulation.stdlib.law.PolynomialLaw;
 
 public class MainParkingReplay {
@@ -13,11 +14,9 @@ public class MainParkingReplay {
 
         Start sim = new StartImpl();
 
-        /*
-         * sim.replay("Parking1", ReplayTxt.class).withSensor("sensor1", "A")
-         * .setInput("testReplay.txt")
-         * .setOutput("http://localhost:8080/collector/value")
-         * .start(System.currentTimeMillis()).simulateReal();
-         */
+          sim.replay("Parking1", SuezExcelFormator.class).withSensor("sensor1", "G")
+          .setInput("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx")
+          .setOutput("http://localhost:8080/collector/value")
+          .start(System.currentTimeMillis()).simulateReal();
     }
 }
