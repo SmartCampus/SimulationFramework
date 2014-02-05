@@ -19,12 +19,11 @@ public class SuezExcelFormator extends ExcelFormator{
     }
 
     @Override
-    protected long transform(String... strings) {
+    protected long transform(String[] columns) {
         long timestamp = 0 ;
-        String[] dates = strings[0].split(" ");
         try {
-            timestamp = sdf.parse(dates[0]).getTime();
-            int hoursToMilli = Integer.valueOf(dates[1])*1000;
+            timestamp = sdf.parse(columns[0]).getTime();
+            int hoursToMilli = Integer.valueOf(columns[1])*1000;
             timestamp += hoursToMilli;
         } catch (ParseException e) {
             e.printStackTrace();

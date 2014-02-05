@@ -16,8 +16,10 @@ public class MainParkingReplay {
         Start sim = new StartImpl();
 
         sim.createReplay("Parking1", SuezExcelFormator.class)
-                .withSensor("katikate", "G").withSensor("cecceile", "H")
-                .setInput("./src/main/resources/test.xlsx").setOutput("swag")
+                .withSensor("o2sensor", "C")
+                .withSensor("pHsensor", "D")
+                .setInput("./src/main/resources/test.xlsx")
+                .setOutput("swag")
                 .start(System.currentTimeMillis()).simulateVirtual();
     }
 }

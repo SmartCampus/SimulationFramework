@@ -77,7 +77,7 @@ public abstract class FileFormator {
      *            The strings corresponding to the TimeStamp
      * @return The TimeStamp in milliseconds
      */
-    protected abstract long transform(String... columns);
+    protected abstract long transform(String[] columns);
 
 
     /**

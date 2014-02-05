@@ -20,6 +20,7 @@ public abstract class ExcelFormator extends FileFormator {
     private int sheetNumber;
     private int offset;
     private String lastTimestamp;
+    private final String timeStampSep = " ";
 
     public ExcelFormator(){
         super();
@@ -42,7 +43,7 @@ public abstract class ExcelFormator extends FileFormator {
     public long getNextFrequency() {
         if(timestampScanner.hasNextLine()){
             String currentTimestamp = timestampScanner.nextLine();
-            long freq =  transform(currentTimestamp) - transform(lastTimestamp);
+            long freq =  transform(currentTimestamp.split(timeStampSep)) - transform(lastTimestamp.split(timeStampSep));
             lastTimestamp = currentTimestamp;
             return freq;
         } else {
