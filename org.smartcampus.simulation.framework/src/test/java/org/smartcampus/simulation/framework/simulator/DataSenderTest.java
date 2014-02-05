@@ -97,7 +97,7 @@ public class DataSenderTest {
             String s = sb.toString();
 
             // Test du message envoyé au serveur
-            Assert.assertEquals("{\"n\":Name,\"v\":Value,\"t\":42}", s);
+            Assert.assertEquals("{\"n\":\"Name\",\"v\":\"Value\",\"t\":\"42\"}", s);
             try {
                 this.sendResponse(t, 201);
             } catch (Exception e) {
