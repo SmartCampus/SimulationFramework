@@ -1,5 +1,6 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.replay;
 
+import org.smartcampus.simulation.framework.fluentapi.SimulationWrapper;
 import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitReplayParam;
 import akka.actor.ActorRef;
@@ -14,14 +15,14 @@ public class ReplayWrapper0Impl extends SimulationWrapper implements ReplayWrapp
     }
 
     @Override
-    public ReplayWrapper0 setParam(final String key, final Object value) {
+    public ReplayWrapper0 withSensor(final String key, final String value) {
         this.controllerRef.tell(new InitReplayParam(key, value), ActorRef.noSender());
         return new ReplayWrapper0Impl(key, this.controllerRef);
     }
 
     @Override
-    public Simulator setInput(final String input) {
+    public SimulatorReplay setInput(final String input) {
         this.controllerRef.tell(new InitInput(input), ActorRef.noSender());
-        return new SimulatorImpl(this.controllerRef);
+        return new SimulatorReplayImpl(this.controllerRef);
     }
 }

@@ -1,6 +1,7 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
 import akka.actor.ActorRef;
+import org.smartcampus.simulation.framework.fluentapi.SimulationWrapper;
 import org.smartcampus.simulation.framework.messages.AddSensor;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 

@@ -15,8 +15,10 @@ public class MainRandomSimulation {
                 .add(350, new RandomSensorTransformation()).withLaw(null)
                 .setOutput("http://localhost:8080/collector/value")
                 .start(System.currentTimeMillis())
+
                 .duration(Duration.create(5, TimeUnit.MINUTES))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
+
     }
 
 }

@@ -16,6 +16,8 @@ import org.smartcampus.simulation.framework.messages.StartSimulation;
 import org.smartcampus.simulation.framework.messages.StopSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
 import org.smartcampus.simulation.framework.messages.UpdateSimulation;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
@@ -45,6 +47,8 @@ import akka.routing.Router;
  *            corresponds to the HTTP request type value
  */
 public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
+    /** The T value to send to the sensors */
+    protected T valueToSend;
 
     /** This list contains the result of the sensors */
     protected List<R> values;
@@ -55,6 +59,20 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
     /** The law associated to the SimulationLaw */
     private Law<S, T> law;
 
+    /** The current time of the simulation */
+    private long time;
+
+    /** End of the simulation **/
+    private long end;
+
+    /** The real time frequency correspond to the duration */
+    protected FiniteDuration realTimeFrequency;
+
+    /** Each real time frequency, the time is increased by the frequency */
+    protected long frequency;
+
+    /** The duration of the simulation */
+    protected long duration;
     /** The number of sensors dead. Used to end the simulation */
     private int nbDeadSensors;
 
@@ -77,6 +95,15 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      * @return an array of type S
      */
     protected abstract S[] computeValue();
+
+    /**
+     * Return the current time of the simulation
+     * 
+     * @return the time in milliseconds
+     */
+    public long getTime() {
+        return this.time;
+    }
 
     /**
      * Allows to create sensors.
@@ -139,6 +166,11 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      *            contains the initialization of the simulation
      */
     private void initTypeSimulation(final InitTypeSimulation message) {
+        this.time = message.getBegin();
+        this.realTimeFrequency = message.getRealTimeFrequency();
+        this.frequency = message.getFrequency();
+        this.duration = message.getDuration().toMillis();
+        this.end = this.time + this.duration ;
         if (this.frequency == this.realTimeFrequency.toMillis()) {
 
             this.dataMaker = this.getContext().actorOf(

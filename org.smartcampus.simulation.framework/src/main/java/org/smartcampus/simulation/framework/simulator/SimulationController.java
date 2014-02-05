@@ -6,7 +6,9 @@ import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.CreateSimulation;
 import org.smartcampus.simulation.framework.messages.InitInput;
 import org.smartcampus.simulation.framework.messages.InitOutput;
+import org.smartcampus.simulation.framework.messages.InitReplay;
 import org.smartcampus.simulation.framework.messages.InitReplayParam;
+import org.smartcampus.simulation.framework.messages.InitReplaySimulation;
 import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
@@ -62,6 +64,10 @@ public final class SimulationController extends UntypedActor {
             InitTypeSimulation tmp = (InitTypeSimulation) arg0;
             this.initTypeSimulation(tmp);
         }
+        else if (arg0 instanceof InitReplaySimulation) {
+            InitReplaySimulation tmp = (InitReplaySimulation) arg0;
+            this.initReplaySimulation(tmp);
+        }
         else if (arg0 instanceof StartSimulation) {
             StartSimulation tmp = (StartSimulation) arg0;
             this.startSimulation(tmp);
@@ -82,9 +88,14 @@ public final class SimulationController extends UntypedActor {
             for (ActorRef a : this.getContext().getChildren()) {
                 a.tell(arg0, this.getSelf());
             }
-            this.log.debug("Je transmet le init replay");
+            this.log.debug("Je transmet une paire sensor/colonne");
         }
-
+        else if (arg0 instanceof InitReplay) {
+            for (ActorRef a : this.getContext().getChildren()) {
+                a.tell(arg0, this.getSelf());
+            }
+            this.log.debug("Je transmet le FileFormator");
+        }
     }
 
     /**
@@ -140,6 +151,20 @@ public final class SimulationController extends UntypedActor {
             this.getContext().actorOf(Props.create(CounterResponse.class),
                     "CounterResponses");
         }
+        for (ActorRef a : this.getContext().getChildren()) {
+            a.tell(tmp, this.getSelf());
+        }
+
+        this.log.debug("J'initialise le type de la simulation");
+    }
+
+    /**
+     * Handle the message InitReplaySimulation
+     * 
+     * @param tmp
+     *            the message InitReplaySimulation
+     */
+    private void initReplaySimulation(final InitReplaySimulation tmp) {
         for (ActorRef a : this.getContext().getChildren()) {
             a.tell(tmp, this.getSelf());
         }

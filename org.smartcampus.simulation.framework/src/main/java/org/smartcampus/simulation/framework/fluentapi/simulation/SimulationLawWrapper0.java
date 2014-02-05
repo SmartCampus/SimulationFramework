@@ -1,4 +1,4 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 

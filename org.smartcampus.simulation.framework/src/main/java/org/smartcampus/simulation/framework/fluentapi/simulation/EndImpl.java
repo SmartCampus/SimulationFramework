@@ -1,6 +1,7 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
 import java.util.concurrent.TimeUnit;
+import org.smartcampus.simulation.framework.fluentapi.SimulatorWrapper;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
 import org.smartcampus.simulation.framework.messages.StartSimulation;
 import scala.concurrent.duration.Duration;

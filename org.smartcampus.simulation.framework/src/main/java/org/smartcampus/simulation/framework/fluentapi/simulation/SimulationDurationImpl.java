@@ -1,5 +1,6 @@
-package org.smartcampus.simulation.framework.fluentapi;
+package org.smartcampus.simulation.framework.fluentapi.simulation;
 
+import org.smartcampus.simulation.framework.fluentapi.SimulatorWrapper;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 
