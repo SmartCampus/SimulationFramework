@@ -62,6 +62,9 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
     /** The current time of the simulation */
     private long time;
 
+    /** End of the simulation **/
+    private long end;
+
     /** The real time frequency correspond to the duration */
     protected FiniteDuration realTimeFrequency;
 
@@ -167,6 +170,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         this.realTimeFrequency = message.getRealTimeFrequency();
         this.frequency = message.getFrequency();
         this.duration = message.getDuration().toMillis();
+        this.end = this.time + this.duration ;
         if (this.frequency == this.realTimeFrequency.toMillis()) {
 
             this.dataMaker = this.getContext().actorOf(

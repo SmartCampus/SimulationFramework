@@ -15,7 +15,7 @@ public class SuezExcelFormator extends ExcelFormator{
     private final int numberOfMilliSecondsInADay = 86400000 ;
 
     public SuezExcelFormator(){
-        super(2,new String[]{"A","B"});
+        super(2,new String[]{"A","B"},2);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class SuezExcelFormator extends ExcelFormator{
         String[] dates = strings[0].split(" ");
         try {
             timestamp = sdf.parse(dates[0]).getTime();
-            int hoursToMilli = Integer.valueOf(dates[1])*numberOfMilliSecondsInADay;
+            int hoursToMilli = Integer.valueOf(dates[1])*1000;
             timestamp += hoursToMilli;
         } catch (ParseException e) {
             e.printStackTrace();

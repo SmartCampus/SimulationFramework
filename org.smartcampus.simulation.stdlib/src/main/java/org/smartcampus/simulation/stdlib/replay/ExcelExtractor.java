@@ -87,6 +87,7 @@ public class ExcelExtractor {
         timestampWriter.close();
         sheet2.close();
         } catch(Exception e){
+            System.out.println("Noooooooooooooooooooooooooon " + filename);
             e.printStackTrace();
         }
     }
@@ -98,7 +99,7 @@ public class ExcelExtractor {
     public Map<String,String> getFilesWriters(){
         Map<String,String> paths = new HashMap<String, String>();
         for(Map.Entry<String,File> entry : filesRefs.entrySet()){
-            paths.put(entry.getKey(),entry.getValue().getPath());
+            paths.put(columns.get(entry.getKey()),entry.getValue().getPath());
         }
         return paths;
     }
@@ -196,13 +197,11 @@ public class ExcelExtractor {
                     try {
                         Writer dest ;
                         if(readThisValue){
-                            System.out.println("Not wesh !");
                             dest = filesWriters.get(currentColumn);
                             dest.write(lastContents+"\n");
 
                         } else if (isTimestamp){
                             dest = timestampWriter;
-                            System.out.println("Wesh ?");
                             dest.write(lastContents+" ");
                         }
 
@@ -228,7 +227,6 @@ public class ExcelExtractor {
             for(Map.Entry<String,Boolean> entry : needBlank.entrySet()){
                 if(entry.getValue()){
                     try {
-                        System.out.println("Column : " + entry.getKey() + "  Blank");
                         filesWriters.get(entry.getKey()).write("\n");
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -240,13 +238,13 @@ public class ExcelExtractor {
 
     public static void main(String[] args) throws Exception {
         Map<String,String> columns = new HashMap<String, String>();
-        columns.put("G","O2");
+        columns.put("G","sensor1");
         columns.put("H","pH");
         columns.put("I","temp");
         List<String> timestampColumn = new ArrayList<String>();
         timestampColumn.add("A");
         timestampColumn.add("B");
-        ExcelExtractor howto = new ExcelExtractor("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx", 3,columns,timestampColumn,2);
+        ExcelExtractor howto = new ExcelExtractor("/home/foerster/Documents/truc.xlsx", 3,columns,timestampColumn,2);
         howto.processSheet();
     }
 

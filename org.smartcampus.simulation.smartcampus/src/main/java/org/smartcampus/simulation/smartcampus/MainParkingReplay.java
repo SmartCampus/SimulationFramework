@@ -14,9 +14,10 @@ public class MainParkingReplay {
 
         Start sim = new StartImpl();
 
-          sim.replay("Parking1", SuezExcelFormator.class).withSensor("sensor1", "G")
-          .setInput("/home/foerster/Documents/biotime_20120807_092111_nettoye.xlsx")
-          .setOutput("http://localhost:8080/collector/value")
-          .start(System.currentTimeMillis()).simulateReal();
+          sim.replay("Parking1", SuezExcelFormator.class).withSensor("katikate", "G")
+                  .withSensor("cecceile","H")
+          .setInput("/home/foerster/Documents/truc.xlsx")
+          .setOutput("swag")
+          .start(System.currentTimeMillis()).simulateVirtual();
     }
 }

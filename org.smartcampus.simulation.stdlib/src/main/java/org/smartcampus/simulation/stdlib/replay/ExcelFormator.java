@@ -18,18 +18,22 @@ public abstract class ExcelFormator extends FileFormator {
     private Scanner timestampScanner;
     private String[] timestampColumns;
     private int sheetNumber;
+    private int offset;
     private String lastTimestamp;
 
     public ExcelFormator(){
         super();
         sheetNumber = 1;
         timestampColumns = new String[] {"A"} ;
+        offset = 2;
+
     }
 
-    public ExcelFormator(int sheetNumber,String[] timestampColumns){
+    public ExcelFormator(int sheetNumber,String[] timestampColumns,int offset){
         super();
         this.sheetNumber = sheetNumber;
         this.timestampColumns = timestampColumns;
+        this.offset = offset;
     }
 
 
@@ -51,7 +55,11 @@ public abstract class ExcelFormator extends FileFormator {
     protected Map<String, String> getNextValue() {
         Map<String,String> values = new HashMap<String, String>();
         for(Map.Entry<String,Scanner> entry : filesScanners.entrySet()){
-            values.put(entry.getKey(),entry.getValue().nextLine());
+            System.out.println();
+            String line = entry.getValue().nextLine();
+            if(!line.isEmpty()){
+                values.put(entry.getKey(),line);
+            }
         }
         return values;
     }
@@ -66,12 +74,16 @@ public abstract class ExcelFormator extends FileFormator {
 
     @Override
     protected void beginReplay() {
-        ExcelExtractor extractor = new ExcelExtractor(getInput(),sheetNumber,params, Arrays.asList(timestampColumns),2);
+        Map<String,String> columns = new HashMap<String, String>();
+        for(Map.Entry<String,String> entry : params.entrySet()){
+            columns.put(entry.getValue(),entry.getKey());
+        }
+        ExcelExtractor extractor = new ExcelExtractor(getInput(),sheetNumber,columns, Arrays.asList(timestampColumns),offset);
         extractor.processSheet();
         filesScanners = new HashMap<String, Scanner>();
         try {
             for(Map.Entry<String,String> entry : extractor.getFilesWriters().entrySet()){
-                filesScanners.put(entry.getKey(), new Scanner(new FileReader(extractor.getTimestampRef())));
+                filesScanners.put(entry.getKey(), new Scanner(new FileReader(entry.getValue())));
             }
             this.timestampScanner = new Scanner(new FileReader(extractor.getTimestampRef()));
         } catch (FileNotFoundException e) {
@@ -88,4 +100,6 @@ public abstract class ExcelFormator extends FileFormator {
         }
         return false;
     }
+
+
 }
