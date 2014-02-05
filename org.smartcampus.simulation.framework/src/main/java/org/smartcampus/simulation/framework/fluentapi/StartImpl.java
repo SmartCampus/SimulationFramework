@@ -26,7 +26,7 @@ public class StartImpl implements Start {
     }
 
     @Override
-    public SimulationLawWrapper0 createReplay(final String simulationName,
+    public SimulationLawWrapper0 createSimulation(final String simulationName,
             final Class<? extends Simulation<?>> simulationClass) {
         this.controller.tell(new CreateSimulation(simulationName, simulationClass),
                 ActorRef.noSender());

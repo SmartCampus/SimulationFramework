@@ -24,7 +24,7 @@ public class MainParkingMarkovSimulationLaw {
                 3359.404392, -401.9522656, 26.18040012, -0.8830270156, 0.01208028907);
 
         Start sim = new StartImpl();
-        sim.createReplay("Parking1", ParkingMarkovSimulation.class)
+        sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
                 .withSensors(500, new RateToBooleanChangeSensorTransformation()).withLaw(markov)
                 .createSimulation("Parking2", ParkingSimulation.class)
                 .withSensors(500, new PercentToBooleanSensorTransformation()).withLaw(polynome)

@@ -16,7 +16,7 @@ public class MainParkingSimulationLaw {
                 3359.404392, -401.9522656, 26.18040012, -0.8830270156, 0.01208028907);
 
         Start sim = new StartImpl();
-        sim.createReplay("Parking1", ParkingSimulation.class)
+        sim.createSimulation("Parking1", ParkingSimulation.class)
                 .withSensors(5, new PercentToBooleanSensorTransformation()).withLaw(polynome)
                 .setOutput("test").start(System.currentTimeMillis())
                 .duration(Duration.create(1, TimeUnit.DAYS))
