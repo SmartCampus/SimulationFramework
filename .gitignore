@@ -71,5 +71,5 @@ out/
 .idea_modules/
 
 # local file
-org.smartcampus.simulation.smartcampus/simulationDataWriter-log.txt
+*.txt
 

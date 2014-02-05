@@ -88,6 +88,15 @@ public final class Sensor<T, R> extends UntypedActor {
         this.simulationStarted = new ProcedureSimulationStarted();
     }
 
+    /**
+     * Return the last value send to the dataMaker
+     * 
+     * @return The last value of type R
+     */
+    protected R getLastReturnedValue() {
+        return this.lastReturnedValue;
+    }
+
     @Override
     /**
      * @inheritDoc
