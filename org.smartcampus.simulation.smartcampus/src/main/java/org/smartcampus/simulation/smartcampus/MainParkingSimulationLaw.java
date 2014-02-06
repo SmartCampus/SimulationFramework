@@ -17,9 +17,10 @@ public class MainParkingSimulationLaw {
 
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingSimulation.class)
-                .withSensors(5, new PercentToBooleanSensorTransformation()).withLaw(polynome)
-                .setOutput("test").start(System.currentTimeMillis())
-                .duration(Duration.create(1, TimeUnit.DAYS))
-                .frequency(Duration.create(1, TimeUnit.HOURS)).simulateVirtual();
+                .withSensors(1000, new PercentToBooleanSensorTransformation())
+                .withLaw(polynome).setOutput("http://localhost:8080/collector/value")
+                .startAt("2014-01-22 16:00:00")
+                .duration(Duration.create(15, TimeUnit.SECONDS))
+                .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
     }
 }

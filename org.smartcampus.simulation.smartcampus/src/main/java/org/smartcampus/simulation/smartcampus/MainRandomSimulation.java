@@ -14,7 +14,7 @@ public class MainRandomSimulation {
         sim.createSimulation("Random", ParkingSimulation.class)
                 .withSensors(350, new RandomSensorTransformation()).withLaw(null)
                 .setOutput("http://localhost:8080/collector/value")
-                .start(System.currentTimeMillis())
+                .startAt(System.currentTimeMillis())
 
                 .duration(Duration.create(5, TimeUnit.MINUTES))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();

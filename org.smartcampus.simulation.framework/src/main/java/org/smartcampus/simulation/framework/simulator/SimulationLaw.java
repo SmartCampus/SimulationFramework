@@ -339,8 +339,6 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
                 }
                 SimulationLaw.this.onComplete();
                 SimulationLaw.this.time += SimulationLaw.this.frequency;
-                SimulationLaw.this.log.debug("Le temps est égal à : "
-                        + SimulationLaw.this.time);
                 SimulationLaw.this.values.clear();
 
                 if (SimulationLaw.this.canContinue) {
