@@ -56,7 +56,6 @@ public abstract class ExcelFormator extends FileFormator {
     protected Map<String, String> getNextValue() {
         Map<String,String> values = new HashMap<String, String>();
         for(Map.Entry<String,Scanner> entry : filesScanners.entrySet()){
-            System.out.println();
             String line = entry.getValue().nextLine();
             if(!line.isEmpty()){
                 values.put(entry.getKey(),line);

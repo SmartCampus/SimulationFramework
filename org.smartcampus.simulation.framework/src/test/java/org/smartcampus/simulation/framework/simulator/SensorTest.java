@@ -43,7 +43,7 @@ public class SensorTest {
                 this.watch(sensorTrue);
 
                 // Init the type of the simulation
-                sensorTrue.tell(new InitSensorRealSimulation("urlTest"), this.getRef());
+                sensorTrue.tell(new InitSensorRealSimulation("http://localhost:8080/value"), this.getRef());
 
                 // Check that the last value is equal to null
                 Assert.assertNull(sensorTrue.underlyingActor().getLastReturnedValue());

@@ -16,9 +16,9 @@ public class DemoSoutenance {
         sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
                 .withSensors(10, new RateToBooleanChangeSensorTransformation())
                 .withLaw(new ParkingMarkovLaw(10, 0.1, 0.01))
-                .setOutput("http://localhost:8080/collector/value")
+                .setOutput("bob")
                 .startAt("2014-02-07 11:25:00")
                 .duration(Duration.create(2, TimeUnit.MINUTES))
-                .frequency(Duration.create(5, TimeUnit.SECONDS)).simulateReal();
+                .frequency(Duration.create(5, TimeUnit.SECONDS)).simulateVirtual();
     }
 }
