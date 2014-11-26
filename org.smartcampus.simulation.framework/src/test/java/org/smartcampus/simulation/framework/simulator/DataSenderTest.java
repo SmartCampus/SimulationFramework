@@ -31,8 +31,8 @@ public class DataSenderTest {
         system = ActorSystem.create("AkkaTestModele");
 
         try {
-            server = HttpServer.create(new InetSocketAddress(8080), 0);
-            server.createContext("/value", new MyHandler());
+            server = HttpServer.create(new InetSocketAddress(8888), 0);
+            server.createContext("/test/server", new MyHandler());
             server.setExecutor(null); // creates a default executor
             server.start();
         } catch (IOException e) {
@@ -54,7 +54,7 @@ public class DataSenderTest {
         new JavaTestKit(system) {
             {
                 final ActorRef dataSender = system.actorOf(Props.create(DataSender.class,
-                        "http://localhost:8080/value"));
+                        "http://localhost:8888/test/server"));
 
                 dataSender.tell(new SendValue("Name", "Value", 42), this.getRef());
                 this.expectMsgClass(duration("1 second"), CountRequestsPlusOne.class);

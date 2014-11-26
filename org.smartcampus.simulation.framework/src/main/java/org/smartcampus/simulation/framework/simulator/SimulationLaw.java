@@ -3,19 +3,10 @@ package org.smartcampus.simulation.framework.simulator;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
-import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
-import org.smartcampus.simulation.framework.messages.InitSensorRealSimulation;
-import org.smartcampus.simulation.framework.messages.InitSensorVirtualSimulation;
-import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
-import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
-import org.smartcampus.simulation.framework.messages.ReturnMessage;
-import org.smartcampus.simulation.framework.messages.SendValue;
-import org.smartcampus.simulation.framework.messages.StartSimulation;
-import org.smartcampus.simulation.framework.messages.StopSimulation;
-import org.smartcampus.simulation.framework.messages.UpdateSensorSimulation;
-import org.smartcampus.simulation.framework.messages.UpdateSimulation;
+import java.util.concurrent.TimeUnit;
+
+import org.smartcampus.simulation.framework.messages.*;
+import org.smartcampus.simulation.framework.messages.StartDelayedSimulation;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -144,8 +135,11 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
             InitTypeSimulation message = (InitTypeSimulation) o;
             this.initTypeSimulation(message);
         }
-        else if (o instanceof StartSimulation) {
+        else if (o instanceof StartSimulationNow) {
             this.startSimulation();
+        }
+        else if (o instanceof StartDelayedSimulation) {
+            this.startSimulation(((StartDelayedSimulation) o).getTimestamp());
         }
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
@@ -206,6 +200,20 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         this.getContext().become(this.simulationStarted);
 
         this.getSelf().tell(new UpdateSimulation(), this.getSelf());
+    }
+
+    /**
+     * Handle the message StartSimulation
+     * @param time start time of the simulation
+     */
+    private void startSimulation(long time) throws Exception {
+        SimulationLaw.this.tick = SimulationLaw.this
+                .getContext()
+                .system()
+                .scheduler()
+                .scheduleOnce(new FiniteDuration(time-System.currentTimeMillis(), TimeUnit.MILLISECONDS),
+                        SimulationLaw.this.getSelf(), new StartSimulationNow(),
+                        SimulationLaw.this.getContext().dispatcher(), null);
     }
 
     /**

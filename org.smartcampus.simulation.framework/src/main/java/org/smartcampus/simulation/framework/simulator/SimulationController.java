@@ -1,17 +1,7 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
-import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
-import org.smartcampus.simulation.framework.messages.CreateSimulation;
-import org.smartcampus.simulation.framework.messages.InitInput;
-import org.smartcampus.simulation.framework.messages.InitOutput;
-import org.smartcampus.simulation.framework.messages.InitReplay;
-import org.smartcampus.simulation.framework.messages.InitReplayParam;
-import org.smartcampus.simulation.framework.messages.InitReplaySimulation;
-import org.smartcampus.simulation.framework.messages.InitSimulationLaw;
-import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
-import org.smartcampus.simulation.framework.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.*;
+import org.smartcampus.simulation.framework.messages.StartDelayedSimulation;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
@@ -68,8 +58,12 @@ public final class SimulationController extends UntypedActor {
             InitReplaySimulation tmp = (InitReplaySimulation) arg0;
             this.initReplaySimulation(tmp);
         }
-        else if (arg0 instanceof StartSimulation) {
-            StartSimulation tmp = (StartSimulation) arg0;
+        else if (arg0 instanceof StartSimulationNow) {
+            StartSimulationNow tmp = (StartSimulationNow) arg0;
+            this.startSimulation(tmp);
+        }
+        else if (arg0 instanceof StartDelayedSimulation) {
+            StartDelayedSimulation tmp = (StartDelayedSimulation) arg0;
             this.startSimulation(tmp);
         }
         else if (arg0 instanceof InitOutput) {
@@ -173,12 +167,28 @@ public final class SimulationController extends UntypedActor {
     }
 
     /**
-     * Handle the message StartSimulation
+     * Handle the message StartSimulationNow
      * 
      * @param tmp
-     *            the message StartSimulation
+     *            the message StartSimulationNow
      */
-    private void startSimulation(final StartSimulation tmp) {
+    private void startSimulation(final StartSimulationNow tmp) {
+        for (ActorRef a : this.getContext().getChildren()) {
+            a.tell(tmp, this.getSelf());
+        }
+
+        this.log.debug("Je lance la simulation");
+
+        this.getContext().become(this.simulationStarted);
+    }
+
+    /**
+     * Handle the message StartDelayedSimulation
+     *
+     * @param tmp
+     *            the message StartDelayedSimulation
+     */
+    private void startSimulation(final StartDelayedSimulation tmp) {
         for (ActorRef a : this.getContext().getChildren()) {
             a.tell(tmp, this.getSelf());
         }

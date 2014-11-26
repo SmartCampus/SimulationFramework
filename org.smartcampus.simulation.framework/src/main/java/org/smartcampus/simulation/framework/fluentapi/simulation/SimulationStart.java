@@ -6,6 +6,6 @@ package org.smartcampus.simulation.framework.fluentapi.simulation;
 public interface SimulationStart {
     public SimulationDuration startAt(String date);
 
-    public SimulationDuration startAt(long date);
+    public SimulationDuration timestampsStartAt(long date);
 
 }

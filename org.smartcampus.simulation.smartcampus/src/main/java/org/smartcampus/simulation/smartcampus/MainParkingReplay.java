@@ -12,10 +12,6 @@ import java.net.URISyntaxException;
 public class MainParkingReplay {
 
     public static void main(final String[] args) {
-        Law<Double, Double> polynome = new PolynomialLaw(24839.21865,
-                -14430.25924, 3359.404392, -401.9522656, 26.18040012,
-                -0.8830270156, 0.01208028907);
-
         Start sim = new StartImpl();
 
         File myTestFile = null;

@@ -5,14 +5,13 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
 import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
 /**
- * @inheritDoc
- * 
- *             This class allow to send a request HTTP
+ * @inheritDoc This class allow to send a request HTTP
  */
 public class DataSender extends DataMaker {
 
@@ -28,9 +27,9 @@ public class DataSender extends DataMaker {
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
             StringBuilder obj = new StringBuilder();
-            obj.append("{").append("\"n\":").append("\""+sendValue.getName()+"\"")
-                    .append(",\"v\":").append("\""+sendValue.getValue()+"\"").append(",\"t\":")
-                    .append("\""+sendValue.getTime()+"\"").append("}");
+            obj.append("{").append("\"n\":").append("\"" + sendValue.getName() + "\"")
+                    .append(",\"v\":").append("\"" + sendValue.getValue() + "\"").append(",\"t\":")
+                    .append("\"" + sendValue.getTime() + "\"").append("}");
             URL url = new URL(this.output);
             HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
             httpconn.setRequestMethod("POST");
@@ -64,8 +63,7 @@ public class DataSender extends DataMaker {
 
             if (httpconn.getResponseCode() != 201) {
                 this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
-            }
-            else {
+            } else {
                 this.getSender().tell(new CountResponsesPlusOne(), this.getSelf());
             }
 

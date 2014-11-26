@@ -30,6 +30,6 @@ public class MainParkingMarkovSimulationLaw {
                 .withSensors(500, new PercentToBooleanSensorTransformation())
                 .withLaw(polynome).setOutput(pfeIP).startAt("2014-02-06 11:00:00")
                 .duration(Duration.create(15, TimeUnit.SECONDS))
-                .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
+                .frequency(Duration.create(1, TimeUnit.SECONDS)).startRealTimeSimulationNow();
     }
 }

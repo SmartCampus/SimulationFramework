@@ -21,6 +21,6 @@ public class MainParkingSimulationLaw {
                 .withLaw(polynome).setOutput("http://localhost:8080/collector/value")
                 .startAt("2014-01-22 16:00:00")
                 .duration(Duration.create(15, TimeUnit.SECONDS))
-                .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
+                .frequency(Duration.create(1, TimeUnit.SECONDS)).startRealTimeSimulationNow();
     }
 }

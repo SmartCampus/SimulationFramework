@@ -1,9 +1,11 @@
 package org.smartcampus.simulation.framework.fluentapi.simulation;
 
+import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 import org.smartcampus.simulation.framework.fluentapi.SimulatorWrapper;
 import org.smartcampus.simulation.framework.messages.InitTypeSimulation;
-import org.smartcampus.simulation.framework.messages.StartSimulation;
+import org.smartcampus.simulation.framework.messages.StartDelayedSimulation;
+import org.smartcampus.simulation.framework.messages.StartSimulationNow;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
@@ -25,17 +27,32 @@ public class EndImpl extends SimulatorWrapper implements End {
     }
 
     @Override
-    public void simulateReal() {
+    public void startRealTimeSimulationNow() {
         this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
                 this.frequency, this.frequency.toMillis()), ActorRef.noSender());
-        this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
+        this.controllerRef.tell(new StartSimulationNow(), ActorRef.noSender());
     }
 
     @Override
-    public void simulateVirtual() {
+    public void startRealTimeSimulationAt(long time) {
+        this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
+                this.frequency, this.frequency.toMillis()), ActorRef.noSender());
+        this.controllerRef.tell(new StartDelayedSimulation(time), ActorRef.noSender());
+    }
+
+    @Override
+    public void startRealTimeSimulationAt(String date) {
+        this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
+                this.frequency, this.frequency.toMillis()), ActorRef.noSender());
+        this.controllerRef.tell(new StartDelayedSimulation(Timestamp.valueOf(date).getTime()), ActorRef.noSender());
+    }
+
+    @Override
+    public void startVirtualSimulation() {
         this.controllerRef.tell(new InitTypeSimulation(this.start, this.duration,
                 Duration.create(100, TimeUnit.MILLISECONDS), this.frequency.toMillis()),
                 ActorRef.noSender());
-        this.controllerRef.tell(new StartSimulation(), ActorRef.noSender());
+        this.controllerRef.tell(new StartSimulationNow(), ActorRef.noSender());
     }
+
 }

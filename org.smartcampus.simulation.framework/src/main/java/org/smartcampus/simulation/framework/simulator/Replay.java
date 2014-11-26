@@ -2,15 +2,9 @@ package org.smartcampus.simulation.framework.simulator;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
-import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
-import org.smartcampus.simulation.framework.messages.InitInput;
-import org.smartcampus.simulation.framework.messages.InitReplay;
-import org.smartcampus.simulation.framework.messages.InitReplayParam;
-import org.smartcampus.simulation.framework.messages.InitReplaySimulation;
-import org.smartcampus.simulation.framework.messages.SendValue;
-import org.smartcampus.simulation.framework.messages.StartSimulation;
-import org.smartcampus.simulation.framework.messages.UpdateSimulation;
+
+import org.smartcampus.simulation.framework.messages.*;
+import org.smartcampus.simulation.framework.messages.StartDelayedSimulation;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
@@ -43,7 +37,7 @@ public final class Replay extends Simulation<String> {
     @Override
     public void onReceive(final Object o) throws Exception {
         super.onReceive(o);
-        if (o instanceof StartSimulation) {
+        if (o instanceof StartSimulationNow) {
             this.startSimulation();
         }
         else if (o instanceof InitReplay) {

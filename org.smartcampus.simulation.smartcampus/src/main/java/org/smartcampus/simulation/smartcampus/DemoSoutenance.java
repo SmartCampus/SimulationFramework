@@ -19,6 +19,6 @@ public class DemoSoutenance {
                 .setOutput("bob")
                 .startAt("2014-02-07 11:25:00")
                 .duration(Duration.create(2, TimeUnit.MINUTES))
-                .frequency(Duration.create(5, TimeUnit.SECONDS)).simulateVirtual();
+                .frequency(Duration.create(5, TimeUnit.SECONDS)).startVirtualSimulation();
     }
 }
