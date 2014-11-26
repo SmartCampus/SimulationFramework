@@ -15,11 +15,14 @@ public class AddSensor implements Serializable {
     private final int                        nbSensors;
     /** The transformation used in the sensors */
     private final SensorTransformation<?, ?> transformation;
+    /** The delta for the event driven sending data  **/
+    private final Object delta;
 
-    public AddSensor(final String n, final int nbS, final SensorTransformation<?, ?> t) {
+    public AddSensor(final String n, final int nbS, final SensorTransformation<?, ?> t,Object delta) {
         this.name = n;
         this.transformation = t;
         this.nbSensors = nbS;
+        this.delta = delta;
     }
 
     public String getName() {
@@ -32,5 +35,9 @@ public class AddSensor implements Serializable {
 
     public SensorTransformation<?, ?> getSensorTransformation() {
         return this.transformation;
+    }
+
+    public Object getDelta() {
+        return delta;
     }
 }

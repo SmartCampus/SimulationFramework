@@ -15,8 +15,8 @@ import org.smartcampus.simulation.framework.messages.SendValue;
 public class DataWriter extends DataMaker {
     private final String path;
 
-    public DataWriter(final String s) {
-        super(s);
+    public DataWriter(final String s, final Object delta) {
+        super(s,delta);
         this.path = System.getProperty("user.dir") + "/" + this.output + ".txt";
         File tmp = new File(this.path);
         if (tmp.exists()) {

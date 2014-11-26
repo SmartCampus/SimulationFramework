@@ -25,9 +25,9 @@ public class MainParkingMarkovSimulationLaw {
 
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
-                .withSensors(500, new RateToBooleanChangeSensorTransformation())
+                .withSensors(500, new RateToBooleanChangeSensorTransformation(),null)
                 .withLaw(markov).createSimulation("Parking2", ParkingSimulation.class)
-                .withSensors(500, new PercentToBooleanSensorTransformation())
+                .withSensors(500, new PercentToBooleanSensorTransformation(),null)
                 .withLaw(polynome).setOutput(pfeIP).startAt("2014-02-06 11:00:00")
                 .duration(Duration.create(15, TimeUnit.SECONDS))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();

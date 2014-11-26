@@ -2,6 +2,7 @@ package org.smartcampus.simulation.framework.simulator;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,7 +18,7 @@ import org.smartcampus.simulation.framework.messages.SendValue;
 public class DataSender extends DataMaker {
 
     public DataSender(final String output) {
-        super(output);
+        super(output,null);
     }
 
     @Override
@@ -27,10 +28,23 @@ public class DataSender extends DataMaker {
     public void onReceive(final Object o) throws Exception {
         if (o instanceof SendValue) {
             SendValue sendValue = (SendValue) o;
-            StringBuilder obj = new StringBuilder();
-            obj.append("{").append("\"n\":").append("\""+sendValue.getName()+"\"")
-                    .append(",\"v\":").append("\""+sendValue.getValue()+"\"").append(",\"t\":")
-                    .append("\""+sendValue.getTime()+"\"").append("}");
+            sendData(sendValue);
+
+        }
+    }
+
+    @Override
+    public void postStop() throws Exception {
+        super.postStop();
+    }
+
+
+    private void sendData(SendValue sendValue){
+        StringBuilder obj = new StringBuilder();
+        obj.append("{").append("\"n\":").append("\""+sendValue.getName()+"\"")
+                .append(",\"v\":").append("\""+sendValue.getValue()+"\"").append(",\"t\":")
+                .append("\""+sendValue.getTime()+"\"").append("}");
+        try {
             URL url = new URL(this.output);
             HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
             httpconn.setRequestMethod("POST");
@@ -70,13 +84,8 @@ public class DataSender extends DataMaker {
             }
 
             httpconn.disconnect();
-
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
-    @Override
-    public void postStop() throws Exception {
-        super.postStop();
-    }
-
 }
