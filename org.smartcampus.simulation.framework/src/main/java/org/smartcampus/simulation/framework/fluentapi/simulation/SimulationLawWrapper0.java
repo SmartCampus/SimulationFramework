@@ -7,4 +7,5 @@ import org.smartcampus.simulation.framework.simulator.SensorTransformation;
  */
 public interface SimulationLawWrapper0 {
     public SimulationLawWrapper1 withSensors(final int nbsensors,final SensorTransformation<?, ?> transformation,Object delta);
+    public SimulationLawWrapper1 withSensors(final int nbsensors,final SensorTransformation<?, ?> transformation);
 }

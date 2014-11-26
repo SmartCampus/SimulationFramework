@@ -20,4 +20,9 @@ public class SimulationLawWrapper0Impl extends SimulationWrapper implements Simu
                 ActorRef.noSender());
         return new SimulationLawWrapper1Impl(simulationLawName,controllerRef);
     }
+
+    @Override
+    public SimulationLawWrapper1 withSensors(int nbsensors, SensorTransformation<?, ?> transformation) {
+        return this.withSensors(nbsensors,transformation,null);
+    }
 }
