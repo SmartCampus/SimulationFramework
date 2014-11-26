@@ -28,4 +28,6 @@ public class SendValue implements Serializable {
     public String getValue() {
         return this.value;
     }
+
+
 }

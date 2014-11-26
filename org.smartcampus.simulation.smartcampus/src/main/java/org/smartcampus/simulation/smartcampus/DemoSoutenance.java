@@ -14,11 +14,12 @@ public class DemoSoutenance {
 
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
-                .withSensors(10, new RateToBooleanChangeSensorTransformation())
+                .withSensors(10, new RateToBooleanChangeSensorTransformation(),0.1)
                 .withLaw(new ParkingMarkovLaw(10, 0.1, 0.01))
                 .setOutput("bob")
                 .startAt("2014-02-07 11:25:00")
                 .duration(Duration.create(2, TimeUnit.MINUTES))
                 .frequency(Duration.create(5, TimeUnit.SECONDS)).startVirtualSimulation();
+
     }
 }

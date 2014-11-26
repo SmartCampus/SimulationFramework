@@ -105,12 +105,12 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      *            the transformation of the sensor
      */
     private void createSensor(final int numberOfSensors,
-            final SensorTransformation<S, R> transformation) {
+            final SensorTransformation<S, R> transformation, final Object delta) {
 
         List<Routee> routees = new ArrayList<Routee>();
         for (int i = 0; i < numberOfSensors; i++) {
             ActorRef r = this.getContext().actorOf(
-                    Props.create(Sensor.class, transformation),
+                    Props.create(Sensor.class, transformation, delta),
                     this.getSelf().path().name() + "-" + i);
             this.getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
@@ -227,7 +227,8 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
             SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
                     .getSensorTransformation();
-            this.createSensor(message.getNbSensors(), t);
+            Object delta = message.getDelta();
+            this.createSensor(message.getNbSensors(), t, delta);
         }
         else {
             // TODO error

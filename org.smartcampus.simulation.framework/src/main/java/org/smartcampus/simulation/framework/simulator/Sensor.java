@@ -26,7 +26,7 @@ import akka.routing.RoundRobinPool;
  * @param <R>
  *            corresponds to the HTTP request type value
  */
-public final class Sensor<T, R> extends UntypedActor {
+public final class Sensor<T, R extends Comparable<R>> extends UntypedActor {
 
     /**
      * This class is a new procedure used in the context of 'Simulation Started'
@@ -46,11 +46,15 @@ public final class Sensor<T, R> extends UntypedActor {
                 R res = Sensor.this.transformation.transform(value,
                         Sensor.this.lastReturnedValue);
 
+                boolean hasToSentData = hasToSentData(Sensor.this.lastReturnedValue, res, delta);
+
                 // saves the value in case it is needed for next calculation
                 Sensor.this.lastReturnedValue = res;
 
-                Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
-                        .name(), res.toString(), time), Sensor.this.getSelf());
+                if (hasToSentData) {
+                    Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
+                            .name(), res.toString(), time), Sensor.this.getSelf());
+                }
                 Sensor.this.getSender().tell(new ReturnMessage<R>(res),
                         Sensor.this.getSelf());
             }
@@ -67,12 +71,20 @@ public final class Sensor<T, R> extends UntypedActor {
                 Sensor.this.getSelf().tell(PoisonPill.getInstance(), ActorRef.noSender());
             }
         }
+
+        private boolean hasToSentData(R lastReturnedValue, R res, Object delta) {
+            System.out.println(delta);
+            if(delta==null || lastReturnedValue==null) return true;
+            return !res.equals(lastReturnedValue);
+        }
     }
 
     /** The last returned value */
     private R lastReturnedValue;
     /** The transformation */
     private SensorTransformation<T, R> transformation;
+    /** The transformation */
+    private Object delta;
     /** Context when the simulation start */
     private Procedure<Object> simulationStarted;
 
@@ -83,9 +95,16 @@ public final class Sensor<T, R> extends UntypedActor {
     private ActorRef dataMaker;
 
     /** default constructor */
+    public Sensor(final SensorTransformation<T, R> t , final Object delta) {
+        this.transformation = t;
+        this.simulationStarted = new ProcedureSimulationStarted();
+        this.delta= delta;
+
+    }/** default constructor */
     public Sensor(final SensorTransformation<T, R> t) {
         this.transformation = t;
         this.simulationStarted = new ProcedureSimulationStarted();
+        this.delta= null;
     }
 
     /**

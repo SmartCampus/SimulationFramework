@@ -15,8 +15,8 @@ public class SimulationLawWrapper0Impl extends SimulationWrapper implements Simu
     }
 
     @Override
-    public SimulationLawWrapper1 withSensors(int nbsensors, SensorTransformation<?, ?> transformation) {
-        controllerRef.tell(new AddSensor(simulationLawName, nbsensors, transformation),
+    public SimulationLawWrapper1 withSensors(int nbsensors, SensorTransformation<?, ?> transformation, Object delta) {
+        controllerRef.tell(new AddSensor(simulationLawName, nbsensors, transformation,delta),
                 ActorRef.noSender());
         return new SimulationLawWrapper1Impl(simulationLawName,controllerRef);
     }

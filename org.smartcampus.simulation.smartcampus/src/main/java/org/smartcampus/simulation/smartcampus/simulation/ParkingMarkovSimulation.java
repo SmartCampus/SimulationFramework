@@ -25,7 +25,6 @@ public class ParkingMarkovSimulation extends SimulationLaw<Integer, Double, Bool
                 nbPlacesOccupied++;
             }
         }
-        this.sendValue("occupation", ((nbPlacesOccupied * 100) / this.values.size())
-                + "%");
+        this.sendValue("occupation", ((nbPlacesOccupied * 100) / this.values.size()) + "%");
     }
 }
