@@ -10,12 +10,10 @@ import akka.event.LoggingAdapter;
 public abstract class DataMaker extends UntypedActor {
     protected LoggingAdapter log;
     protected String output;
-    protected Object delta;
 
-    public DataMaker(final String out, final Object delta) {
+    public DataMaker(final String out) {
         this.log = Logging.getLogger(this.getContext().system(), this);
         this.output = out;
-        this.delta = delta;
     }
 
     /**

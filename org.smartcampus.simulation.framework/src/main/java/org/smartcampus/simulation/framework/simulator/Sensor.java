@@ -73,7 +73,7 @@ public final class Sensor<T, R extends Comparable<R>> extends UntypedActor {
         }
 
         private boolean hasToSentData(R lastReturnedValue, R res, Object delta) {
-            System.out.println(delta.toString());
+            System.out.println(delta);
             if(delta==null || lastReturnedValue==null) return true;
             return !res.equals(lastReturnedValue);
         }
@@ -95,10 +95,16 @@ public final class Sensor<T, R extends Comparable<R>> extends UntypedActor {
     private ActorRef dataMaker;
 
     /** default constructor */
-    public Sensor(final SensorTransformation<T, R> t , Object delta) {
+    public Sensor(final SensorTransformation<T, R> t , final Object delta) {
         this.transformation = t;
         this.simulationStarted = new ProcedureSimulationStarted();
         this.delta= delta;
+
+    }/** default constructor */
+    public Sensor(final SensorTransformation<T, R> t) {
+        this.transformation = t;
+        this.simulationStarted = new ProcedureSimulationStarted();
+        this.delta= null;
     }
 
     /**
