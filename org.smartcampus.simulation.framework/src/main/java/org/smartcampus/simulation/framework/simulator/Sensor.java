@@ -73,7 +73,6 @@ public final class Sensor<T, R extends Comparable<R>> extends UntypedActor {
         }
 
         private boolean hasToSentData(R lastReturnedValue, R res, Object delta) {
-            System.out.println(delta);
             if(delta==null || lastReturnedValue==null) return true;
             return !res.equals(lastReturnedValue);
         }
