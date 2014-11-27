@@ -126,7 +126,7 @@ public class SensorTest {
     /**
      * Send the opposite boolean
      */
-    private static class BooleanSensorTransformation implements
+    private static class BooleanSensorTransformation extends
             SensorTransformation<Object, Boolean> {
 
         @Override

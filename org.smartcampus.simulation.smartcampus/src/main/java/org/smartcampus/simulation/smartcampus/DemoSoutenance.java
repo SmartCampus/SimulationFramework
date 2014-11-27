@@ -14,7 +14,7 @@ public class DemoSoutenance {
 
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
-                .withSensors(10, new RateToBooleanChangeSensorTransformation(),0.1)
+                .withSensors(10, new RateToBooleanChangeSensorTransformation())
                 .withLaw(new ParkingMarkovLaw(10, 0.1, 0.01))
                 .setOutput("bob")
                 .startAt("2014-02-07 11:25:00")

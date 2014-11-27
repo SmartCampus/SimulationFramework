@@ -20,7 +20,7 @@ public class SimulationStartImpl extends SimulatorWrapper implements SimulationS
     }
 
     @Override
-    public SimulationDuration timestampsStartAt(final long date) {
+    public SimulationDuration startAt(final long date) {
         return new SimulationDurationImpl(this.controllerRef, date);
 
     }

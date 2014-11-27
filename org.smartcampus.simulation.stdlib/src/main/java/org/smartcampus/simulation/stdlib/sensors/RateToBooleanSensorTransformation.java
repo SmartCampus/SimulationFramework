@@ -6,7 +6,7 @@ import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 /**
  * Transforms a rate to a boolean (true with rate chances)
  */
-public class RateToBooleanSensorTransformation implements
+public class RateToBooleanSensorTransformation extends
         SensorTransformation<Double, Boolean> {
 
     @Override

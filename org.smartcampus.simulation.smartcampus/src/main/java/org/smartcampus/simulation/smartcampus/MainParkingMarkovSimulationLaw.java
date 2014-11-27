@@ -15,8 +15,8 @@ import scala.concurrent.duration.Duration;
 public class MainParkingMarkovSimulationLaw {
 
     public static void main(final String[] args) {
-        String fabIP = "http://172.19.250.149:4444/collector/value";
         String pfeIP = "http://localhost:8080/collector/value";
+        String pfeIP_online = "http://54.229.14.230:8080/collector/value";
         Law<Integer, Double> markov = null;
         markov = new ParkingMarkovLaw(500, 0.1, 0.01);
 
@@ -25,9 +25,9 @@ public class MainParkingMarkovSimulationLaw {
 
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingMarkovSimulation.class)
-                .withSensors(500, new RateToBooleanChangeSensorTransformation(),null)
+                .withSensors(500, new RateToBooleanChangeSensorTransformation())
                 .withLaw(markov).createSimulation("Parking2", ParkingSimulation.class)
-                .withSensors(500, new PercentToBooleanSensorTransformation(),null)
+                .withSensors(500, new PercentToBooleanSensorTransformation())
                 .withLaw(polynome).setOutput(pfeIP).startAt("2014-02-06 11:00:00")
                 .duration(Duration.create(15, TimeUnit.SECONDS))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).startRealTimeSimulationNow();

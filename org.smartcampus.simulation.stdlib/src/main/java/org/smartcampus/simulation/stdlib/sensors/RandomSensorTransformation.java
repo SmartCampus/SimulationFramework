@@ -3,7 +3,7 @@ package org.smartcampus.simulation.stdlib.sensors;
 import java.util.Random;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 
-public class RandomSensorTransformation implements
+public class RandomSensorTransformation extends
         SensorTransformation<Object, Boolean> {
 
     @Override

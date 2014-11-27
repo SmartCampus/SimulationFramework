@@ -105,12 +105,12 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      *            the transformation of the sensor
      */
     private void createSensor(final int numberOfSensors,
-            final SensorTransformation<S, R> transformation, final Object delta) {
+            final SensorTransformation<S, R> transformation) {
 
         List<Routee> routees = new ArrayList<Routee>();
         for (int i = 0; i < numberOfSensors; i++) {
             ActorRef r = this.getContext().actorOf(
-                    Props.create(Sensor.class, transformation, delta),
+                    Props.create(Sensor.class, transformation),
                     this.getSelf().path().name() + "-" + i);
             this.getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
@@ -144,6 +144,10 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
             this.addSensor(message);
+        }
+        else if (o instanceof AddSensorOnEvent) {
+            AddSensorOnEvent message = (AddSensorOnEvent) o;
+            this.addSensorOnEvent(message);
         }
         else if (o instanceof InitSimulationLaw) {
             InitSimulationLaw message = (InitSimulationLaw) o;
@@ -218,7 +222,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
 
     /**
      * Handle the message AddSensor
-     * 
+     *
      * @param message
      *            contains the number of sensors to add
      */
@@ -227,8 +231,25 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
             SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
                     .getSensorTransformation();
-            Object delta = message.getDelta();
-            this.createSensor(message.getNbSensors(), t, delta);
+            this.createSensor(message.getNbSensors(), t);
+        }
+        else {
+            // TODO error
+        }
+    }
+
+    /**
+     * Handle the message AddSensor
+     *
+     * @param message
+     *            contains the number of sensors to add
+     */
+    @SuppressWarnings("unchecked")
+    private void addSensorOnEvent(final AddSensorOnEvent message) {
+        if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
+            SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
+                    .getSensorTransformation();
+            this.createSensor(message.getNbSensors(), t);
         }
         else {
             // TODO error
