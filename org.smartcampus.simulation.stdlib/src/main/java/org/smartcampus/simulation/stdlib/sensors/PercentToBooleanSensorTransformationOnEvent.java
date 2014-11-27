@@ -1,12 +1,14 @@
 package org.smartcampus.simulation.stdlib.sensors;
 
-import java.util.Random;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
+
+import java.util.GregorianCalendar;
+import java.util.Random;
 
 /**
  * Transforms a percentage to a boolean (true with percent% chances)
  */
-public class PercentToBooleanSensorTransformation extends
+public class PercentToBooleanSensorTransformationOnEvent extends
         SensorTransformation<Double, Boolean> {
 
     @Override
@@ -24,4 +26,9 @@ public class PercentToBooleanSensorTransformation extends
         return r.nextInt(100) < percent;
     }
 
+    @Override
+    public boolean hasToSendData(Boolean lastVal, Boolean currentValue) {
+        if(lastVal==null) return true;
+        return ! currentValue.equals(lastVal);
+    }
 }

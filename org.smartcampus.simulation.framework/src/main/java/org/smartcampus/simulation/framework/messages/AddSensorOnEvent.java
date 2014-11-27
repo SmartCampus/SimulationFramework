@@ -1,14 +1,15 @@
 package org.smartcampus.simulation.framework.messages;
 
-import java.io.Serializable;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 
-/**
- * The AddSensor message allows to create 'nbSensors' sensors with 'transformation'
- */
-public class AddSensor implements Serializable {
+import java.io.Serializable;
 
-    private static final long                serialVersionUID = -5298236988969574376L;
+/**
+ * The AddSensor message allows to create 'nbSensors' sensors on event with 'transformation'
+ */
+public class AddSensorOnEvent implements Serializable {
+
+    private static final long                serialVersionUID = -5298126988129574376L;
     /** The name of the SimulationLaw */
     private final String                     name;
     /** The number of sensors to add to the SimulationLaw */
@@ -16,7 +17,7 @@ public class AddSensor implements Serializable {
     /** The transformation used in the sensors */
     private final SensorTransformation<?, ?> transformation;
 
-    public AddSensor(final String n, final int nbS, final SensorTransformation<?, ?> t) {
+    public AddSensorOnEvent(final String n, final int nbS, final SensorTransformation<?, ?> t) {
         this.name = n;
         this.transformation = t;
         this.nbSensors = nbS;

@@ -12,7 +12,8 @@ public class MainRandomSimulation {
     public static void main(final String[] args) {
         Start sim = new StartImpl();
         sim.createSimulation("Random", ParkingSimulation.class)
-                .withSensors(350, new RandomSensorTransformation(),null).withLaw(null)
+                .withSensors(350, new RandomSensorTransformation())
+                .withLaw(null)
                 .setOutput("http://localhost:8080/collector/value")
                 .startAt(System.currentTimeMillis())
 
