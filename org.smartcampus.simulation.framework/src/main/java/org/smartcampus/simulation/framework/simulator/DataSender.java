@@ -36,7 +36,6 @@ public class DataSender extends DataMaker {
         super.postStop();
     }
 
-
     private void sendData(SendValue sendValue) throws Exception{
         StringBuilder obj = new StringBuilder();
         obj.append("{").append("\"n\":").append("\""+sendValue.getName()+"\"")

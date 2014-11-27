@@ -16,7 +16,7 @@ public class MainRandomSimulation {
         long time = System.currentTimeMillis() + 5000;
         Start sim = new StartImpl();
         sim.createSimulation("Random", ParkingSimulation.class)
-                .withSensors(350, new RandomSensorTransformation())
+                .withSensors(300, new RandomSensorTransformation())
                 .withLaw(null)
                 .setOutput(pfeIP)
                 .startAt(time)
