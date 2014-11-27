@@ -20,7 +20,7 @@ public class MainParkingSimulationLawOnEvent {
         Start sim = new StartImpl();
         sim.createSimulation("Parking1", ParkingSimulation.class)
                 .withSensors(5, new PercentToBooleanSensorTransformationOnEvent())
-                .withLaw(polynome).setOutput("http://localhost:8080/collector/value")
+                .withLaw(polynome).setOutput("http://54.229.14.230:8080/collector/value")
                 .startAt("2014-01-22 16:00:00")
                 .duration(Duration.create(10, TimeUnit.SECONDS))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).simulateReal();
