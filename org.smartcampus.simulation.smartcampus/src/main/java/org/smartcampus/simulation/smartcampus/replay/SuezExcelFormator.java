@@ -30,9 +30,12 @@ public class SuezExcelFormator extends ExcelFormator {
         try {
             Date d =  sdf.parse(columns[0]);
             d.setHours(0);
+            System.out.println(d);
             timestamp = d.getTime();
+            System.out.println(timestamp);
             int hoursToMilli = Integer.valueOf(columns[1]) * 3600000;
             timestamp += hoursToMilli;
+            System.out.println(timestamp);
         } catch (ParseException e) {
             e.printStackTrace();
         }
