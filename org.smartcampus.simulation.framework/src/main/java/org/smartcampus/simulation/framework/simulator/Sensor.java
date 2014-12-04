@@ -48,10 +48,9 @@ public final class Sensor<T, R> extends UntypedActor {
 
                 boolean hasToSentData = Sensor.this.transformation.hasToSendData(lastReturnedValue,res);
 
-                // saves the value in case it is needed for next calculation
-                Sensor.this.lastReturnedValue = res;
-
                 if (hasToSentData) {
+                    // saves the value in case it is needed for next calculation
+                    Sensor.this.lastReturnedValue = res;
                     Sensor.this.dataMaker.tell(new SendValue(Sensor.this.getSelf().path()
                             .name(), res.toString(), time), Sensor.this.getSelf());
                 }
