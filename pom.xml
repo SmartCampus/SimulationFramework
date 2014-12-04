@@ -19,6 +19,7 @@
     <module>org.smartcampus.simulation.framework</module>
     <module>org.smartcampus.simulation.stdlib</module>
     <module>org.smartcampus.simulation.smartcampus</module>
+	<module>org.smartcampus.simulation.services</module>
   </modules>
 
 </project>

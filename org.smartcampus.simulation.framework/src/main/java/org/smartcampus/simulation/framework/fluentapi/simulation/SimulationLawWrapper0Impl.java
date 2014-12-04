@@ -3,7 +3,6 @@ package org.smartcampus.simulation.framework.fluentapi.simulation;
 import akka.actor.ActorRef;
 import org.smartcampus.simulation.framework.fluentapi.SimulationWrapper;
 import org.smartcampus.simulation.framework.messages.AddSensor;
-import org.smartcampus.simulation.framework.messages.AddSensorOnEvent;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
 
 /**
@@ -16,16 +15,9 @@ public class SimulationLawWrapper0Impl extends SimulationWrapper implements Simu
     }
 
     @Override
-    public SimulationLawWrapper1 withSensorsOnEvent(int nbsensors, SensorTransformation<?, ?> transformation) {
-        controllerRef.tell(new AddSensorOnEvent(simulationLawName, nbsensors, transformation),
-                ActorRef.noSender());
-        return new SimulationLawWrapper1Impl(simulationLawName,controllerRef);
-    }
-
-    @Override
     public SimulationLawWrapper1 withSensors(int nbsensors, SensorTransformation<?, ?> transformation) {
         controllerRef.tell(new AddSensor(simulationLawName, nbsensors, transformation),
                 ActorRef.noSender());
-        return new SimulationLawWrapper1Impl(simulationLawName,controllerRef);
+        return new SimulationLawWrapper1Impl(simulationLawName, controllerRef);
     }
 }

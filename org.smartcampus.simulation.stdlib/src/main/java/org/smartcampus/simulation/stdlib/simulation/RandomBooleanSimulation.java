@@ -2,7 +2,7 @@ package org.smartcampus.simulation.stdlib.simulation;
 
 import org.smartcampus.simulation.framework.simulator.SimulationLaw;
 
-public class RandomSimulation extends SimulationLaw<Object, Object, Boolean> {
+public class RandomBooleanSimulation extends SimulationLaw<Object, Object, Boolean> {
 
     @Override
     protected Object[] computeValue() {
@@ -11,12 +11,12 @@ public class RandomSimulation extends SimulationLaw<Object, Object, Boolean> {
 
     @Override
     protected void onComplete() {
-        int res = 0;
+        /*int res = 0;
         for (Boolean b : this.values) {
             if (b) {
                 res++;
             }
         }
-        this.sendValue("Average", ((100 * res) / this.values.size()) + "%");
+        this.sendValue("Average", ((100 * res) / this.values.size()) + "%");*/
     }
 }

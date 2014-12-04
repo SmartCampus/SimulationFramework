@@ -1,25 +1,19 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.smartcampus.simulation.framework.messages.*;
-import org.smartcampus.simulation.framework.messages.StartDelayedSimulation;
-import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.japi.Procedure;
-import akka.routing.ActorRefRoutee;
-import akka.routing.BroadcastRoutingLogic;
-import akka.routing.DefaultResizer;
-import akka.routing.RoundRobinPool;
-import akka.routing.Routee;
-import akka.routing.Router;
+import akka.routing.*;
+import org.smartcampus.simulation.framework.messages.*;
+import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A SimulationLaw is a manager of sensors.
@@ -159,9 +153,6 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         } else if (o instanceof AddSensor) {
             AddSensor message = (AddSensor) o;
             this.addSensor(message);
-        } else if (o instanceof AddSensorOnEvent) {
-            AddSensorOnEvent message = (AddSensorOnEvent) o;
-            this.addSensorOnEvent(message);
         } else if (o instanceof InitSimulationLaw) {
             InitSimulationLaw message = (InitSimulationLaw) o;
             this.initSimulationLaw(message);
@@ -181,12 +172,10 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         this.duration = message.getDuration().toMillis();
         this.end = this.time + this.duration;
         if (this.frequency == this.realTimeFrequency.toMillis()) {
-
             this.dataMaker = this.getContext().actorOf(
                     new RoundRobinPool(5).withResizer(new DefaultResizer(1, 5)).props(
                             Props.create(DataSender.class, this.output)),
                     "simulationDataSender");
-
             InitSensorRealSimulation init = new InitSensorRealSimulation(this.output);
             this.router.route(init, this.getSelf());
         } else {
@@ -238,22 +227,6 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      */
     @SuppressWarnings("unchecked")
     private void addSensor(final AddSensor message) {
-        if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
-            SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
-                    .getSensorTransformation();
-            this.createSensor(message.getNbSensors(), t);
-        } else {
-            // TODO error
-        }
-    }
-
-    /**
-     * Handle the message AddSensor
-     *
-     * @param message contains the number of sensors to add
-     */
-    @SuppressWarnings("unchecked")
-    private void addSensorOnEvent(final AddSensorOnEvent message) {
         if (message.getSensorTransformation() instanceof SensorTransformation<?, ?>) {
             SensorTransformation<S, R> t = (SensorTransformation<S, R>) message
                     .getSensorTransformation();

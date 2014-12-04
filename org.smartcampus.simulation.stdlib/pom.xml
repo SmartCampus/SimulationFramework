@@ -9,7 +9,7 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>smartcampus.org.smartcampus.simulation.stdlib.simulation.stdlib</name>
+  <name>org.smartcampus.simulation.stdlib</name>
   <url>http://maven.apache.org</url>
 
   <properties>
