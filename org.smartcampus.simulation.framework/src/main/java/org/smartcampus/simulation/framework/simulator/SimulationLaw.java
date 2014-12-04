@@ -123,7 +123,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
         for (int i = 0; i < numberOfSensors; i++) {
             ActorRef r = this.getContext().actorOf(
                     Props.create(Sensor.class, transformation),
-                    this.getSelf().path().name() + "-" + i);
+                    this.getSelf().path().name() + "_" + i);
             this.getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
@@ -257,7 +257,7 @@ public abstract class SimulationLaw<S, T, R> extends Simulation<T> {
      * @param value the value of the sensor
      */
     public final void sendValue(final String name, final String value) {
-        this.dataMaker.tell(new SendValue(this.getSelf().path().name() + " - " + name,
+        this.dataMaker.tell(new SendValue(this.getSelf().path().name() + "_" + name,
                 value, this.time), this.getSelf());
     }
 
