@@ -46,7 +46,7 @@ public class SimulationLauncher {
         }
         simulation.withSensors(o.getInt("sensors"), t)
                 .withLaw(null)
-                .setOutput("http://54.229.14.230:8080/collector/value")
+                .setOutput("http://"+System.getProperty("middleware.ip") +":8080/collector/value")
                 .startAt(o.getLong("start"))
                 .duration(Duration.create(o.getLong("duration"), TimeUnit.MILLISECONDS))
                 .frequency(Duration.create(o.getLong("frequency"), TimeUnit.MILLISECONDS))

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.json.JSONObject;
 import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
 import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
 import org.smartcampus.simulation.framework.messages.SendValue;
@@ -37,10 +38,10 @@ public class DataSender extends DataMaker {
     }
 
     private void sendData(SendValue sendValue) throws Exception{
-        StringBuilder obj = new StringBuilder();
-        obj.append("{").append("\"n\":").append("\""+sendValue.getName()+"\"")
-                .append(",\"v\":").append("\""+sendValue.getValue()+"\"").append(",\"t\":")
-                .append("\""+sendValue.getTime()+"\"").append("}");
+        JSONObject obj = new JSONObject();
+        obj.put("n", sendValue.getName());
+        obj.put("v", sendValue.getValue());
+        obj.put("t", String.valueOf(sendValue.getTime()/1000));
 
         URL url = new URL(this.output);
         HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();

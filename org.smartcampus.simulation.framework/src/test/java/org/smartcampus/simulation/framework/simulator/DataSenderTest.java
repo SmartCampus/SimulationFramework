@@ -1,18 +1,5 @@
 package org.smartcampus.simulation.framework.simulator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
-import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
-import org.smartcampus.simulation.framework.messages.SendValue;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -20,6 +7,17 @@ import akka.testkit.JavaTestKit;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.json.JSONObject;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
+import org.smartcampus.simulation.framework.messages.CountResponsesPlusOne;
+import org.smartcampus.simulation.framework.messages.SendValue;
+
+import java.io.*;
+import java.net.InetSocketAddress;
 
 public class DataSenderTest {
 
@@ -56,7 +54,7 @@ public class DataSenderTest {
                 final ActorRef dataSender = system.actorOf(Props.create(DataSender.class,
                         "http://localhost:8888/test/server"));
 
-                dataSender.tell(new SendValue("Name", "Value", 42), this.getRef());
+                dataSender.tell(new SendValue("Name", "Value", 123456789), this.getRef());
                 this.expectMsgClass(duration("1 second"), CountRequestsPlusOne.class);
                 this.expectMsgClass(duration("1 second"), CountResponsesPlusOne.class);
 
@@ -96,9 +94,13 @@ public class DataSenderTest {
 
             String s = sb.toString();
 
-            // Test du message envoyé au serveur
-            Assert.assertEquals("{\"n\":\"Name\",\"v\":\"Value\",\"t\":\"42\"}", s);
             try {
+                JSONObject expected = new JSONObject("{\"n\":\"Name\",\"v\":\"Value\",\"t\":\"123456\"}");
+                JSONObject actual = new JSONObject(s);
+                // Test du message envoyé au serveur
+                Assert.assertEquals(expected.get("n"), actual.get("n"));
+                Assert.assertEquals(expected.get("v"), actual.get("v"));
+                Assert.assertEquals(expected.get("t"), actual.get("t"));
                 this.sendResponse(t, 201);
             } catch (Exception e) {
                 this.sendResponse(t, 404);

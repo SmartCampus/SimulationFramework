@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
+
+import org.json.JSONObject;
 import org.smartcampus.simulation.framework.messages.SendValue;
 
 /**
@@ -37,9 +39,12 @@ public class DataWriter extends DataMaker {
              * + ", v :" + sendValue.getValue() + ", t:" + sendValue.getTime()
              * + "} ");
              */
-            this.ecrire("{ n : " + sendValue.getName() + ", v :" + sendValue.getValue()
-                    + ", t:" + sendValue.getTime() + "} "
-                    + new Timestamp(sendValue.getTime()) + "\n");
+            JSONObject obj = new JSONObject();
+            obj.put("n", sendValue.getName());
+            obj.put("v", sendValue.getValue());
+            obj.put("t", String.valueOf(sendValue.getTime()/1000));
+
+            this.ecrire(obj.toString());
         }
     }
 
@@ -50,6 +55,8 @@ public class DataWriter extends DataMaker {
             BufferedWriter output = new BufferedWriter(fw);
 
             output.write(texte);
+
+            output.write("\n");
 
             output.flush();
 

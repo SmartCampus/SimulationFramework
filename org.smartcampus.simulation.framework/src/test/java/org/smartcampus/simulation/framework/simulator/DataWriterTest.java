@@ -35,28 +35,28 @@ public class DataWriterTest {
         new JavaTestKit(system) {
             {
                 final ActorRef dataWriter = system.actorOf(Props.create(DataWriter.class,
-                        "testFile"));
+                        "testFile2"));
 
-                dataWriter.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter.tell(new SendValue("Name", "Value", 42), this.getRef());
+                dataWriter.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter.tell(new SendValue("Name", "Value", 123456789), this.getRef());
 
                 dataWriter.tell("hello", this.getRef());
                 this.expectNoMsg(duration("1 second"));
 
-                String path = System.getProperty("user.dir") + "/testFile.txt";
+                String path = System.getProperty("user.dir") + "/testFile2.txt";
                 File tmp = new File(path);
                 Assert.assertTrue(tmp.exists());
                 Assert.assertEquals(5, DataWriterTest.this.nbLine(path));
 
                 final ActorRef dataWriter2 = system.actorOf(Props.create(
-                        DataWriter.class, "testFile"));
+                        DataWriter.class, "testFile2"));
 
-                dataWriter2.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter2.tell(new SendValue("Name", "Value", 42), this.getRef());
-                dataWriter2.tell(new SendValue("Name", "Value", 42), this.getRef());
+                dataWriter2.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter2.tell(new SendValue("Name", "Value", 123456789), this.getRef());
+                dataWriter2.tell(new SendValue("Name", "Value", 123456789), this.getRef());
 
                 this.expectNoMsg(duration("1 second"));
 

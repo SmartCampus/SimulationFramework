@@ -24,5 +24,4 @@ public class MainRandomSimulation {
                 .duration(Duration.create(1, TimeUnit.SECONDS))
                 .frequency(Duration.create(1, TimeUnit.SECONDS)).startRealTimeSimulationAt(time);
     }
-
 }

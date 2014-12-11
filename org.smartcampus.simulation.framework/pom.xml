@@ -33,6 +33,11 @@
 			<version>2.3-M2</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+        </dependency>
 	</dependencies>
 
 	<repositories>
