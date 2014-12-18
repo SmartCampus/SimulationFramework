@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.Timestamp;
 
@@ -57,6 +58,7 @@ public class DataSender extends DataMaker {
                 "" + Integer.toString(obj.toString().getBytes().length));
         httpconn.setRequestProperty("Content-Type", "application/json");
 
+        // We don't want to wait for the response. If you want the responses, comment the following line
         httpconn.setReadTimeout(10);
 
         httpconn.connect();
@@ -67,23 +69,26 @@ public class DataSender extends DataMaker {
 
         this.getSender().tell(new CountRequestsPlusOne(), this.getSelf());
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                httpconn.getInputStream()));
+        try{
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    httpconn.getInputStream()));
 
-        String inputLine;
-        StringBuffer response = new StringBuffer();
+            String inputLine;
+            StringBuffer response = new StringBuffer();
 
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
 
-        in.close();
+            in.close();
 
-        if (httpconn.getResponseCode() != 201) {
-            this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
-        }
-        else {
-            this.getSender().tell(new CountResponsesPlusOne(), this.getSelf());
+            if (httpconn.getResponseCode() != 201) {
+                this.log.debug("BAD ------------------" + httpconn.getResponseMessage());
+            }
+            else {
+                this.getSender().tell(new CountResponsesPlusOne(), this.getSelf());
+            }
+        }catch (SocketTimeoutException e){
         }
 
         httpconn.disconnect();
