@@ -57,6 +57,8 @@ public class DataSender extends DataMaker {
                 "" + Integer.toString(obj.toString().getBytes().length));
         httpconn.setRequestProperty("Content-Type", "application/json");
 
+        httpconn.setReadTimeout(10);
+
         httpconn.connect();
         DataOutputStream wr = new DataOutputStream(httpconn.getOutputStream());
         wr.writeBytes(obj.toString());
