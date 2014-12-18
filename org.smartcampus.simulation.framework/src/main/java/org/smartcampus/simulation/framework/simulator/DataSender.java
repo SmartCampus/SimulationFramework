@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.Timestamp;
 
 import org.json.JSONObject;
 import org.smartcampus.simulation.framework.messages.CountRequestsPlusOne;
@@ -41,7 +42,9 @@ public class DataSender extends DataMaker {
         JSONObject obj = new JSONObject();
         obj.put("n", sendValue.getName());
         obj.put("v", sendValue.getValue());
-        obj.put("t", String.valueOf(sendValue.getTime()/1000));
+        obj.put("t", String.valueOf(sendValue.getTime() / 1000));
+
+        this.log.debug(sendValue.getName() + " - " + (System.currentTimeMillis() - sendValue.getTime()));
 
         URL url = new URL(this.output);
         HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
