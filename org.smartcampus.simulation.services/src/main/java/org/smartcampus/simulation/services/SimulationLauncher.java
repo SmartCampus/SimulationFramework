@@ -4,9 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartcampus.simulation.framework.fluentapi.StartImpl;
 import org.smartcampus.simulation.framework.fluentapi.simulation.SimulationLawWrapper0;
-import org.smartcampus.simulation.framework.fluentapi.simulation.SimulationLawWrapper1;
 import org.smartcampus.simulation.framework.simulator.SensorTransformation;
-import org.smartcampus.simulation.smartcampus.simulation.ParkingSimulation;
 import org.smartcampus.simulation.stdlib.sensors.RandomBooleanEventSensorTransformation;
 import org.smartcampus.simulation.stdlib.sensors.RandomBooleanSensorTransformation;
 import org.smartcampus.simulation.stdlib.sensors.RandomRateEventSensorTransformation;
@@ -25,7 +23,7 @@ public class SimulationLauncher {
         try {
             virtual = o.getBoolean("virtual");
         } catch (JSONException e) {
-            virtual = false;
+            virtual = true;
         }
 
         SimulationLawWrapper0 simulation;
@@ -46,11 +44,11 @@ public class SimulationLauncher {
         }
         simulation.withSensors(o.getInt("sensors"), t)
                 .withLaw(null)
-                .setOutput("http://"+System.getProperty("middleware.ip") +":8080/collector/value")
-                .startAt(o.getLong("start"))
+                .setOutput("http://" + o.getString("ip") + ":8080/collector/value")
+                .startAt(o.getLong("start")+1000)
                 .duration(Duration.create(o.getLong("duration"), TimeUnit.MILLISECONDS))
                 .frequency(Duration.create(o.getLong("frequency"), TimeUnit.MILLISECONDS))
-                .startRealTimeSimulationAt(o.getLong("start"));
+                .startRealTimeSimulationAt(o.getLong("start")+1000);
     }
 
 }
