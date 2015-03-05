@@ -19,12 +19,7 @@ public class SimulationLauncher {
 
     public static void launchSimulation(String json, boolean events) throws JSONException {
         JSONObject o = new JSONObject(json);
-        boolean virtual;
-        try {
-            virtual = o.getBoolean("virtual");
-        } catch (JSONException e) {
-            virtual = true;
-        }
+        boolean virtual = true;
 
         SimulationLawWrapper0 simulation;
         SensorTransformation t;
@@ -45,10 +40,10 @@ public class SimulationLauncher {
         simulation.withSensors(o.getInt("sensors"), t)
                 .withLaw(null)
                 .setOutput("http://" + o.getString("ip") + ":8080/collector/value")
-                .startAt(o.getLong("start")+1000)
+                .startAt(o.getLong("start") + 1000)
                 .duration(Duration.create(o.getLong("duration"), TimeUnit.MILLISECONDS))
                 .frequency(Duration.create(o.getLong("frequency"), TimeUnit.MILLISECONDS))
-                .startRealTimeSimulationAt(o.getLong("start")+1000);
+                .startRealTimeSimulationAt(o.getLong("start") + 1000);
     }
 
 }
